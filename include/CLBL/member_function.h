@@ -25,63 +25,39 @@ namespace clbl {
         }
     };
 
-    template<
-        typename UnderlyingType, 
-        typename TPtr, 
-        typename MemberFunctionPointerType, 
-        typename Return, 
-        typename... Args
-    >
+    template<typename UnderlyingType, typename TPtr, typename MemberFunctionPointerType, typename Return, typename... Args>
     struct member_function<
-        UnderlyingType, 
-        TPtr, 
-        MemberFunctionPointerType, 
+        UnderlyingType,
+        TPtr,
+        MemberFunctionPointerType,
         Return(UnderlyingType::*)(Args...)
     >
     //CRTP to callable
-    : callable<
-        member_function<UnderlyingType, TPtr, MemberFunctionPointerType, Return(UnderlyingType::*)(Args...)>, 
-        Return(Args...)
-    > {
+    : callable<member_function<UnderlyingType, TPtr, MemberFunctionPointerType, Return(UnderlyingType::*)(Args...)>, Return(Args...)> {
 
         member_function(TPtr o_ptr, MemberFunctionPointerType f_ptr)
             : object_ptr(o_ptr),
             member_function_ptr(f_ptr)
         {}
 
-        /*
-        Using SFINAE to provide the proper operator() signature object. We assume here that 
-        the MemberFunctionPointerType is compatible with the pointed-to object. If it isn't,
-        and the compiler attempts to instantiate operator(), there will be a compile error.
-        This does not (currently) account for ref-qualifiers
-        */
-
-        template<typename T = UnderlyingType, typename = std::enable_if_t<
-            !std::is_const<T>::value && !std::is_volatile<T>::value>>
-        inline Return operator()(Args... a) {
-            /*
-            Did a compiler error bring you here? Make sure you're 
-            not calling a non-const function on a const object
-            */
-            return ((*object_ptr).*member_function_ptr)(a...);
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) {
+            return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
-        template<typename T = UnderlyingType, typename = std::enable_if_t<
-            std::is_const<T>::value && !std::is_volatile<T>::value> >
-        inline Return operator()(Args... a) const {
-            return ((*object_ptr).*member_function_ptr)(a...);
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) const {
+            return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
-        template<typename T = UnderlyingType, typename = std::enable_if_t<
-            !std::is_const<T>::value && std::is_volatile<T>::value> >
-        inline Return operator()(Args... a) volatile {
-            return ((*object_ptr).*member_function_ptr)(a...);
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) volatile {
+            return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
-        template<typename T = UnderlyingType, typename = std::enable_if_t<
-            std::is_const<T>::value && std::is_volatile<T>::value> >
-        inline Return operator()(Args... a) const volatile {
-            return ((*object_ptr).*member_function_ptr)(a...);
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) const volatile {
+            return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
     private:

@@ -32,6 +32,8 @@ void shared_ptr_tests();
 void reference_tests();
 void overload_tests();
 void conversion_tests();
+void forwarding_tests();
+void value_tests();
 
 int main() {
 
@@ -55,4 +57,9 @@ int main() {
     reference_tests();
     overload_tests();
     conversion_tests();
+    forwarding_tests();
+    value_tests();
+
+    std::cout << "Finished.";
+    std::cin.get();
 }

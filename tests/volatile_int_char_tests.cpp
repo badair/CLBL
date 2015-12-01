@@ -2,10 +2,16 @@
 #include "CLBL/func.h"
 #include "int_char_definitions.h"
 
+#include <iostream>
+
 using namespace clbl::tests;
 using namespace clbl;
 
 void volatile_int_char_tests() {
+
+#ifdef CLBL_VOLATILE_INT_CHAR_TESTS
+    std::cout << "running CLBL_VOLATILE_INT_CHAR_TESTS" << std::endl;
+
     {
         volatile volatile_int_char_struct volatile_int_char_object{};
 
@@ -30,12 +36,14 @@ void volatile_int_char_tests() {
         STATIC_TEST(h.arity == g.arity);
         STATIC_TEST(h.arity == 2_c);
 
+#ifdef CLBL_TEST_CAN_CALL
         STATIC_TEST(f.can_call(1, 'c'));
         STATIC_TEST(g.can_call(1.0, 'c'));
         STATIC_TEST(h.can_call(1, 'c'));
         STATIC_TEST(!f.can_call());
         STATIC_TEST(!g.can_call(1));
         STATIC_TEST(!h.can_call(1, some_type{}));
+#endif
 
         STATIC_TEST(h.matches(g));
         STATIC_TEST(g.matches(f));
@@ -55,4 +63,6 @@ void volatile_int_char_tests() {
         auto h = func(&volatilable_int_char_object, &volatile_int_char_struct::func);
         TEST(h(1, 'c') == test_id::volatile_int_char_struct_func);
     }
+
+#endif
 }

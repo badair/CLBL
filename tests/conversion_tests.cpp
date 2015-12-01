@@ -5,6 +5,8 @@
 #include<functional>
 #include<iostream>
 
+#include<iostream>
+
 using namespace clbl::tests;
 using namespace clbl;
 
@@ -17,6 +19,9 @@ void call_std_function(std::function<void()> f) {
 }
 
 void conversion_tests() {
+
+#ifdef CLBL_CONVERSION_TESTS
+    std::cout << "running CLBL_CONVERSION_TESTS" << std::endl;
 
     struct mutable_struct {
         int value;
@@ -38,14 +43,17 @@ void conversion_tests() {
 
         TEST(mutable_object.value == 3);
     }
+
+    /* todo forced "hardening" of templated operator()? hard to do with perfect forwarding
+
     {
         //testing cv-correctness of clbl callables converted to std::function
         auto overloaded_object = overloaded_int_char_struct{};
 
-        auto normal = force<const char*(int, char)>::func(&overloaded_object);
-        auto c = force<const char*(int, char) const>::func(&overloaded_object);
-        auto v = force<const char*(int, char) volatile>::func(&overloaded_object);
-        auto cv = force<const char*(int, char) const volatile>::func(&overloaded_object);
+        auto normal = func(&overloaded_object);
+        auto c = func(&overloaded_object);
+        auto v = func(&overloaded_object);
+        auto cv = func(&overloaded_object);
 
         auto stdn = normal.as<std::function>();
         auto stdc = c.as<std::function>();
@@ -61,20 +69,23 @@ void conversion_tests() {
         TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
         TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        
     }
     {
         //testing cv-correctness of nested clbl callbles converted to std::function
+
         auto overloaded_object = overloaded_int_char_struct{};
 
-        auto normal = force<const char*(int, char)>::func(&overloaded_object);
-        auto c = force<const char*(int, char) const>::func(&overloaded_object);
-        auto v = force<const char*(int, char) volatile>::func(&overloaded_object);
-        auto cv = force<const char*(int, char) const volatile>::func(&overloaded_object);
+        
+        auto normal = func(&overloaded_object);
+        auto c = func(&overloaded_object);
+        auto v = func(&overloaded_object);
+        auto cv = func(&overloaded_object);
 
-        auto nested_normal = force<const char*(int, char)>::func(&normal);
-        auto nested_c = force<const char*(int, char)>::func(&c);
-        auto nested_v = force<const char*(int, char)>::func(&v);
-        auto nested_cv = force<const char*(int, char)>::func(&cv);
+        auto nested_normal = func(&normal);
+        auto nested_c = func(&c);
+        auto nested_v = func(&v);
+        auto nested_cv = func(&cv);
 
         auto stdn = nested_normal.as<std::function>();
         auto stdc = nested_c.as<std::function>();
@@ -91,4 +102,8 @@ void conversion_tests() {
         TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
+
+    */
+
+#endif
 }

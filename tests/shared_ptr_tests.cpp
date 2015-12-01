@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 using namespace clbl::tests;
 using namespace clbl;
@@ -26,6 +27,9 @@ struct scope_test {
 
 void shared_ptr_tests() {
 
+#ifdef CLBL_SHARED_PTR_TESTS
+    std::cout << "running CLBL_SHARED_PTR_TESTS" << std::endl;
+
     std::stringstream ss{};
 
     {
@@ -43,4 +47,6 @@ void shared_ptr_tests() {
     }
 
     TEST(ss.str() == destroyed_message);
+
+#endif
 }

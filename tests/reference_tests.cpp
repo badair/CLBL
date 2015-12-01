@@ -2,6 +2,7 @@
 #include "test.h"
 
 #include <memory>
+#include <iostream>
 
 using namespace clbl::tests;
 using namespace clbl;
@@ -32,6 +33,9 @@ namespace ref_tests {
 }
 
 void reference_tests() {
+
+#ifdef CLBL_REFERENCE_ARG_TESTS
+    std::cout << "running CLBL_REFERENCE_ARG_TESTS" << std::endl;
 
     using mutable_struct = ref_tests::mutable_struct;
 
@@ -85,5 +89,7 @@ void reference_tests() {
             TEST(mutable_object_ptr->value == 3);
         }
     }
+
+#endif
 }
 

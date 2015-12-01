@@ -2,10 +2,15 @@
 #include "CLBL/func.h"
 #include "int_definitions.h"
 
+#include <iostream>
+
 using namespace clbl::tests;
 using namespace clbl;
 
 void constable_int_tests() {
+
+#ifdef CLBL_CONSTABLE_INT_TESTS
+    std::cout << "running CLBL_CONSTABLE_INT_TESTS" << std::endl;
 
     auto constable_int_object = const_int_struct{};
 
@@ -30,12 +35,14 @@ void constable_int_tests() {
     STATIC_TEST(h.arity == g.arity);
     STATIC_TEST(h.arity == 1_c);
 
+#ifdef CLBL_TEST_CAN_CALL
     STATIC_TEST(f.can_call(1));
     STATIC_TEST(g.can_call(1));
     STATIC_TEST(h.can_call(1));
     STATIC_TEST(!f.can_call(some_type{}));
     STATIC_TEST(!g.can_call(some_type{}));
     STATIC_TEST(!h.can_call());
+#endif
 
     STATIC_TEST(h.matches(g));
     STATIC_TEST(g.matches(f));
@@ -43,5 +50,7 @@ void constable_int_tests() {
 
     auto int_char_object = int_char_struct{};
     STATIC_TEST(!f.matches(func(&int_char_object)));
+
+#endif
 }
 

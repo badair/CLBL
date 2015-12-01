@@ -2,10 +2,16 @@
 #include "CLBL/func.h"
 #include "void_definitions.h"
 
+#include<iostream>
+
 using namespace clbl::tests;
 using namespace clbl;
 
 void void_tests() {
+
+#ifdef CLBL_VOID_TESTS
+    std::cout << "running CLBL_VOID_TESTS" << std::endl;
+
     void_struct void_object{};
 
     auto f = func(&void_object);
@@ -29,15 +35,19 @@ void void_tests() {
     STATIC_TEST(h.arity == g.arity);
     STATIC_TEST(h.arity == 0_c);
 
+#ifdef CLBL_TEST_CAN_CALL
     STATIC_TEST(!f.can_call(1));
     STATIC_TEST(!g.can_call(1));
     STATIC_TEST(!h.can_call(1));
     STATIC_TEST(f.can_call());
     STATIC_TEST(g.can_call());
     STATIC_TEST(h.can_call());
+#endif
 
     STATIC_TEST(h.matches(g));
     STATIC_TEST(g.matches(f));
     STATIC_TEST(!g.matches(func(&int_char_func)));
     STATIC_TEST(!f.matches(func(&some_callable_object)));
+
+#endif
 }

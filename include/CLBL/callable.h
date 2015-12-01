@@ -14,7 +14,7 @@ namespace clbl {
         //operator() call checker used by can_call_impl below
         template<typename T, typename... Args>
         auto can_call_v = hana::is_valid([](auto&&... args) 
-                -> decltype((std::declval<T>()).operator()(std::forward<Args>(args)...)) {}
+                -> decltype(std::declval<T>()(std::forward<Args>(args)...)) {}
             );
 
         template<typename CallableDerived>
@@ -91,7 +91,7 @@ namespace clbl {
 
         static constexpr auto args_tuple = hana::make_tuple();
         static constexpr auto return_type = hana::type_c<Return>;
-        static constexpr auto arity = 0_c;
+        static constexpr auto arity = hana::int_c<sizeof...(Args)>;
     };
 }
 

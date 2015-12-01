@@ -1,7 +1,7 @@
 #ifndef CLBL_FREE_FUNCTION_H
 #define CLBL_FREE_FUNCTION_H
 
-#include "callable.h"
+#include "CLBL/callable.h"
 
 namespace clbl {
 
@@ -26,7 +26,11 @@ namespace clbl {
     struct free_function<Return(Args...)> : callable<free_function<Return(Args...)>, Return(Args...)> {
 
         free_function(Return(*f_ptr)(Args...)) : function_ptr(f_ptr) {}
-        inline Return operator()(Args... a) const { return (*function_ptr)(a...); }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) const { 
+            return (*function_ptr)(std::forward<Fargs>(a)...); 
+        }
 
     private:
         Return(*function_ptr)(Args...);
@@ -36,7 +40,11 @@ namespace clbl {
     struct free_function<Return(Args..., ...)> : callable<free_function<Return(Args..., ...)>, Return(Args..., ...)> {
 
         free_function(Return(*p)(Args..., ...)) : function_ptr(p) {}
-        inline Return operator()(Args... args, ...) const { return (*function_ptr)(args..., ...); }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... args, ...) const { 
+            return (*function_ptr)(std::forward<Fargs>(a)..., ...); 
+        }
 
     private:
         Return(*function_ptr)(Args..., ...);
