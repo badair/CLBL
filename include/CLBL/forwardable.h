@@ -1,3 +1,6 @@
+#ifndef CLBL_FORWARDABLE_H
+#define CLBL_FORWARDABLE_H
+
 namespace clbl {
 
     namespace detail {
@@ -20,3 +23,5 @@ namespace clbl {
     template<typename T>
     using forwardable = typename detail::forwardable_t<T>::type;
 }
+
+#endif

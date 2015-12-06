@@ -27,6 +27,8 @@ namespace clbl { namespace tests {
     namespace test_id { constexpr auto volatile_void_struct_op = "volatile_void_struct::operator()() volatile"; }
 
     struct volatile_void_struct {
+        inline volatile_void_struct() {}
+        inline volatile_void_struct(const volatile_void_struct&) {}
         inline const char* func() volatile { return test_id::volatile_void_struct_func; };
         inline const char* operator()() volatile { return test_id::volatile_void_struct_op; };
     };

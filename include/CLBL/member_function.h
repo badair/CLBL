@@ -3,6 +3,8 @@
 
 #include <type_traits>
 
+#include "CLBL/cv_checks.h"
+
 namespace clbl {
 
     //dispatch failure case for member functions
@@ -59,6 +61,12 @@ namespace clbl {
             return (object.*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
+        static constexpr auto clbl_is_const = is_clbl_const<std::remove_reference_t<T> >() 
+                                                    || std::is_const<std::remove_reference_t<T> >::value;
+
+        static constexpr auto clbl_is_volatile = is_clbl_volatile<std::remove_reference_t<T> >() 
+                                                    || std::is_volatile<std::remove_reference_t<T> >::value;
+
     private:
         T object;
         MemberFunctionPointerType member_function_ptr;
@@ -98,6 +106,12 @@ namespace clbl {
             member_function_ptr(f_ptr)
         {}
 
+        using my_type = member_function_of_ptr<UnderlyingType, TPtr, MemberFunctionPointerType, Return(UnderlyingType::*)(Args...)>;
+        member_function_of_ptr(const my_type&) = default;
+        member_function_of_ptr(my_type&) = default;
+        member_function_of_ptr(my_type&&) = default;
+
+
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) {
             return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
@@ -109,7 +123,7 @@ namespace clbl {
         }
 
         template<typename... Fargs>
-        inline Return operator()(Fargs&&... a) volatile {
+        inline auto operator()(Fargs&&... a) volatile {
             return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
 
@@ -117,6 +131,12 @@ namespace clbl {
         inline Return operator()(Fargs&&... a) const volatile {
             return ((*object_ptr).*member_function_ptr)(std::forward<Fargs>(a)...);
         }
+
+        static constexpr auto clbl_is_const = is_clbl_const<std::remove_reference_t<decltype(*std::declval<TPtr>())> >() 
+                                                || std::is_const<std::remove_reference_t<decltype(*std::declval<TPtr>())> >::value;
+
+        static constexpr auto clbl_is_volatile = is_clbl_volatile<std::remove_reference_t<decltype(*std::declval<TPtr>())> >() 
+                                                || std::is_volatile<std::remove_reference_t<decltype(*std::declval<TPtr>())> >::value;
 
     private:
         TPtr object_ptr;

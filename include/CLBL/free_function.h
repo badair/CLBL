@@ -28,14 +28,27 @@ namespace clbl {
         free_function(Return(*f_ptr)(Args...)) : function_ptr(f_ptr) {}
 
         template<typename... Fargs>
-        inline Return operator()(Fargs&&... a) const { 
+        inline Return operator()(Fargs&&... a) { 
             return (*function_ptr)(std::forward<Fargs>(a)...); 
         }
 
         template<typename... Fargs>
-        inline Return operator()(Fargs&&... a) {
+        inline Return operator()(Fargs&&... a) const {
             return (*function_ptr)(std::forward<Fargs>(a)...);
         }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) volatile {
+            return (*function_ptr)(std::forward<Fargs>(a)...);
+        }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) const volatile {
+            return (*function_ptr)(std::forward<Fargs>(a)...);
+        }
+
+        static constexpr auto clbl_is_const = false;
+        static constexpr auto clbl_is_volatile = false;
 
     private:
         Return(*function_ptr)(Args...);
@@ -47,14 +60,26 @@ namespace clbl {
         free_function(Return(*p)(Args..., ...)) : function_ptr(p) {}
 
         template<typename... Fargs>
-        inline Return operator()(Fargs&&... args, ...) const { 
+        inline Return operator()(Fargs&&... args, ...) { 
             return (*function_ptr)(std::forward<Fargs>(a)..., ...); 
         }
 
         template<typename... Fargs>
-        inline Return operator()(Fargs&&... args, ...) {
+        inline Return operator()(Fargs&&... args, ...) const {
             return (*function_ptr)(std::forward<Fargs>(a)..., ...);
         }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... args, ...) volatile {
+            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
+        }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... args, ...) const volatile {
+            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
+        }
+        static constexpr auto clbl_is_const = false;
+        static constexpr auto clbl_is_volatile = false;
 
     private:
         Return(*function_ptr)(Args..., ...);

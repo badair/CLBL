@@ -158,17 +158,17 @@ namespace clbl {
             member_function_of_ptr<
                 CLBL_UNDERLYING_TYPE_OF_PTR(T),
                 T,
-                decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator()),
-                member_function_decay<decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator())>
+                decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator()),
+                member_function_decay<decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator())>
             > 
         > {
 
         return member_function_of_ptr<
             CLBL_UNDERLYING_TYPE_OF_PTR(T),
             T,
-            decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator()),
-            member_function_decay<decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator())>
-        >{ std::forward<T>(t), &CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator() };
+            decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator()),
+            member_function_decay<decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator())>
+        >{ std::forward<T>(t), &std::remove_reference_t<decltype(*std::declval<T>())>::operator() };
     }
 
     template<typename T>
@@ -177,17 +177,17 @@ namespace clbl {
             member_function<
                 CLBL_UNDERLYING_TYPE(T),
                 T,
-                decltype(&CLBL_UNDERLYING_TYPE(T)::operator()),
-                member_function_decay<decltype(&CLBL_UNDERLYING_TYPE(T)::operator())>
+                decltype(&std::remove_reference_t<decltype(std::declval<T>())>::operator()),
+                member_function_decay<decltype(&std::remove_reference_t<decltype(std::declval<T>())>::operator())>
             >
         > {
 
         return member_function<
             CLBL_UNDERLYING_TYPE(T),
             T,
-            decltype(&CLBL_UNDERLYING_TYPE(T)::operator()),
-            member_function_decay<decltype(&CLBL_UNDERLYING_TYPE(T)::operator())>
-        >{ std::forward<T>(t), &CLBL_UNDERLYING_TYPE(T)::operator() };
+            decltype(&std::remove_reference_t<decltype(std::declval<T>())>::operator()),
+            member_function_decay<decltype(&std::remove_reference_t<decltype(std::declval<T>())>::operator())>
+        >{std::forward<T>(t), &std::remove_reference_t<decltype(std::declval<T>())>::operator()};
     }
 
     template<typename T>
