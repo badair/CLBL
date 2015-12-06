@@ -10,10 +10,10 @@ namespace clbl {
     template<typename UnderlyingType, typename TPtr>
     struct overloaded_function_object_ptr
         //CRTP to callable
-        : callable<overloaded_function_object_ptr<UnderlyingType, TPtr>, overloaded_return_type(overloaded_arguments)> {
+        : callable<overloaded_function_object_ptr<UnderlyingType, TPtr>, ambiguous_return(ambiguous_args)> {
 
-        overloaded_function_object_ptr(TPtr o_ptr)
-            : ptr(o_ptr)
+        overloaded_function_object_ptr(TPtr&& o_ptr)
+            : ptr(std::forward<TPtr>(o_ptr))
         {}
 
         template<typename... Fargs>

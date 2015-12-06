@@ -35,7 +35,7 @@ void conversion_tests() {
         //testing object reference preservation when converted to std::function
         auto mutable_object = mutable_struct{ 0 };
         auto f = func(&mutable_object, &mutable_struct::increment);
-        auto stdf = f.as<std::function>();
+        auto stdf = convert_to<std::function>(f);
 
         f();
         stdf();

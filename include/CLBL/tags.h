@@ -5,8 +5,8 @@
 
 namespace clbl {
 
-    struct overloaded_return_type {};
-    struct overloaded_arguments {};
+    struct ambiguous_return {};
+    struct ambiguous_args {};
 }
 
 #endif

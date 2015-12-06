@@ -9,7 +9,7 @@ namespace clbl {
     template<typename T>
     struct overloaded_function_object
         //CRTP to callable
-        : callable<overloaded_function_object<T>, overloaded_return_type(overloaded_arguments)> {
+        : callable<overloaded_function_object<T>, ambiguous_return(ambiguous_args)> {
 
         overloaded_function_object(T o)
             : obj(o)
@@ -42,7 +42,7 @@ namespace clbl {
     template<typename UnderlyingType, typename TPtr>
     struct overloaded_function_object_ptr
         //CRTP to callable
-        : callable<overloaded_function_object_ptr<UnderlyingType, TPtr>, overloaded_return_type(overloaded_arguments)> {
+        : callable<overloaded_function_object_ptr<UnderlyingType, TPtr>, ambiguous_return(ambiguous_args)> {
 
         overloaded_function_object_ptr(TPtr o_ptr)
             : ptr(o_ptr)

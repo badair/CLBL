@@ -32,7 +32,7 @@ namespace ref_tests {
     }
 }
 
-void reference_tests() {
+void reference_arg_tests() {
 
 #ifdef CLBL_REFERENCE_ARG_TESTS
     std::cout << "running CLBL_REFERENCE_ARG_TESTS" << std::endl;

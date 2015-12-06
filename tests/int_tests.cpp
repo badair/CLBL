@@ -13,42 +13,41 @@ void int_tests() {
     std::cout << "running CLBL_INT_TESTS" << std::endl;
 
     int_struct int_object{};
-    int_char_struct int_char_object{};
 
     auto f = func(&int_object);
-    TEST(f(1) == test_id::int_struct_op);
-
     auto g = func(&int_func);
-    TEST(g(1) == test_id::int_func);
-
     auto h = func(&int_object, &decltype(int_object)::func);
-    TEST(h(1) == test_id::int_struct_func);
+    auto hardened_f = harden<const char*(int)>(f);
+    auto hardened_g = harden<const char*(int)>(g);
+    auto hardened_h = harden<const char*(int)>(h);
+    auto default_hardened_f = harden(f);
+    auto default_hardened_g = harden(g);
+    auto default_hardened_h = harden(h);
 
-    STATIC_TEST(f.return_type == g.return_type);
-    STATIC_TEST(h.return_type == g.return_type);
-    STATIC_TEST(f.return_type == hana::type_c<const char*>);
+    static_assert(std::is_same<decltype(f)::type, const char*(int)>::value, "std::is_same<decltype(f)::type, const char*(int)>::value");
 
-    STATIC_TEST(f.args_tuple == g.args_tuple);
-    STATIC_TEST(h.args_tuple == g.args_tuple);
-    STATIC_TEST(f.args_tuple == hana::tuple_t<int>);
+    run_tests(
+        f, test_id::int_struct_op,
+        g, test_id::int_func,
+        h, test_id::int_struct_func,
+        1
+    );
 
-    STATIC_TEST(f.arity == g.arity);
-    STATIC_TEST(h.arity == g.arity);
-    STATIC_TEST(h.arity == 1_c);
+    run_tests(
+        hardened_f, test_id::int_struct_op,
+        hardened_g, test_id::int_func,
+        hardened_h, test_id::int_struct_func,
+        1
+        );
 
-#ifdef CLBL_TEST_CAN_CALL
-    STATIC_TEST(f.can_call(1));
-    STATIC_TEST(g.can_call(1));
-    STATIC_TEST(h.can_call(1));
-    STATIC_TEST(!f.can_call(some_type{}));
-    STATIC_TEST(!g.can_call(some_type{}));
-    STATIC_TEST(!h.can_call(some_type{}));
-#endif
+    run_tests(
+        default_hardened_f, test_id::int_struct_op,
+        default_hardened_g, test_id::int_func,
+        default_hardened_h, test_id::int_struct_func,
+        1
+    );
 
-    STATIC_TEST(h.matches(g));
-    STATIC_TEST(g.matches(f));
-    STATIC_TEST(!g.matches(func(&void_func)));
-    STATIC_TEST(!f.matches(func(&int_char_object)));
+
 
 #endif
 }

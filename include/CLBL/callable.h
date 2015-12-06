@@ -4,6 +4,9 @@
 #include <boost/hana.hpp>
 #include <type_traits>
 
+#include "CLBL/func.h"
+#include "CLBL/tags.h"
+
 namespace hana = boost::hana;
 using namespace hana::literals;
 
@@ -13,86 +16,89 @@ namespace clbl {
 
         //operator() call checker used by can_call_impl below
         template<typename T, typename... Args>
-        auto can_call_v = hana::is_valid([](auto&&... args) 
-                -> decltype(std::declval<T>()(std::forward<Args>(args)...)) {}
-            );
+        auto can_call_v = hana::is_valid([](auto&&... args)
+            -> decltype(std::declval<T>()(std::forward<Args>(args)...)) {}
+        );
 
         template<typename CallableDerived>
         struct can_call_impl {
-            
+
             /*
             Returns a true type when passing arguments to the CallableDerived operator()
             does not result in a compiler error, otherwise a returns a false type
             */
 
             template<typename... Args>
-            inline constexpr auto can_call(Args&&... args) { 
-                return can_call_v<CallableDerived, Args...>(std::forward<Args>(args)...); 
+            inline constexpr auto can_call(Args&&... args) {
+                return can_call_v<CallableDerived, Args...>(std::forward<Args>(args)...);
             }
         };
 
-        template<typename CallableDerived>
-        struct matches_impl {
+        template<typename T>
+        auto unwrap(T&& t) {
+            return std::forward<T>(t);
+        }
 
-            /*
-            performs a strict comparison against another callable type. Returns a 
-            true type if the return type and arguments match exactly. 
-            */
+        template<>
+        template<typename T>
+        T& unwrap(std::reference_wrapper<T> t) {
+            return T.get();
+        }
 
-            template<typename OtherCallable>
-            inline constexpr auto matches(OtherCallable c) { 
-                return hana::bool_<std::is_same<typename OtherCallable::type, 
-                                                typename CallableDerived::type
-                                               >::value>{};
+        struct partial_t {
+            template<typename Callable, typename... Args>
+            inline auto operator()(Callable c, Args... args) {
+                return func(hana::partial(std::move(c), unwrap(args)...));
             }
         };
 
-        template<typename CallableDerived>
-        struct as_impl {
+        //todo test partial
 
-            //convert a clbl callable object to a type-erased std::function object (or boost::function?)
+        template<typename T>
+        constexpr partial_t partial{};
 
-            template<template<class> class TypeErasedFunctionTemplate>
-            inline auto as() {
-                return TypeErasedFunctionTemplate<typename CallableDerived::type>{*static_cast<CallableDerived*>(this)};
-            };
-        };
+        /*
+            //todo .reorder() member function creates a new callable with the arguments reordered
+        */
+
+        /*
+        todo .bind(Args...) function on callable that returns a new callable with certain arguments bound from left to right
+        by default, with specializations for indexed_argument_bind arguments
+        */
+
+        /*
+        todo free function bind_arg(i, arg) creates an indexed_argument_bind for passing to .bind()
+        */
+
+        /*
+        todo .harden<function_type>() member function to specify valid function argument types
+        design a mechanism for "overloading" .harden()-ed callables by calling .overload()
+
+        make sure to forward args to hardened callables while allowing user to not worry about
+        reference types. This will be the trickiest part
+        */
+
+        /*
+        todo ellipses specializations for all callable implementations
+        */
     }
+
+    
 
     //dispatch failure case
     template<typename, typename Bad>
     struct callable { static_assert(sizeof(Bad) < 0, "Not a valid callable type."); };
 
+    //todo specialize for ambiguous case - allow arity to be passed? 
+
     //callable is the end result of a func(...) call
     template<typename Derived, typename Return, typename... Args>
-    struct callable<Derived, Return(Args...)>
-        : detail::can_call_impl<Derived>,
-          detail::matches_impl<Derived>,
-          detail::as_impl<Derived> {
+    struct callable<Derived, Return(Args...)> {
 
         using type = Return(Args...);
         using args_t = hana::tuple<Args...>;
         using return_t = Return;
-
-        static constexpr auto args_tuple = hana::tuple_t<Args...>;
-        static constexpr auto return_type = hana::type_c<Return>;
-        static constexpr auto arity = hana::int_c<sizeof...(Args)>;
-    };
-
-    template<typename Derived, typename Return, typename... Args>
-    struct callable<Derived, Return(Args..., ...)>
-        : detail::can_call_impl<Derived>,
-        detail::matches_impl<Derived>,
-        detail::as_impl<Derived> {
-
-        using type = Return(Args..., ...);
-        using args_t = decltype(hana::make_tuple());
-        using return_t = Return;
-
-        static constexpr auto args_tuple = hana::make_tuple();
-        static constexpr auto return_type = hana::type_c<Return>;
-        static constexpr auto arity = hana::int_c<sizeof...(Args)>;
-    };
+    };//todo ellipses
 }
 
 #endif

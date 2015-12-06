@@ -1,20 +1,34 @@
 #ifndef CLBL_FUNC_H
 #define CLBL_FUNC_H
 
-#include "CLBL/callable.h"
+#include "CLBL/convert_to.h"
+#include "CLBL/harden.h"
 #include "CLBL/free_function.h"
 #include "CLBL/member_function.h"
 #include "CLBL/overloaded_function_object.h"
 #include "CLBL/overloaded_function_object_ptr.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/tags.h"
-#include "CLBL/dispatch.h"
 
 #include <type_traits>
 #include <functional>
 
 namespace clbl {
     namespace detail {
+
+        /* todo why does this not work but the macro does?
+        template<typename T>
+        struct underlying_type_t{
+            using type = std::remove_cv_t<std::remove_reference_t<decltype(*std::declval<T>())> >;
+        };
+
+        template<typename T>
+        using underlying_type = typename underlying_type_t<T>::type;
+        */
+
+#define CLBL_UNDERLYING_TYPE_OF_PTR(T) std::remove_cv_t<std::remove_reference_t<decltype(*std::declval<T>())> >
+#define CLBL_UNDERLYING_TYPE(T) std::remove_cv_t<std::remove_reference_t<T> >
+
 
         template<typename T>
         struct is_reference_wrapper_t : std::false_type {};
@@ -36,9 +50,13 @@ namespace clbl {
         };
 
         auto has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
+        auto ptr_has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&std::remove_reference_t<decltype(*arg)>::operator()) {});
 
         template<typename T>
         constexpr bool has_normal_call_operator = decltype(has_normal_call_operator_impl(std::declval<T>()))::value;
+
+        template<typename T>
+        constexpr bool ptr_has_normal_call_operator = decltype(ptr_has_normal_call_operator_impl(std::declval<T>()))::value;
 
         auto can_dereference_impl = hana::is_valid([](auto arg)->decltype(*arg) {});
 
@@ -48,93 +66,156 @@ namespace clbl {
         template<typename T> 
         struct sfinae_switch {
         private:
-            static constexpr auto is_ptr = can_dereference<T>;
-            static constexpr auto is_ref_wrapper = detail::is_reference_wrapper<T>;
+            
+            static constexpr auto is_ref_wrapper = is_reference_wrapper<T>;
             static constexpr auto is_overloaded = !has_normal_call_operator<T>;
+            static constexpr auto ptr_is_overloaded = !ptr_has_normal_call_operator<T>;
+            static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<T> >::value;
+            static constexpr auto is_member_function_ptr = std::is_member_function_pointer<T>::value;
 
         public:
-            static constexpr auto ptr_case = is_ptr;
-            static constexpr auto function_object_case = !is_ptr && !is_ref_wrapper && !is_overloaded;
-            static constexpr auto overloaded_function_object_case = !is_ptr && !is_ref_wrapper && is_overloaded;
+            static constexpr auto is_ptr = can_dereference<T>;
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
-        };
+            static constexpr auto function_ptr_case = is_function_ptr;
+            static constexpr auto member_function_ptr_case = !is_function_ptr && is_member_function_ptr;
 
-        template<typename TPtr, typename TMemberFnPtr>
-        struct dispatch_context_for_ptr {
+        private:
+            static constexpr auto is_complex_case = !reference_wrapper_case && !function_ptr_case && !member_function_ptr_case;
 
-            using underlying_type = std::remove_cv_t<std::remove_reference_t<decltype(*std::declval<TPtr>())> >;
+        public:
+            static constexpr auto function_object_case =                is_complex_case && !is_ptr && !is_overloaded;
+            static constexpr auto overloaded_function_object_case =     is_complex_case && !is_ptr && is_overloaded;
 
-            static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<TPtr> >::value;
-            static constexpr auto is_member_function_ptr = std::is_member_function_pointer<TMemberFnPtr>::value;
-            static constexpr auto is_function_object_ptr = !is_function_ptr
-                && !is_member_function_ptr
-                && detail::has_normal_call_operator<underlying_type>;
-
-            static constexpr auto is_normal = is_function_ptr || is_member_function_ptr || is_function_object_ptr;
-
-            using function_object_type = std::conditional_t<is_function_object_ptr, underlying_type, null_function_object>;
-
-            using call_operator_type = decltype(&function_object_type::operator());
-            static constexpr auto call_operator_ptr = &function_object_type::operator();
+            static constexpr auto function_object_ptr_case =            is_complex_case && is_ptr && !ptr_is_overloaded;
+            static constexpr auto overloaded_function_object_ptr_case = is_complex_case && is_ptr &&  ptr_is_overloaded;
         };
     }
 
-    template<typename TPtr, typename TMemberFnPtr = nullptr_t, 
-        typename = std::enable_if_t<detail::sfinae_switch<TPtr>::ptr_case, void> >
-    constexpr auto func(TPtr tptr, TMemberFnPtr member_fn_ptr = nullptr) {
+    template<typename T>
+    constexpr auto func(T&& t)
+        -> std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case,
+            free_function<std::remove_reference_t<std::remove_pointer_t<T> > >
+        > {
+        return free_function<std::remove_reference_t<std::remove_pointer_t<T> > >{ std::forward<T>(t) };
+    }
 
-        using context = detail::dispatch_context_for_ptr<TPtr, TMemberFnPtr>;
+    template<typename T, typename TMemberFnPtr>
+    constexpr auto func(T&& t, TMemberFnPtr member_fn_ptr) ->
+        std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
+                         && detail::sfinae_switch<T>::is_ptr,
+        member_function_of_ptr<
+        CLBL_UNDERLYING_TYPE_OF_PTR(T),
+        T,
+        TMemberFnPtr,
+        member_function_decay<TMemberFnPtr>
+        >
+        > {
 
-        using underlying_type = typename context::underlying_type;
-        using function_object_type = typename context::function_object_type;
-        using call_operator_type = typename context::call_operator_type;
-
-        auto free_function_result = free_function<std::remove_pointer_t<TPtr> >{ tptr };
-
-        auto member_function_result = member_function<
-            underlying_type,
-            TPtr,
+        return member_function_of_ptr<
+            CLBL_UNDERLYING_TYPE_OF_PTR(T),
+            T,
             TMemberFnPtr,
             member_function_decay<TMemberFnPtr>
-        >{ tptr, member_fn_ptr };
+        >{ std::forward<T>(t), member_fn_ptr };
+    }
 
-        auto function_object_result = member_function<
-            function_object_type,
-            TPtr,
-            call_operator_type,
-            member_function_decay<call_operator_type>
-        >{ tptr, context::call_operator_ptr };
+    template<typename T, typename TMemberFnPtr>
+    constexpr auto func(T&& t, TMemberFnPtr member_fn_ptr) ->
+        std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
+                         && !detail::sfinae_switch<T>::is_ptr 
+                         && !detail::sfinae_switch<T>::reference_wrapper_case,
+        member_function<
+        CLBL_UNDERLYING_TYPE(T),
+        T,
+        TMemberFnPtr,
+        member_function_decay<TMemberFnPtr>
+        >
+        > {
 
-        auto overloaded_function_object_ptr_result = overloaded_function_object_ptr<underlying_type, TPtr>{ tptr };
-
-        return detail::dispatch<context::is_function_ptr, context::is_member_function_ptr,
-            context::is_function_object_ptr, !context::is_normal>::result(
-            free_function_result, member_function_result, function_object_result, overloaded_function_object_ptr_result);
+        return member_function<
+            CLBL_UNDERLYING_TYPE(T),
+            T,
+            TMemberFnPtr,
+            member_function_decay<TMemberFnPtr>
+        >{ std::forward<T>(t), member_fn_ptr };
     }
 
     template<typename T>
-    constexpr auto func(T&& t) -> std::enable_if_t<detail::sfinae_switch<T>::function_object_case,
-        decltype(overloaded_function_object<T>{std::forward<T>(t)})> {
+    constexpr auto func(T&& t)
+        -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_ptr_case,
+        overloaded_function_object_ptr<CLBL_UNDERLYING_TYPE_OF_PTR(T), T>
+        > {
 
-        /*
-        todo make version of member_function that takes an object instead of
-        an object ptr so that we can extract the return type and arguments.
-        also need to make a by-value version that accepts member functions 
-        */
+        return overloaded_function_object_ptr<
+            CLBL_UNDERLYING_TYPE_OF_PTR(T), 
+            T
+        >{ std::forward<T>(t) };
+    }
+
+    template<typename T>
+    constexpr auto func(T&& t)
+        -> std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case,
+            member_function_of_ptr<
+                CLBL_UNDERLYING_TYPE_OF_PTR(T),
+                T,
+                decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator()),
+                member_function_decay<decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator())>
+            > 
+        > {
+
+        return member_function_of_ptr<
+            CLBL_UNDERLYING_TYPE_OF_PTR(T),
+            T,
+            decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator()),
+            member_function_decay<decltype(&CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator())>
+        >{ std::forward<T>(t), &CLBL_UNDERLYING_TYPE_OF_PTR(T)::operator() };
+    }
+
+    template<typename T>
+    constexpr auto func(T&& t) 
+        -> std::enable_if_t<detail::sfinae_switch<T>::function_object_case,
+            member_function<
+                CLBL_UNDERLYING_TYPE(T),
+                T,
+                decltype(&CLBL_UNDERLYING_TYPE(T)::operator()),
+                member_function_decay<decltype(&CLBL_UNDERLYING_TYPE(T)::operator())>
+            >
+        > {
+
+        return member_function<
+            CLBL_UNDERLYING_TYPE(T),
+            T,
+            decltype(&CLBL_UNDERLYING_TYPE(T)::operator()),
+            member_function_decay<decltype(&CLBL_UNDERLYING_TYPE(T)::operator())>
+        >{ std::forward<T>(t), &CLBL_UNDERLYING_TYPE(T)::operator() };
+    }
+
+    template<typename T>
+    constexpr auto func(T&& t) 
+        -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_case,
+            overloaded_function_object<T> 
+        > {
 
         return overloaded_function_object<T>{std::forward<T>(t)};
     }
 
     template<typename T>
-    constexpr auto func(T&& t) -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_case,
-        decltype(overloaded_function_object<T>{std::forward<T>(t)})> {
-        return overloaded_function_object<T>{std::forward<T>(t)};
-    }
+    constexpr auto func(T&& t) 
+        -> std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case,
+            decltype(func(&t.get()))
+        > {
 
-    template<typename T>
-    constexpr auto func(T&& t) -> std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case,
-        decltype(func(&t.get()))> {
         return func(&t.get());
+    }
+
+    template<typename T, typename TMemberFnPtr>
+    constexpr auto func(T t, TMemberFnPtr ptr)
+        -> std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && 
+                            detail::sfinae_switch<T>::reference_wrapper_case,
+        decltype(func(&t.get()))
+        > {
+
+        return func(&t.get(), ptr);
     }
 }
 

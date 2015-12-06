@@ -32,6 +32,11 @@ namespace clbl {
             return (*function_ptr)(std::forward<Fargs>(a)...); 
         }
 
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... a) {
+            return (*function_ptr)(std::forward<Fargs>(a)...);
+        }
+
     private:
         Return(*function_ptr)(Args...);
     };
@@ -44,6 +49,11 @@ namespace clbl {
         template<typename... Fargs>
         inline Return operator()(Fargs&&... args, ...) const { 
             return (*function_ptr)(std::forward<Fargs>(a)..., ...); 
+        }
+
+        template<typename... Fargs>
+        inline Return operator()(Fargs&&... args, ...) {
+            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
         }
 
     private:
