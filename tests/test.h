@@ -40,6 +40,10 @@ namespace clbl { namespace tests {
 #define CLBL_VOLATILE_INT_CHAR_TESTS
 #define CLBL_VOLATILE_VOID_TESTS
 
+#define STATIC_ASSERT_CLBL_CONST(x) static_assert(decltype(x)::clbl_is_const, "Should be clbl const - the object inside IS const.")
+#define STATIC_ASSERT_CLBL_VOLATILE(x) static_assert(decltype(x)::clbl_is_volatile, "Should be clbl volatile - the object inside IS volatile.")
+#define STATIC_ASSERT_NOT_CLBL_CONST(x) static_assert(!decltype(x)::clbl_is_const, "Should not be clbl const - the object inside is NOT const.")
+#define STATIC_ASSERT_NOT_CLBL_VOLATILE(x) static_assert(!decltype(x)::clbl_is_volatile, "Should not be clbl volatile - the object inside is NOT volatile.")
 
 template<typename F, typename G, typename H, typename... Args>
 void run_tests(

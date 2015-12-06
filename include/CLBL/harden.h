@@ -66,10 +66,10 @@ namespace clbl {
                 }
 
                 __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_no_cv, CLBL_NOTHING)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_c, const)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_v, volatile)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_cv, const volatile)
-                    //todo ellipses, ref qualifiers
+                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_c, const)
+                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_v, volatile)
+                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_cv, const volatile)
+                //todo ellipses, ref qualifiers
 
 #define __CLBL_SPECIALIZE_DEFAULT_HARDEN(expr, fn) \
                 template<typename Callable> \
@@ -77,7 +77,7 @@ namespace clbl {
                     expr, \
                     decltype(fn(std::forward<Callable>(c)))> { \
                     static_assert(!std::is_same<typename std::remove_reference_t<Callable>::return_t, ambiguous_return>::value, \
-                        "Unable to disambiguate. Please specify a function type with clbl::harden<Return(Arg1, Arg2, ...)>() "); \
+                        "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
                     return fn(std::forward<Callable>(c)); \
                 } \
                 template<typename Callable> \
@@ -85,17 +85,15 @@ namespace clbl {
                     expr, \
                     decltype(fn(c))> { \
                     static_assert(!std::is_same<Callable::return_t, ambiguous_return>::value, \
-                        "Unable to disambiguate. Please specify a function type with clbl::harden<Return(Arg1, Arg2, ...)>() "); \
+                        "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
                     return fn(c); \
                 }
 
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_const && std::remove_reference_t<Callable>::clbl_is_volatile, harden_cv)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_const && !std::remove_reference_t<Callable>::clbl_is_volatile, harden_c)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_const && std::remove_reference_t<Callable>::clbl_is_volatile, harden_v)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_const && !std::remove_reference_t<Callable>::clbl_is_volatile, harden_no_cv)
-                    //todo ellipses, ref qualifiers
-
-
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_const && std::remove_reference_t<Callable>::clbl_is_volatile, harden_cv)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_const && !std::remove_reference_t<Callable>::clbl_is_volatile, harden_c)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_const && std::remove_reference_t<Callable>::clbl_is_volatile, harden_v)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_const && !std::remove_reference_t<Callable>::clbl_is_volatile, harden_no_cv)
+                //todo ellipses, ref qualifiers
             };
 
             template<typename Callable>
