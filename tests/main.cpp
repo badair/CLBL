@@ -29,9 +29,12 @@ void volatile_int_char_tests();
 void const_volatile_int_char_tests();
 
 void shared_ptr_tests();
-void reference_tests();
+void unique_ptr_tests();
+void reference_arg_tests();
 void overload_tests();
 void conversion_tests();
+void forwarding_tests();
+void value_tests();
 
 int main() {
 
@@ -50,9 +53,17 @@ int main() {
     volatile_void_tests();
     volatile_int_char_tests();
     const_volatile_int_char_tests();
-    
-    shared_ptr_tests();
-    reference_tests();
+
+    reference_arg_tests();
     overload_tests();
     conversion_tests();
+    forwarding_tests();
+    value_tests();
+    shared_ptr_tests();
+    unique_ptr_tests();
+
+
+
+    std::cout << "Finished.";
+    std::cin.get();
 }

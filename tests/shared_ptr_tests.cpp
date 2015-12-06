@@ -6,25 +6,32 @@
 
 #include <sstream>
 #include <memory>
+#include <iostream>
 
 using namespace clbl::tests;
 using namespace clbl;
 
-static constexpr auto destroyed_message = "destroyed";
+namespace shared_tests {
+    static constexpr auto destroyed_message = "destroyed";
 
-struct scope_test {
-    std::stringstream& ss;
+    struct scope_test {
+        std::stringstream& ss;
 
-    scope_test(std::stringstream& s) : ss(s) {}
+        scope_test(std::stringstream& s) : ss(s) {}
 
-    void func(int i) { ss << i; }
+        void func(int i) { ss << i; }
 
-    ~scope_test() {
-        ss << destroyed_message;
-    }
-};
+        ~scope_test() {
+            ss << destroyed_message;
+        }
+    };
+}
 
 void shared_ptr_tests() {
+    using namespace shared_tests;
+
+#ifdef CLBL_SHARED_PTR_TESTS
+    std::cout << "running CLBL_SHARED_PTR_TESTS" << std::endl;
 
     std::stringstream ss{};
 
@@ -43,4 +50,6 @@ void shared_ptr_tests() {
     }
 
     TEST(ss.str() == destroyed_message);
+
+#endif
 }
