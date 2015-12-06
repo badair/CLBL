@@ -1,5 +1,3 @@
-Note: the perfect-forwarding-and-value-sematics branch (currently under development) invalidates all of this documentation, so continue reading with caution.
-
 # CLBL
 CLBL is a C++14 header-only library for creating generic, statically dispatched callable objects by wrapping free functions, member functions and function objects, without using type erasure (but still convertible to `std::function`). This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
 
