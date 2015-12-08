@@ -39,7 +39,6 @@ namespace clbl {
             return std::forward<T>(t);
         }
 
-        template<>
         template<typename T>
         T& unwrap(std::reference_wrapper<T> t) {
             return T.get();

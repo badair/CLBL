@@ -43,6 +43,7 @@ namespace fwd_tests {
 
 int fwd_tests::copy_counter::value = 0;
 
+//todo test for RVO
 void forwarding_tests() {
 
 #ifdef CLBL_FORWARDING_TESTS

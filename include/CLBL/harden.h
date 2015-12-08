@@ -62,7 +62,7 @@ namespace clbl {
                 template<typename Callable> \
                 static inline constexpr auto fn(std::reference_wrapper<Callable> c) { \
                     return std::move(func(c, \
-                        static_cast<Callable::return_t(Callable::*)(forwardable<Args>...) qualifiers>(&Callable::operator()))); \
+                        static_cast<typename Callable::return_t(Callable::*)(forwardable<Args>...) qualifiers>(&Callable::operator()))); \
                 }
 
                 __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_no_cv, CLBL_NOTHING)
@@ -84,7 +84,7 @@ namespace clbl {
                 static inline constexpr auto default_harden(std::reference_wrapper<Callable> c) -> std::enable_if_t< \
                     expr, \
                     decltype(fn(c))> { \
-                    static_assert(!std::is_same<Callable::return_t, ambiguous_return>::value, \
+                    static_assert(!std::is_same<typename Callable::return_t, ambiguous_return>::value, \
                         "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
                     return fn(c); \
                 }
@@ -98,12 +98,12 @@ namespace clbl {
 
             template<typename Callable>
             inline constexpr auto operator()(Callable&& c) const {
-                return unpack_args<std::remove_reference_t<Callable>::args_t>::default_harden(std::forward<Callable>(c));
+                return unpack_args<typename std::remove_reference_t<Callable>::args_t>::default_harden(std::forward<Callable>(c));
             }
 
             template<typename Callable>
             inline constexpr auto operator()(std::reference_wrapper<Callable> c) const {
-                return unpack_args<Callable::args_t>::default_harden(c);
+                return unpack_args<typename Callable::args_t>::default_harden(c);
             }
         };
 

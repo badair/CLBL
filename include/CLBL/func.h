@@ -33,7 +33,6 @@ namespace clbl {
         template<typename T>
         struct is_reference_wrapper_t : std::false_type {};
 
-        template <>
         template <typename T>
         struct is_reference_wrapper_t<std::reference_wrapper<T> > : std::true_type {};
        
