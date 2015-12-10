@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_char_definitions.h"
 
 #include<iostream>
@@ -15,11 +15,11 @@ void const_int_char_tests() {
 
     const auto const_int_char_object = const_int_char_struct{};
 
-    auto g = func(&int_char_func);
+    auto g = fwrap(&int_char_func);
 
     {
-        auto f = func(&const_int_char_object);
-        auto h = func(&const_int_char_object, &const_int_char_struct::func);
+        auto f = fwrap(&const_int_char_object);
+        auto h = fwrap(&const_int_char_object, &const_int_char_struct::func);
 
         run_tests(
             f, test_id::const_int_char_struct_op,
@@ -28,8 +28,8 @@ void const_int_char_tests() {
             1, 'c');
     }
     {
-        auto f = func(const_int_char_object);
-        auto h = func(const_int_char_object, &const_int_char_struct::func);
+        auto f = fwrap(const_int_char_object);
+        auto h = fwrap(const_int_char_object, &const_int_char_struct::func);
 
         run_tests(
             f, test_id::const_int_char_struct_op,
@@ -39,8 +39,8 @@ void const_int_char_tests() {
     }
 
     {
-        auto f = func(std::ref(const_int_char_object));
-        auto h = func(std::ref(const_int_char_object), &const_int_char_struct::func);
+        auto f = fwrap(std::ref(const_int_char_object));
+        auto h = fwrap(std::ref(const_int_char_object), &const_int_char_struct::func);
 
         run_tests(
             f, test_id::const_int_char_struct_op,
@@ -50,8 +50,8 @@ void const_int_char_tests() {
     }
     {
         auto shared_obj = std::make_shared<const_int_char_struct>();
-        auto f = func(shared_obj);
-        auto h = func(shared_obj, &const_int_char_struct::func);
+        auto f = fwrap(shared_obj);
+        auto h = fwrap(shared_obj, &const_int_char_struct::func);
 
         run_tests(
             f, test_id::const_int_char_struct_op,

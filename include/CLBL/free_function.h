@@ -25,64 +25,66 @@ namespace clbl {
     template<typename Return, typename... Args>
     struct free_function<Return(Args...)> : callable<free_function<Return(Args...)>, Return(Args...)> {
 
-        free_function(Return(*f_ptr)(Args...)) : function_ptr(f_ptr) {}
+        free_function(Return(*f_ptr)(Args...)) 
+            : value(f_ptr) 
+        {}
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) { 
-            return (*function_ptr)(std::forward<Fargs>(a)...); 
+            return (*value)(std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const {
-            return (*function_ptr)(std::forward<Fargs>(a)...);
+            return (*value)(std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) volatile {
-            return (*function_ptr)(std::forward<Fargs>(a)...);
+            return (*value)(std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const volatile {
-            return (*function_ptr)(std::forward<Fargs>(a)...);
+            return (*value)(std::forward<Fargs>(a)...);
         }
 
-        static constexpr auto clbl_is_const = false;
-        static constexpr auto clbl_is_volatile = false;
+        static constexpr auto clbl_is_deep_const = false;
+        static constexpr auto clbl_is_deep_volatile = false;
 
     private:
-        Return(*function_ptr)(Args...);
+        Return(*value)(Args...);
     };
 
     template<typename Return, typename... Args>
     struct free_function<Return(Args..., ...)> : callable<free_function<Return(Args..., ...)>, Return(Args..., ...)> {
 
-        free_function(Return(*p)(Args..., ...)) : function_ptr(p) {}
+        free_function(Return(*p)(Args..., ...)) : value(p) {}
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... args, ...) { 
-            return (*function_ptr)(std::forward<Fargs>(a)..., ...); 
+            return (*value)(std::forward<Fargs>(a)..., ...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... args, ...) const {
-            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
+            return (*value)(std::forward<Fargs>(a)..., ...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... args, ...) volatile {
-            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
+            return (*value)(std::forward<Fargs>(a)..., ...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... args, ...) const volatile {
-            return (*function_ptr)(std::forward<Fargs>(a)..., ...);
+            return (*value)(std::forward<Fargs>(a)..., ...);
         }
-        static constexpr auto clbl_is_const = false;
-        static constexpr auto clbl_is_volatile = false;
+        static constexpr auto clbl_is_deep_const = false;
+        static constexpr auto clbl_is_deep_volatile = false;
 
     private:
-        Return(*function_ptr)(Args..., ...);
+        Return(*value)(Args..., ...);
     };
 }
 

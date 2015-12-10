@@ -1,4 +1,4 @@
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "test.h"
 
 #include <memory>
@@ -22,7 +22,7 @@ void value_tests() {
 
     {
         //decays to function pointer
-        auto f = func([](int& i) {++i;});
+        auto f = fwrap([](int& i) {++i;});
         auto i = 0;
         f(i);
         TEST(i == 1);
@@ -30,7 +30,7 @@ void value_tests() {
     {
         //passing ref-capturing lambda by value
         auto i = 0;
-        auto f = func([&i]{++i;});
+        auto f = fwrap([&i]{++i;});
         
         f();
         TEST(i == 1);
@@ -39,7 +39,7 @@ void value_tests() {
         //passing by reference wrapper
         auto i = 0;
         auto lam = [&i]{++i;};
-        auto f = func(std::ref(lam));
+        auto f = fwrap(std::ref(lam));
 
         f();
         TEST(i == 1);
@@ -47,7 +47,7 @@ void value_tests() {
     {
         //passing generic lambda by value
         auto i = 0;
-        auto f = func([](auto&& i) {val_tests::increment_T(i);});
+        auto f = fwrap([](auto&& i) {val_tests::increment_T(i);});
 
         f(i);
         TEST(i == 1);
@@ -56,7 +56,7 @@ void value_tests() {
         //passing generic lambda object by reference wrapper
         auto i = 0;
         auto lam = [](auto&& i) {val_tests::increment_T(i);};
-        auto f = func(std::ref(lam));
+        auto f = fwrap(std::ref(lam));
 
         f(i);
         TEST(i == 1);

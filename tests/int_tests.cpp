@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_definitions.h"
 
 #include<iostream>
@@ -14,9 +14,9 @@ void int_tests() {
 
     int_struct int_object{};
 
-    auto f = func(&int_object);
-    auto g = func(&int_func);
-    auto h = func(&int_object, &decltype(int_object)::func);
+    auto f = fwrap(&int_object);
+    auto g = fwrap(&int_func);
+    auto h = fwrap(&int_object, &int_struct::func);
     auto hardened_f = harden<const char*(int)>(f);
     auto hardened_g = harden<const char*(int)>(g);
     auto hardened_h = harden<const char*(int)>(h);

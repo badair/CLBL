@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "void_definitions.h"
 
 #include <iostream>
@@ -14,9 +14,9 @@ void const_void_tests() {
 
     const auto const_void_object = const_void_struct{};
 
-    auto f = func(&const_void_object);
-    auto g = func(&void_func);
-    auto h = func(&const_void_object, &const_void_struct::func);
+    auto f = fwrap(&const_void_object);
+    auto g = fwrap(&void_func);
+    auto h = fwrap(&const_void_object, &const_void_struct::func);
 
     run_tests(
         f, test_id::const_void_struct_op,

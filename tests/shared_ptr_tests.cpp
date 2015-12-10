@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"
@@ -19,7 +19,7 @@ namespace shared_tests {
 
         scope_test(std::stringstream& s) : ss(s) {}
 
-        void func(int i) { ss << i; }
+        void fwrap(int i) { ss << i; }
 
         ~scope_test() {
             ss << destroyed_message;
@@ -41,7 +41,7 @@ void shared_ptr_tests() {
         {
             auto first_ptr = std::make_shared<scope_test>(ss);
             second_ptr = first_ptr;
-            auto f = func(first_ptr, &scope_test::func);
+            auto f = fwrap(first_ptr, &scope_test::fwrap);
             f(1);
         }
 

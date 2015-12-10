@@ -44,6 +44,11 @@ namespace clbl { namespace tests {
         inline const char* operator()(int, char) const { return test_id::overloaded_int_char_struct_op_c; }
         inline const char* operator()(int, char) volatile { return test_id::overloaded_int_char_struct_op_v; }
         inline const char* operator()(int, char) const volatile { return test_id::overloaded_int_char_struct_op_cv; }
+
+        /*overloaded_int_char_struct() = default;
+        overloaded_int_char_struct(const overloaded_int_char_struct&) = default;
+        overloaded_int_char_struct(volatile overloaded_int_char_struct&) {}
+        overloaded_int_char_struct(const volatile overloaded_int_char_struct&) {}*/
     };
 }}
 

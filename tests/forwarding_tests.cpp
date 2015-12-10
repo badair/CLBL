@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/fwrap.h"
 #include "int_char_definitions.h"
 
 #include <iostream>
@@ -37,7 +37,7 @@ namespace fwd_tests {
     auto forwarder = [](auto&& t) {return take_copy(t);};
 
     struct copy_taker{
-        void take_copy(copy_counter) {}
+        void take_copy(copy_counter) const {}
     };
 }
 
@@ -54,7 +54,7 @@ void forwarding_tests() {
     {
         copy_counter::reset();
 
-        auto f = func(&fwd_tests::take_copy);
+        auto f = fwrap(&fwd_tests::take_copy);
         copy_counter obj{};
 
         f(obj);
@@ -65,7 +65,7 @@ void forwarding_tests() {
     {
         copy_counter::reset();
 
-        auto f = func(&fwd_tests::forwarder);
+        auto f = fwrap(&fwd_tests::forwarder);
         copy_counter obj{};
         f(obj);
 
@@ -74,7 +74,7 @@ void forwarding_tests() {
     {
         copy_counter::reset();
 
-        auto f = func(fwd_tests::forwarder);
+        auto f = fwrap(fwd_tests::forwarder);
         copy_counter obj{};
         f(obj);
 
@@ -83,7 +83,7 @@ void forwarding_tests() {
     {
         copy_counter::reset();
 
-        auto f = func(std::ref(fwd_tests::forwarder));
+        auto f = fwrap(std::ref(fwd_tests::forwarder));
         copy_counter obj{};
         f(obj);
 
@@ -93,7 +93,7 @@ void forwarding_tests() {
         copy_counter::reset();
         copy_counter obj{};
 
-        auto f = func(&fwd_tests::take_copy);
+        auto f = fwrap(&fwd_tests::take_copy);
         auto hardened = harden<void(copy_counter)>(f);
 
         hardened(obj);
@@ -108,7 +108,7 @@ void forwarding_tests() {
         copy_counter::reset();
         copy_counter obj{};
 
-        auto f = func(fwd_tests::forwarder);
+        auto f = fwrap(fwd_tests::forwarder);
         auto hardened = harden<void(copy_counter)>(f);
 
         hardened(obj);
@@ -123,7 +123,7 @@ void forwarding_tests() {
         copy_counter::reset();
         copy_counter obj{};
 
-        auto std_func = convert_to<std::function>(harden<void(copy_counter)>(func(fwd_tests::forwarder)));
+        auto std_func = convert_to<std::function>(harden<void(copy_counter)>(fwrap(fwd_tests::forwarder)));
 
         std_func(obj);
         TEST(copy_counter::value == 1);
@@ -132,8 +132,8 @@ void forwarding_tests() {
         copy_counter::reset();
         copy_counter obj{};
 
-        auto f = func(fwd_tests::copy_taker{}, &fwd_tests::copy_taker::take_copy);
-        auto hardened = harden<void(copy_counter)>(f);
+        const auto f = fwrap(fwd_tests::copy_taker{}, &fwd_tests::copy_taker::take_copy);
+        const auto hardened = harden<void(copy_counter) const>(f);
 
         hardened(obj);
         TEST(copy_counter::value == 1);

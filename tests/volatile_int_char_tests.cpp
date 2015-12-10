@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_char_definitions.h"
 
 #include <iostream>
@@ -12,13 +12,13 @@ void volatile_int_char_tests() {
 #ifdef CLBL_VOLATILE_INT_CHAR_TESTS
     std::cout << "running CLBL_VOLATILE_INT_CHAR_TESTS" << std::endl;
 
-    auto g = func(&int_char_func);
+    auto g = fwrap(&int_char_func);
 
     {
         volatile volatile_int_char_struct volatile_int_char_object{};
 
-        auto f = func(&volatile_int_char_object);
-        auto h = func(&volatile_int_char_object, &volatile_int_char_struct::func);
+        auto f = fwrap(&volatile_int_char_object);
+        auto h = fwrap(&volatile_int_char_object, &volatile_int_char_struct::func);
 
         run_tests(
             f, test_id::volatile_int_char_struct_op,
@@ -30,8 +30,8 @@ void volatile_int_char_tests() {
         //testing object that could be volatile but isn't
         volatile_int_char_struct volatilable_int_char_object{};
 
-        auto f = func(&volatilable_int_char_object);
-        auto h = func(&volatilable_int_char_object, &volatile_int_char_struct::func);
+        auto f = fwrap(&volatilable_int_char_object);
+        auto h = fwrap(&volatilable_int_char_object, &volatile_int_char_struct::func);
 
         run_tests(
             f, test_id::volatile_int_char_struct_op,

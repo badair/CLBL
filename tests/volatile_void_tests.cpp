@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "void_definitions.h"
 
 #include <iostream>
@@ -12,13 +12,13 @@ void volatile_void_tests() {
 #ifdef CLBL_VOLATILE_VOID_TESTS
     std::cout << "running CLBL_VOLATILE_VOID_TESTS" << std::endl;
 
-    auto g = func(&void_func);
+    auto g = fwrap(&void_func);
 
     {
         volatile_void_struct volatile_void_object{};
 
-        auto f = func(&volatile_void_object);
-        auto h = func(&volatile_void_object, &volatile_void_struct::func);
+        auto f = fwrap(&volatile_void_object);
+        auto h = fwrap(&volatile_void_object, &volatile_void_struct::func);
 
         run_tests(
             f, test_id::volatile_void_struct_op,
@@ -29,8 +29,8 @@ void volatile_void_tests() {
     {
         volatile volatile_void_struct volatile_void_object{};
 
-        auto f = func(&volatile_void_object);
-        auto h = func(&volatile_void_object, &volatile_void_struct::func);
+        auto f = fwrap(&volatile_void_object);
+        auto h = fwrap(&volatile_void_object, &volatile_void_struct::func);
 
         run_tests(
             f, test_id::volatile_void_struct_op,

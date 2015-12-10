@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"
@@ -20,7 +20,7 @@ namespace unique_tests {
 
         scope_test(std::stringstream& s) : ss(s) {}
 
-        void func(int i) { ss << i; }
+        void fwrap(int i) { ss << i; }
 
         ~scope_test() {
             ss << destroyed_message;
@@ -38,17 +38,9 @@ void unique_ptr_tests() {
     std::stringstream ss{};
     
     {
-        std::cout << "creating unique_ptr" << std::endl;
-
         auto ptr = std::make_unique<scope_test>(ss);
-
-        std::cout << "creating unique_ptr func" << std::endl;
-        auto f = func(std::move(ptr), &scope_test::func);
-
-        std::cout << "calling unique_ptr func" << std::endl;
+        auto f = fwrap(std::move(ptr), &scope_test::fwrap);
         f(1);
-
-        std::cout << "destroying" << std::endl;
     }
 
     auto expected_result = std::string{ "1" } + std::string{ destroyed_message };

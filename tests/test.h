@@ -4,7 +4,7 @@
 #include <string>
 #include <functional>
 
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"
@@ -18,32 +18,32 @@ namespace clbl { namespace tests {
 #define STATIC_TEST BOOST_HANA_CONSTANT_CHECK
 #define TEST BOOST_HANA_CHECK
 
-#define CLBL_REFERENCE_ARG_TESTS
-#define CLBL_VALUE_TESTS
-#define CLBL_FORWARDING_TESTS
+//#define CLBL_REFERENCE_ARG_TESTS
+//#define CLBL_VALUE_TESTS
+//#define CLBL_FORWARDING_TESTS
 #define CLBL_CONVERSION_TESTS
-#define CLBL_SHARED_PTR_TESTS
+//#define CLBL_SHARED_PTR_TESTS
 //#define CLBL_UNIQUE_PTR_TESTS
+//
+//#define CLBL_OVERLOAD_TESTS
+//
+//#define CLBL_INT_CHAR_TESTS
+//#define CLBL_INT_TESTS
+//#define CLBL_VOID_TESTS
+//#define CLBL_CONST_INT_CHAR_TESTS
+//#define CLBL_CONST_INT_TESTS
+//#define CLBL_CONST_VOID_TESTS
+//#define CLBL_CONST_VOLATILE_INT_CHAR_TESTS
+//#define CLBL_CONSTABLE_INT_CHAR_TESTS
+//#define CLBL_CONSTABLE_INT_TESTS
+//#define CLBL_CONSTABLE_VOID_TESTS
+//#define CLBL_VOLATILE_INT_CHAR_TESTS
+//#define CLBL_VOLATILE_VOID_TESTS
 
-#define CLBL_OVERLOAD_TESTS
-
-#define CLBL_INT_CHAR_TESTS
-#define CLBL_INT_TESTS
-#define CLBL_VOID_TESTS
-#define CLBL_CONST_INT_CHAR_TESTS
-#define CLBL_CONST_INT_TESTS
-#define CLBL_CONST_VOID_TESTS
-#define CLBL_CONST_VOLATILE_INT_CHAR_TESTS
-#define CLBL_CONSTABLE_INT_CHAR_TESTS
-#define CLBL_CONSTABLE_INT_TESTS
-#define CLBL_CONSTABLE_VOID_TESTS
-#define CLBL_VOLATILE_INT_CHAR_TESTS
-#define CLBL_VOLATILE_VOID_TESTS
-
-#define STATIC_ASSERT_CLBL_CONST(x) static_assert(decltype(x)::clbl_is_const, "Should be clbl const - the object inside IS const.")
-#define STATIC_ASSERT_CLBL_VOLATILE(x) static_assert(decltype(x)::clbl_is_volatile, "Should be clbl volatile - the object inside IS volatile.")
-#define STATIC_ASSERT_NOT_CLBL_CONST(x) static_assert(!decltype(x)::clbl_is_const, "Should not be clbl const - the object inside is NOT const.")
-#define STATIC_ASSERT_NOT_CLBL_VOLATILE(x) static_assert(!decltype(x)::clbl_is_volatile, "Should not be clbl volatile - the object inside is NOT volatile.")
+#define CLBL_STATIC_ASSERT_DEEP_CONST(x) static_assert(std::remove_reference_t<decltype(x)>::clbl_is_deep_const, "")
+#define CLBL_STATIC_ASSERT_DEEP_VOLATILE(x) static_assert(std::remove_reference_t<decltype(x)>::clbl_is_deep_volatile, "")
+#define CLBL_STATIC_ASSERT_NOT_DEEP_CONST(x) static_assert(!std::remove_reference_t<decltype(x)>::clbl_is_deep_const, "")
+#define CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(x) static_assert(!std::remove_reference_t<decltype(x)>::clbl_is_deep_volatile, "")
 
 template<typename F, typename G, typename H, typename... Args>
 void run_tests(

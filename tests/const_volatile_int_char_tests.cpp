@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_char_definitions.h"
 
 #include <iostream>
@@ -12,13 +12,13 @@ void const_volatile_int_char_tests() {
 #ifdef CLBL_CONST_VOLATILE_INT_CHAR_TESTS
     std::cout << "running CLBL_CONST_VOLATILE_INT_CHAR_TESTS" << std::endl;
 
-    auto g = func(&int_char_func);
+    auto g = fwrap(&int_char_func);
 
     {
         volatile const_volatile_int_char_struct const_volatile_int_char_object{};
 
-        auto f = func(&const_volatile_int_char_object);
-        auto h = func(&const_volatile_int_char_object, &const_volatile_int_char_struct::func);
+        auto f = fwrap(&const_volatile_int_char_object);
+        auto h = fwrap(&const_volatile_int_char_object, &const_volatile_int_char_struct::func);
 
         run_tests(
             f, test_id::const_volatile_int_char_struct_op,
@@ -29,8 +29,8 @@ void const_volatile_int_char_tests() {
     {
         const volatile const_volatile_int_char_struct const_volatile_int_char_object{};
 
-        auto f = func(&const_volatile_int_char_object);
-        auto h = func(&const_volatile_int_char_object, &const_volatile_int_char_struct::func);
+        auto f = fwrap(&const_volatile_int_char_object);
+        auto h = fwrap(&const_volatile_int_char_object, &const_volatile_int_char_struct::func);
 
         run_tests(
             f, test_id::const_volatile_int_char_struct_op,

@@ -1,4 +1,4 @@
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "test.h"
 
 #include <memory>
@@ -41,27 +41,27 @@ void reference_arg_tests() {
 
     {
         //argument forwarding - non-const reference
-        auto f = func(&ref_tests::increment_int);
+        auto f = fwrap(&ref_tests::increment_int);
         auto i = 0;
         f(i);
         TEST(i == 1);
 
-        auto g = func(&f);
+        auto g = fwrap(&f);
         g(i);
         TEST(i == 2);
     }
     {
         //argument forwarding - const reference
-        auto f = func(&ref_tests::address_of_int);
+        auto f = fwrap(&ref_tests::address_of_int);
         auto i = 0;
         TEST(f(i) == &i);
 
-        auto g = func(&f);
+        auto g = fwrap(&f);
         TEST(g(i) == &i);
     }
     {
         //argument forwarding - returning address of member of object reference arg
-        auto f = func(&ref_tests::address_of_mutable_struct_value);
+        auto f = fwrap(&ref_tests::address_of_mutable_struct_value);
         auto o = mutable_struct{ 0 };
 
         TEST(f(o) == &o.value);
@@ -70,7 +70,7 @@ void reference_arg_tests() {
         //testing object reference preservation
         {
             auto mutable_object = mutable_struct{ 0 };
-            auto f = func(&mutable_object, &mutable_struct::increment);
+            auto f = fwrap(&mutable_object, &mutable_struct::increment);
 
             f();
             f();
@@ -80,7 +80,7 @@ void reference_arg_tests() {
         }
         {
             auto mutable_object_ptr = std::make_shared<mutable_struct>(0);
-            auto f = func(mutable_object_ptr, &mutable_struct::increment);
+            auto f = fwrap(mutable_object_ptr, &mutable_struct::increment);
 
             f();
             f();

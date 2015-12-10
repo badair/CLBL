@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_definitions.h"
 
 #include <iostream>
@@ -14,9 +14,9 @@ void constable_int_char_tests() {
 
     auto constable_int_char_object = const_int_char_struct{};
 
-    auto f = func(&constable_int_char_object);
-    auto g = func(&int_char_func);
-    auto h = func(&constable_int_char_object, &const_int_char_struct::func);
+    auto f = fwrap(&constable_int_char_object);
+    auto g = fwrap(&int_char_func);
+    auto h = fwrap(&constable_int_char_object, &const_int_char_struct::func);
 
     run_tests(
         f, test_id::const_int_char_struct_op,

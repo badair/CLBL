@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/func.h"
+#include "CLBL/clbl.h"
 #include "int_char_definitions.h"
 
 using namespace clbl::tests;
@@ -15,12 +15,12 @@ void overload_tests() {
 
     auto overloaded_object = overloaded_int_char_struct{};
 
-    auto h = harden<const char*(int, char)>(func(&overloaded_object));
+    auto h = harden<const char*(int, char)>(fwrap(&overloaded_object));
 
     TEST(h(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-    //calling clbl::func with a result from clbl::func
-    auto identity_func = harden<const char*(int, char)>(func(&h));
+    //calling clbl::fwrap with a result from clbl::fwrap
+    auto identity_func = harden<const char*(int, char)>(fwrap(&h));
 
     TEST(identity_func(1, 'c') == h(1, 'c'));
 
