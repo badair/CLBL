@@ -5,6 +5,7 @@
 
 #include "CLBL/cv_checks.h"
 #include "CLBL/callable.h"
+#include "CLBL/utility.h"
 
 namespace clbl {
 
@@ -56,17 +57,17 @@ namespace clbl {
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const {
-            return ((*object_ptr).*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_PTR(const, object_ptr, value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) volatile {
-            return ((*object_ptr).*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_PTR(volatile, object_ptr, value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const volatile {
-            return ((*object_ptr).*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_PTR(const volatile, object_ptr, value, std::forward<Fargs>(a)...);
         }
 
         static constexpr auto clbl_is_deep_const = is_deep_const<UnderlyingType>()
@@ -74,6 +75,28 @@ namespace clbl {
 
         static constexpr auto clbl_is_deep_volatile = is_deep_volatile<UnderlyingType>()
             || std::is_volatile<UnderlyingType>::value;
+
+        static inline constexpr auto copy_invocation(my_type& c) {
+            return[v = c.value, o = c.object_ptr](auto&&... args){ return ((*o).*v)(args...);};
+        }
+
+        static inline constexpr auto copy_invocation(const my_type& c) {
+            return[v = c.value, o = c.object_ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_MEMBER_PTR(const, o, v, args...);
+            };
+        }
+
+        static inline constexpr auto copy_invocation(volatile my_type& c) {
+            return[v = c.value, o = c.object_ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_MEMBER_PTR(volatile, o, v, args...);
+            };
+        }
+
+        static inline constexpr auto copy_invocation(const volatile my_type& c) {
+            return[v = c.value, o = c.object_ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_MEMBER_PTR(const volatile, o, v, args...);
+            };
+        }
 
         TPtr object_ptr;
         MemberFunctionPointerType value;

@@ -12,6 +12,7 @@ namespace clbl {
     struct ambi_fn_obj_ptr_wrapper {
 
         using clbl_tag = ambi_fn_obj_ptr_tag;
+        using semantics = ptr_call_semantics;
         using type = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
         using return_t = ambiguous_return;
@@ -46,17 +47,17 @@ namespace clbl {
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const {
-            return (*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(const, value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) volatile {
-            return (*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(volatile, value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const volatile {
-            return (*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(const volatile, value, std::forward<Fargs>(a)...);
         }
 
         static constexpr bool clbl_is_deep_const = is_deep_const<underlying_type>()
@@ -65,6 +66,22 @@ namespace clbl {
 
         static constexpr bool clbl_is_deep_volatile = is_deep_volatile<underlying_type>()
                                                     || std::is_volatile<underlying_type>::value;
+
+        static inline constexpr auto copy_invocation(my_type& c) {
+            return[v = c.value](auto&&... args){ return (*v)(args...);};
+        }
+
+        static inline constexpr auto copy_invocation(const my_type& c) {
+            return[v = c.value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const, v, args...);};
+        }
+
+        static inline constexpr auto copy_invocation(volatile my_type& c) {
+            return[v = c.value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(volatile, v, args...);};
+        }
+
+        static inline constexpr auto copy_invocation(const volatile my_type& c) {
+            return[v = c.value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const volatile, v, args...);};
+        }
 
         TPtr value;
     };

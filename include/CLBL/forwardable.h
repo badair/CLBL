@@ -69,8 +69,6 @@ namespace clbl {
             return v;
         }*/
 
-        //todo move rvalues 
-
         inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref_type, T>() const { return value; }
         inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref_type, T>() const volatile { return value; }
     };

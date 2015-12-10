@@ -24,6 +24,18 @@ namespace clbl {
     struct ambi_fn_obj_tag {};
     struct fn_obj_ptr_tag {};
     struct ambi_fn_obj_ptr_tag {};
+
+    struct ptr_call_semantics {};
+    struct value_call_semantics {};
+    struct pmf_call_semantics {};
+    struct ptr_pmf_call_semantics {};
+
+    namespace qual {
+        struct default_ {};
+        struct const_ {};
+        struct volatile_ {};
+        struct const_volatile_ {};
+    }
 }
 
 #endif

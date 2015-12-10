@@ -4,7 +4,6 @@
 //#include "CLBL/abominable_function_decay.h"
 #include<type_traits>
 
-//todo: experiment with hana-style dispatch with a tuple for all cv metafunctions for faster compile times
 #define __SPECIALIZE_MEMBER_FUNCTION_DECAY(qualifiers) \
     template<typename T, typename Return, typename... Args> \
     struct member_function_decay_t<Return(T::*)(Args...) qualifiers> { using type = Return(T::*)(Args...); }

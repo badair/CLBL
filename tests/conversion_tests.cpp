@@ -58,8 +58,6 @@ void conversion_tests() {
         auto hv = harden<const char*(int, char) volatile>(v);
         auto hcv = harden<const char*(int, char) const volatile>(cv);
 
-        std::cout << std::endl << "line 62: " << hnormal(1, 'c') << std::endl << hc(1, 'c') << std::endl << hv(1, 'c') << std::endl << hcv(1, 'c') << std::endl;
-
         TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
         TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
         TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
@@ -106,31 +104,41 @@ void conversion_tests() {
         CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(v);
         CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(cv);
 
-        auto nested_normal = harden<const char*(int, char)>(fwrap(&normal));
-        auto nested_c = harden<const char*(int, char) const>(fwrap(&c));
-        auto nested_v = harden<const char*(int, char) volatile>(fwrap(&v));
-        auto nested_cv = harden<const char*(int, char) const volatile>(fwrap(&cv));
-
-        std::cout << std::endl << "line 114: " << nested_normal(1, 'c') << std::endl << nested_c(1, 'c') << std::endl << nested_v(1, 'c') << std::endl << nested_cv(1, 'c') << std::endl;
+        auto nested_normal = fwrap(&normal);
+        auto nested_c = fwrap(&c);
+        auto nested_v = fwrap(&v);
+        auto nested_cv = fwrap(&cv);
 
         TEST(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
+        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
+        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(nested_normal);
-        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(nested_c);
-        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(nested_v);
-        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(nested_cv);
-        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(nested_normal);
-        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(nested_c);
-        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(nested_v);
-        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(nested_cv);
+        auto hnormal = harden<const char*(int, char)>(nested_normal);
+        auto hc = harden<const char*(int, char) const>(nested_c);
+        auto hv = harden<const char*(int, char) volatile>(nested_v);
+        auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
 
-        auto stdn = convert_to<std::function>(nested_normal);
-        auto stdc = convert_to<std::function>(nested_c);
-        auto stdv = convert_to<std::function>(nested_v);
-        auto stdcv = convert_to<std::function>(nested_cv);
+        std::cout << std::endl << "line 124: " << hnormal(1, 'c') << std::endl << hc(1, 'c') << std::endl << hv(1, 'c') << std::endl << hcv(1, 'c') << std::endl;
+
+        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+
+        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(hnormal);
+        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(hc);
+        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(hc);
+        CLBL_STATIC_ASSERT_NOT_DEEP_CONST(hcv);
+        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(hnormal);
+        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(hc);
+        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(hv);
+        CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(hcv);
+
+        auto stdn = convert_to<std::function>(hnormal);
+        auto stdc = convert_to<std::function>(hc);
+        auto stdv = convert_to<std::function>(hv);
+        auto stdcv = convert_to<std::function>(hcv);
 
         std::cout << std::endl << "line 135: " << stdn(1, 'c') << std::endl << stdc(1, 'c') << std::endl << stdv(1, 'c') << std::endl << stdcv(1, 'c') << std::endl;
 

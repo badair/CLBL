@@ -5,6 +5,7 @@
 
 #include "CLBL/cv_checks.h"
 #include "CLBL/callable.h"
+#include "CLBL/utility.h"
 
 namespace clbl {
 
@@ -52,17 +53,17 @@ namespace clbl {
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const {
-            return (object.*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, o, v, std::Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) volatile {
-            return (object.*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, o, v, std::Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const volatile {
-            return (object.*value)(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, o, v, std::Fargs>(a)...);
         }
 
         static constexpr bool clbl_is_deep_const = is_deep_const<T>() 
@@ -70,6 +71,22 @@ namespace clbl {
 
         static constexpr bool clbl_is_deep_volatile = is_deep_volatile<T>()
                                                     || std::is_volatile<T>::value;
+
+        static inline constexpr auto copy_invocation(my_type& c) {
+            return[v = c.value, o = c.object](auto&&... args){ return (o.*v)(args...);};
+        }
+
+        static inline constexpr auto copy_invocation(const my_type& c) {
+            return[v = c.value, o = c.object](auto&&... args){ return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, o, v, args...);};
+        }
+
+        static inline constexpr auto copy_invocation(volatile my_type& c) {
+            return[v = c.value, o = c.object](auto&&... args){ return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, o, v, args...);};
+        }
+
+        static inline constexpr auto copy_invocation(const volatile my_type& c) {
+            return[v = c.value, o = c.object](auto&&... args){return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, o, v, args...);};
+        }
 
         T object;
         MemberFunctionPointerType value;

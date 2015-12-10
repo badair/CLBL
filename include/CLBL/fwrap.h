@@ -147,7 +147,7 @@ namespace clbl {
 
         return pmf_ptr_wrapper<
             no_ref<decltype(*std::declval<T>())>,
-            std::remove_reference<T>,
+            no_ref<T>,
             decltype(&no_ref<decltype(*std::declval<T>())>::operator()),
             member_function_decay<decltype(&no_ref<decltype(*std::declval<T>())>::operator())>
         >{ std::forward<T>(t), &no_ref<decltype(*std::declval<T>())>::operator() };

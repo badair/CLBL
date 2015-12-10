@@ -7,6 +7,7 @@
 #include "CLBL/abominable_function_decay.h"
 #include "CLBL/harden.h"
 #include "CLBL/utility.h"
+#include "CLBL/forwarding_glue.h"
 
 //sorry to anyone reading this - this is terribly tricky, and is very hard without macros
 
@@ -15,37 +16,24 @@ namespace hana = boost::hana;
 namespace clbl {
 
     namespace detail {
-        template<typename, typename Bad> struct foward_fn_t {
-            static_assert("Not a clbl callable wrapper.");
+
+        template<typename, typename BadGlueType>
+        struct apply_glue_t {
+            static_assert(sizeof(BadGlueType) < 0, "Invalid template arguments.");
         };
 
-        template<typename Callable, typename... Args>
-        struct foward_fn_t<Callable, hana::tuple<Args...> > {
-            using ret = typename no_ref<Callable>::return_t;
-            using type = ret(forward<Args>...);
+        
+        template<typename Callable, typename Return, typename... GlueArgs>
+        struct apply_glue_t<Callable, Return(GlueArgs...)> {
+            invocation_copy<Callable> invocation;
+            inline Return operator()(GlueArgs... args) { return invocation(args...); }
         };
     }
 
-    template<typename Callable>
-    using forward_fn = typename detail::foward_fn_t<Callable, args<Callable> >::type;
-
-    template<typename T, typename FunctionType> 
-    struct cv_enforcer {
-        static_assert(sizeof(T) < 0, "Not a function type.");
-    };
-
-    template<typename Callable, typename Return, typename... Args>
-    struct cv_enforcer<Callable, Return(Args...)>{
-
-        Callable callable;
-
-        Return operator()(Args... args) { return callable(args...); }
-    };
-
     //std::function doesn't call const functions on copies of const objects - we want to force this behavior
-    template<typename FunctionType, typename Callable>
-    auto enforce_cv(Callable&& c) {
-        return cv_enforcer<no_ref<Callable>, FunctionType>{c};
+    template<typename GlueType, typename Callable>
+    constexpr inline auto apply_glue(Callable&& c) {
+        return detail::apply_glue_t<no_ref<Callable>, GlueType>{no_ref<Callable>::copy_invocation(c)};
     }
 
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>
@@ -54,8 +42,8 @@ namespace clbl {
         static_assert(!std::is_same<typename no_ref<Callable>::return_t, ambiguous_return>::value,
             "Ambiguous signature. You can harden before calling convert_to, but be aware of argument transformations for forwarding.");
 
-        using fwd_fn = forward_fn<Callable>;
+        using glue = fowarding_glue<Callable>;
 
-        return TypeErasedFunctionTemplate<fwd_fn> { enforce_cv<fwd_fn>(std::forward<Callable>(c)) };
+        return TypeErasedFunctionTemplate<glue> { apply_glue<glue>(std::forward<Callable>(c)) };
     }
 }
