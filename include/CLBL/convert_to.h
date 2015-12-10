@@ -15,7 +15,7 @@ namespace clbl {
 
     namespace detail {
         template<typename, typename Bad> struct foward_fn_t {
-            static_assert("Not a clbl callable type.");
+            static_assert("Not a clbl callable wrapper.");
         };
 
         template<typename Callable, typename... Args>

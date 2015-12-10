@@ -8,37 +8,40 @@
 
 namespace clbl {
 
-    //dispatch failure case for member functions
     template<typename, typename, typename Failure>
-    struct member_function { static_assert(sizeof(Failure) < 0, "Not a member function."); };
+    struct pmf_wrapper { static_assert(sizeof(Failure) < 0, "Not a member function."); };
 
     template<typename T, typename MemberFunctionPointerType, typename Return, typename... Args>
-    struct member_function<
+    struct pmf_wrapper<
         T,
         MemberFunctionPointerType,
         Return(std::remove_cv_t<T>::*)(Args...)
-    >
-        : callable<member_function<T, MemberFunctionPointerType, Return(std::remove_cv_t<T>::*)(Args...)>, Return(Args...)> {
+    > {
 
-        using my_type = member_function<T, MemberFunctionPointerType, Return(std::remove_cv_t<T>::*)(Args...)>;
+        using clbl_tag = pmf_tag;
+        using type = Return(Args...);
+        using args_t = hana::tuple<Args...>;
+        using return_t = Return;
 
-        inline member_function(T&& o, MemberFunctionPointerType f_ptr)
+        using my_type = pmf_wrapper<T, MemberFunctionPointerType, Return(std::remove_cv_t<T>::*)(Args...)>;
+
+        inline pmf_wrapper(T&& o, MemberFunctionPointerType f_ptr)
             : object(o), value(f_ptr)
         {}
 
-        inline member_function(T& o, MemberFunctionPointerType f_ptr)
+        inline pmf_wrapper(T& o, MemberFunctionPointerType f_ptr)
             : object(o), value(f_ptr)
         {}
 
-        inline member_function(my_type& other) = default;
-        inline member_function(const my_type& other) = default;
-        inline member_function(my_type&& other) = default;
+        inline pmf_wrapper(my_type& other) = default;
+        inline pmf_wrapper(const my_type& other) = default;
+        inline pmf_wrapper(my_type&& other) = default;
 
-        inline member_function(volatile my_type& other)
+        inline pmf_wrapper(volatile my_type& other)
             : object(other.object), value(other.value)
         {}
 
-        inline member_function(const volatile my_type& other)
+        inline pmf_wrapper(const volatile my_type& other)
             : object(other.object), value(other.value)
         {}
 

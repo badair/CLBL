@@ -9,40 +9,43 @@
 namespace clbl {
 
     template<typename, typename, typename, typename DispatchFailureCase>
-    struct member_function_of_ptr { static_assert(sizeof(DispatchFailureCase) < 0, "Not a member function."); };
+    struct pmf_ptr_wrapper { static_assert(sizeof(DispatchFailureCase) < 0, "Not a member function."); };
 
     template<typename UnderlyingType, typename TPtr, typename MemberFunctionPointerType, typename Return, typename... Args>
-    struct member_function_of_ptr<
+    struct pmf_ptr_wrapper<
         UnderlyingType,
         TPtr,
         MemberFunctionPointerType,
         Return(std::remove_cv_t<UnderlyingType>::*)(Args...)
-    >
-        : callable<member_function_of_ptr<UnderlyingType, TPtr, MemberFunctionPointerType, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>, Return(Args...)> {
+    > {
+        using clbl_tag = pmf_ptr_tag;
+        using type = Return(Args...);
+        using args_t = hana::tuple<Args...>;
+        using return_t = Return;
 
-        member_function_of_ptr()
+        pmf_ptr_wrapper()
         {}
 
-        member_function_of_ptr(TPtr&& o_ptr, MemberFunctionPointerType f_ptr)
+        pmf_ptr_wrapper(TPtr&& o_ptr, MemberFunctionPointerType f_ptr)
             : object_ptr(std::forward<TPtr>(o_ptr)),
             value(f_ptr)
         {}
 
-        inline member_function_of_ptr(TPtr& o_ptr, MemberFunctionPointerType f_ptr)
+        inline pmf_ptr_wrapper(TPtr& o_ptr, MemberFunctionPointerType f_ptr)
             : object_ptr(o_ptr), value(f_ptr)
         {}
 
-        using my_type = member_function_of_ptr<UnderlyingType, TPtr, MemberFunctionPointerType, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>;
+        using my_type = pmf_ptr_wrapper<UnderlyingType, TPtr, MemberFunctionPointerType, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>;
 
-        inline member_function_of_ptr(my_type& other) = default;
-        inline member_function_of_ptr(const my_type& other) = default;
-        inline member_function_of_ptr(my_type&& other) = default;
+        inline pmf_ptr_wrapper(my_type& other) = default;
+        inline pmf_ptr_wrapper(const my_type& other) = default;
+        inline pmf_ptr_wrapper(my_type&& other) = default;
 
-        inline member_function_of_ptr(volatile my_type& other)
+        inline pmf_ptr_wrapper(volatile my_type& other)
             : object_ptr(other.object_ptr), value(other.value)
         {}
 
-        inline member_function_of_ptr(const volatile my_type& other)
+        inline pmf_ptr_wrapper(const volatile my_type& other)
             : object_ptr(other.object_ptr), value(other.value)
         {}
 

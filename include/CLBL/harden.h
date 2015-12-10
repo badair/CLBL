@@ -1,14 +1,17 @@
+//welcome to the party
+
 #ifndef CLBL_HARDEN_H
 #define CLBL_HARDEN_H
 
 #include <functional>
+
 #include <boost/hana.hpp>
 
 #include "CLBL/cv_checks.h"
 #include "CLBL/tags.h"
 #include "CLBL/forwardable.h"
 #include "CLBL/fwrap.h"
-#include "CLBL/member_function_of_ptr.h"
+#include "CLBL/wrappers/pmf_ptr_wrapper.h"
 
 namespace hana = boost::hana;
 
@@ -20,89 +23,41 @@ namespace clbl {
             static_assert(sizeof(Bad) < 0, "Not a valid function type.");
         };
 
-        //todo ref wrapper harden, other clbl types
 
-#define __CLBL_SPECIALIZE_HARDEN_T(qualifiers) \
+
+#define __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, shallow_cv) \
+            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
+            inline constexpr auto operator()(shallow_cv pmf_ptr_wrapper<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
+                using abominable_fn_type = std::conditional_t<is_clbl<Ut>(), Return(forwardable<Args>...) deep_cv, Return(Args...) deep_cv>; \
+                using qualified_object_type = deep_cv std::remove_cv_t<Ut>; \
+                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
+                return fwrap<qualified_object_type, requested_pmf_type>(c.object_ptr, static_cast<requested_pmf_type>(c.value)); \
+            } \
+            template<typename TPtr> \
+            inline constexpr auto operator()(shallow_cv ambi_fn_obj_ptr_wrapper<TPtr>& c) const { \
+                using T = std::remove_reference_t<decltype(*std::declval<TPtr>())>; \
+                using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) deep_cv, Return(Args...) deep_cv>; \
+                using requested_pmf_type = abominable_fn_type T::*; \
+                return fwrap<shallow_cv TPtr&, requested_pmf_type>(c.value, static_cast<requested_pmf_type>(&T::operator())); \
+            }
+            
+#define __CLBL_SPECIALIZE_HARDEN_T(deep_cv) \
         template<typename Return, typename... Args> \
-        struct harden_t<Return(Args...) qualifiers> { \
-            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
-            inline constexpr auto operator()(member_function_of_ptr<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<Ut>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using qualified_object_type = qualifiers std::remove_cv_t<Ut>; \
-                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
-                return fwrap<qualified_object_type, requested_pmf_type>( \
-                    c.object_ptr, \
-                    static_cast<requested_pmf_type>(c.value)); \
-            } \
-            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
-            inline constexpr auto operator()(const member_function_of_ptr<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<Ut>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using qualified_object_type = qualifiers std::remove_cv_t<Ut>; \
-                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
-                return fwrap<qualified_object_type, requested_pmf_type>( \
-                    c.object_ptr, \
-                    static_cast<requested_pmf_type>(c.value)); \
-            } \
-            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
-            inline constexpr auto operator()(volatile member_function_of_ptr<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<Ut>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using qualified_object_type = qualifiers std::remove_cv_t<Ut>; \
-                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
-                return fwrap<qualified_object_type, requested_pmf_type>( \
-                    c.object_ptr, \
-                    static_cast<requested_pmf_type>(c.value)); \
-            } \
-            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
-            inline constexpr auto operator()(const volatile member_function_of_ptr<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<Ut>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using qualified_object_type = qualifiers std::remove_cv_t<Ut>; \
-                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
-                return fwrap<qualified_object_type, requested_pmf_type>( \
-                    c.object_ptr, \
-                    static_cast<requested_pmf_type>(c.value)); \
-            } \
-            template<typename T, typename TPtr> \
-            inline constexpr auto operator()(overloaded_function_object_ptr<T, TPtr>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using requested_pmf_type = abominable_fn_type T::*; \
-                return fwrap<TPtr&, requested_pmf_type>( \
-                    c.value, \
-                    static_cast<requested_pmf_type>(&T::operator())); \
-            } \
-            template<typename T, typename TPtr> \
-            inline constexpr auto operator()(const overloaded_function_object_ptr<T, TPtr>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using requested_pmf_type = abominable_fn_type T::*; \
-                return fwrap<const TPtr&, requested_pmf_type>( \
-                    c.value, \
-                    static_cast<requested_pmf_type>(&T::operator())); \
-            } \
-            template<typename T, typename TPtr> \
-            inline constexpr auto operator()(volatile overloaded_function_object_ptr<T, TPtr>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using requested_pmf_type = abominable_fn_type T::*; \
-                return fwrap<volatile TPtr&, requested_pmf_type>( \
-                    c.value, \
-                    static_cast<requested_pmf_type>(&T::operator())); \
-            } \
-            template<typename T, typename TPtr> \
-            inline constexpr auto operator()(const volatile overloaded_function_object_ptr<T, TPtr>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) qualifiers, Return(Args...) qualifiers>; \
-                using requested_pmf_type = abominable_fn_type T::*; \
-                return fwrap<const volatile TPtr&, requested_pmf_type>( \
-                    c.value, \
-                    static_cast<requested_pmf_type>(&T::operator())); \
-            } \
+            struct harden_t<Return(Args...) deep_cv> { \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, CLBL_NOTHING) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, const) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, volatile) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, const volatile) \
         }
+
+        //todo ellipses and ref qualifiers... :(
 
         __CLBL_SPECIALIZE_HARDEN_T(CLBL_NOTHING);
         __CLBL_SPECIALIZE_HARDEN_T(const);
         __CLBL_SPECIALIZE_HARDEN_T(volatile);
         __CLBL_SPECIALIZE_HARDEN_T(const volatile);
-        //todo ellipses and ref qualifiers
 
-        struct default_harden_tag {};
-
+       
         template<>
         struct harden_t<default_harden_tag> {
 
@@ -177,12 +132,12 @@ namespace clbl {
 
     template<typename Callable>
     inline constexpr auto harden(Callable&& c) {
-        return detail::harden_v<detail::default_harden_tag>(std::forward<Callable>(c));
+        return detail::harden_v<default_harden_tag>(std::forward<Callable>(c));
     }
 
     template<typename FunctionType, typename Callable>
     inline constexpr auto harden(Callable&& c) {
-        return detail::harden_v<FunctionType>(static_cast<Callable&&>(c));
+        return detail::harden_v<FunctionType>(std::forward<Callable>(c));
     }
 }
 

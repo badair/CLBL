@@ -1,16 +1,17 @@
 #ifndef CLBL_FWRAP_H
 #define CLBL_FWRAP_H
 
-#include "CLBL/free_function.h"
-#include "CLBL/member_function.h"
-#include "CLBL/member_function_of_ptr.h"
-#include "CLBL/overloaded_function_object.h"
-#include "CLBL/overloaded_function_object_ptr.h"
-#include "CLBL/member_function_decay.h"
-#include "CLBL/tags.h"
-
 #include <type_traits>
 #include <functional>
+
+#include "CLBL/wrappers/free_fn_wrapper.h"
+#include "CLBL/wrappers/pmf_wrapper.h"
+#include "CLBL/wrappers/pmf_ptr_wrapper.h"
+#include "CLBL/wrappers/ambi_fn_obj_wrapper.h"
+#include "CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h"
+#include "CLBL/member_function_decay.h"
+#include "CLBL/tags.h"
+#include "CLBL/utility.h"
 
 namespace clbl {
     namespace detail {
@@ -18,36 +19,15 @@ namespace clbl {
         /* todo why does this not work but the macro does?
         template<typename T>
         struct underlying_type_t{
-            using type = std::remove_cv_t<std::remove_reference_t<decltype(*std::declval<T>())> >;
+            using type = std::remove_cv_t<no_ref<decltype(*std::declval<T>())> >;
         };
 
         template<typename T>
         using underlying_type = typename underlying_type_t<T>::type;
         */
 
-#define CLBL_UNDERLYING_TYPE_OF_PTR(T) std::remove_reference_t<decltype(*std::declval<T>())>
-
-
-        template<typename T>
-        struct is_reference_wrapper_t : std::false_type {};
-
-        template <typename T>
-        struct is_reference_wrapper_t<std::reference_wrapper<T> > : std::true_type {};
-       
-        template<typename T>
-        constexpr bool is_reference_wrapper = is_reference_wrapper_t<T>::value;
-
-        //todo static assert
-        struct null_function_object { void operator()() const volatile {} };
-
-        struct null_reference_wrapper {
-            null_function_object obj;
-            null_reference_wrapper() : obj(null_function_object{}){}
-            auto get() { return &obj; }
-        };
-
         auto has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
-        auto ptr_has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&std::remove_reference_t<decltype(*arg)>::operator()) {});
+        auto ptr_has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
 
         template<typename T>
         constexpr bool has_normal_call_operator = decltype(has_normal_call_operator_impl(std::declval<T>()))::value;
@@ -96,9 +76,9 @@ namespace clbl {
     template<typename T>
     constexpr auto fwrap(T&& t)
         -> std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case,
-            free_function<std::remove_reference_t<std::remove_pointer_t<T> > >
+            free_fn_wrapper<no_ref<std::remove_pointer_t<T> > >
         > {
-        return free_function<std::remove_reference_t<std::remove_pointer_t<T> > >{ std::forward<T>(t) };
+        return free_fn_wrapper<no_ref<std::remove_pointer_t<T> > >{ std::forward<T>(t) };
     }
 
 
@@ -110,17 +90,17 @@ namespace clbl {
     constexpr auto fwrap(T&& t, TMemberFnPtr member_fn_ptr) ->
         std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
                          && detail::sfinae_switch<T>::is_ptr,
-        member_function_of_ptr<
-        CLBL_UNDERLYING_TYPE_OF_PTR(T),
-        std::remove_reference_t<T>,
+        pmf_ptr_wrapper<
+        no_ref<decltype(*std::declval<T>())>,
+        no_ref<T>,
         TMemberFnPtr,
         member_function_decay<TMemberFnPtr>
         >
         > {
 
-        return member_function_of_ptr<
-            CLBL_UNDERLYING_TYPE_OF_PTR(T),
-            std::remove_reference_t<T>,
+        return pmf_ptr_wrapper<
+            no_ref<decltype(*std::declval<T>())>,
+            no_ref<T>,
             TMemberFnPtr,
             member_function_decay<TMemberFnPtr>
         >{ std::forward<T>(t), member_fn_ptr };
@@ -136,15 +116,15 @@ namespace clbl {
         std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
                          && !detail::sfinae_switch<T>::is_ptr 
                          && !detail::sfinae_switch<T>::reference_wrapper_case,
-        member_function<
-        std::remove_reference_t<T>,
+        pmf_wrapper<
+        no_ref<T>,
         TMemberFnPtr,
         member_function_decay<TMemberFnPtr>
         >
         > {
 
-        return member_function<
-            std::remove_reference_t<T>,
+        return pmf_wrapper<
+            no_ref<T>,
             TMemberFnPtr,
             member_function_decay<TMemberFnPtr>
         >{ std::forward<T>(t), member_fn_ptr };
@@ -157,20 +137,20 @@ namespace clbl {
     template<typename T>
     constexpr auto fwrap(T&& t)
         -> std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case,
-            member_function_of_ptr<
-                CLBL_UNDERLYING_TYPE_OF_PTR(T),
-                std::remove_reference<T>,
-                decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator()),
-                member_function_decay<decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator())>
+            pmf_ptr_wrapper<
+                no_ref<decltype(*std::declval<T>())>,
+                no_ref<T>,
+                decltype(&no_ref<decltype(*std::declval<T>())>::operator()),
+                member_function_decay<decltype(&no_ref<decltype(*std::declval<T>())>::operator())>
             > 
         > {
 
-        return member_function_of_ptr<
-            CLBL_UNDERLYING_TYPE_OF_PTR(T),
+        return pmf_ptr_wrapper<
+            no_ref<decltype(*std::declval<T>())>,
             std::remove_reference<T>,
-            decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator()),
-            member_function_decay<decltype(&std::remove_reference_t<decltype(*std::declval<T>())>::operator())>
-        >{ std::forward<T>(t), &std::remove_reference_t<decltype(*std::declval<T>())>::operator() };
+            decltype(&no_ref<decltype(*std::declval<T>())>::operator()),
+            member_function_decay<decltype(&no_ref<decltype(*std::declval<T>())>::operator())>
+        >{ std::forward<T>(t), &no_ref<decltype(*std::declval<T>())>::operator() };
     }
 
 
@@ -181,13 +161,10 @@ namespace clbl {
     template<typename T>
     constexpr auto fwrap(T&& t)
         -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_ptr_case,
-        overloaded_function_object_ptr<CLBL_UNDERLYING_TYPE_OF_PTR(T), std::remove_reference_t<T> >
+        ambi_fn_obj_ptr_wrapper<no_ref<T> >
         > {
 
-        return overloaded_function_object_ptr<
-            CLBL_UNDERLYING_TYPE_OF_PTR(T),
-            std::remove_reference_t<T>
-        >{ std::forward<T>(t) };
+        return ambi_fn_obj_ptr_wrapper<no_ref<T> >{ std::forward<T>(t) };
     }
 
 
@@ -198,18 +175,18 @@ namespace clbl {
     template<typename T>
     constexpr auto fwrap(T&& t)
         -> std::enable_if_t<detail::sfinae_switch<T>::function_object_case,
-            member_function<
-                std::remove_reference_t<T>,
-                decltype(&std::remove_reference_t<T>::operator()),
-                member_function_decay<decltype(&std::remove_reference_t<T>::operator())>
+            pmf_wrapper<
+                no_ref<T>,
+                decltype(&no_ref<T>::operator()),
+                member_function_decay<decltype(&no_ref<T>::operator())>
             >
         > {
 
-        return member_function<
-            std::remove_reference_t<T>,
-            decltype(&std::remove_reference_t<T>::operator()),
-            member_function_decay<decltype(&std::remove_reference_t<T>::operator())>
-        >{std::forward<T>(t), &std::remove_reference_t<T>::operator()};
+        return pmf_wrapper<
+            no_ref<T>,
+            decltype(&no_ref<T>::operator()),
+            member_function_decay<decltype(&no_ref<T>::operator())>
+        >{std::forward<T>(t), &no_ref<T>::operator()};
     }
 
 
@@ -220,10 +197,10 @@ namespace clbl {
     template<typename T>
     constexpr auto fwrap(T&& t)
         -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_case,
-            overloaded_function_object<std::remove_reference_t<T> > 
+            ambi_fn_obj_wrapper<no_ref<T> > 
         > {
 
-        return overloaded_function_object< std::remove_reference_t<T> >{std::forward<T>(t)};
+        return ambi_fn_obj_wrapper< no_ref<T> >{std::forward<T>(t)};
     }
 
     /*********************

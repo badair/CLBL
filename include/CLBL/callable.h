@@ -62,24 +62,7 @@ namespace clbl {
         */
     }
 
-    template<typename Callable>
-    using args = typename std::remove_reference_t<Callable>::args_t;
 
-
-
-    //dispatch failure case
-    template<typename, typename Bad>
-    struct callable { static_assert(sizeof(Bad) < 0, "Not a valid callable type."); };
-
-    //todo specialize for ambiguous case - allow arity to be passed? 
-
-    template<typename Derived, typename Return, typename... Args>
-    struct callable<Derived, Return(Args...)> {
-
-        using type = Return(Args...);
-        using args_t = hana::tuple<Args...>;
-        using return_t = Return;
-    };//todo ellipses
 }
 
 #endif

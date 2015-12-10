@@ -9,10 +9,14 @@
 namespace clbl {
 
     template<typename T>
-    struct overloaded_function_object
-        : callable<overloaded_function_object<T>, ambiguous_return(ambiguous_args)> {
+    struct ambi_fn_obj_wrapper {
 
-        overloaded_function_object(const std::remove_const_t<T>& o)
+        using clbl_tag = ambi_fn_obj_tag;
+        using type = ambiguous_return(ambiguous_args);
+        using args_t = ambiguous_args;
+        using return_t = ambiguous_return;
+
+        ambi_fn_obj_wrapper(const std::remove_const_t<T>& o)
             : value(o)
         {}
 

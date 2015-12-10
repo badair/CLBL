@@ -7,23 +7,15 @@ namespace clbl {
 
     //dispatch failure case for free functions
     template<typename Failure>
-    struct free_fn_wrapper {
+    struct free_fn_wrapper { static_assert(sizeof(Failure) < 0, "Not a function."); };
 
-        template<typename... T>
-        free_fn_wrapper(T...) {}
-
-        free_fn_wrapper() {}
-
-        template<typename... T>
-        auto operator()(T...) { static_assert(sizeof...(T) < 0, "Not a function."); }
-
-        template<typename T = void>
-        auto operator()(...) { static_assert(sizeof(T) < 0, "Not a function."); }
-    };
-
-    //specialization for free function types
     template<typename Return, typename... Args>
-    struct free_fn_wrapper<Return(Args...)> : callable<free_fn_wrapper<Return(Args...)>, Return(Args...)> {
+    struct free_fn_wrapper<Return(Args...)> {
+
+        using clbl_tag = free_fn_tag;
+        using type = Return(Args...);
+        using args_t = hana::tuple<Args...>;
+        using return_t = Return;
 
         free_fn_wrapper(Return(*f_ptr)(Args...)) 
             : value(f_ptr) 
@@ -57,7 +49,12 @@ namespace clbl {
     };
 
     template<typename Return, typename... Args>
-    struct free_fn_wrapper<Return(Args..., ...)> : callable<free_fn_wrapper<Return(Args..., ...)>, Return(Args..., ...)> {
+    struct free_fn_wrapper<Return(Args..., ...)> {
+
+        using clbl_tag = free_fn_tag;
+        using type = Return(Args..., ...);
+        using args_t = hana::tuple<Args...>;
+        using return_t = Return;
 
         free_fn_wrapper(Return(*p)(Args..., ...)) : value(p) {}
 
