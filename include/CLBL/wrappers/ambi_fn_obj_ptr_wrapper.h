@@ -3,7 +3,7 @@
 
 #include "CLBL/tags.h"
 #include "CLBL/cv_checks.h"
-
+#include "CLBL/utility.h"
 #include <type_traits>
 
 namespace clbl {
@@ -16,7 +16,7 @@ namespace clbl {
         using args_t = ambiguous_args;
         using return_t = ambiguous_return;
 
-        using underlying_type = std::remove_reference_t<decltype(*std::declval<TPtr>())>;
+        using underlying_type = no_ref<decltype(*std::declval<TPtr>())>;
 
         ambi_fn_obj_ptr_wrapper()
         {}

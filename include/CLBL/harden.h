@@ -12,6 +12,7 @@
 #include "CLBL/forwardable.h"
 #include "CLBL/fwrap.h"
 #include "CLBL/wrappers/pmf_ptr_wrapper.h"
+#include "CLBL/utility.h"
 
 namespace hana = boost::hana;
 
@@ -23,8 +24,6 @@ namespace clbl {
             static_assert(sizeof(Bad) < 0, "Not a valid function type.");
         };
 
-
-
 #define __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, shallow_cv) \
             template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
             inline constexpr auto operator()(shallow_cv pmf_ptr_wrapper<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
@@ -35,7 +34,7 @@ namespace clbl {
             } \
             template<typename TPtr> \
             inline constexpr auto operator()(shallow_cv ambi_fn_obj_ptr_wrapper<TPtr>& c) const { \
-                using T = std::remove_reference_t<decltype(*std::declval<TPtr>())>; \
+                using T = no_ref<decltype(*std::declval<TPtr>())>; \
                 using abominable_fn_type = std::conditional_t<is_clbl<T>(), Return(forwardable<Args>...) deep_cv, Return(Args...) deep_cv>; \
                 using requested_pmf_type = abominable_fn_type T::*; \
                 return fwrap<shallow_cv TPtr&, requested_pmf_type>(c.value, static_cast<requested_pmf_type>(&T::operator())); \
@@ -72,10 +71,10 @@ namespace clbl {
 #define __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(fn, qualifiers) \
                 template<typename Callable> \
                 static inline constexpr auto fn(Callable&& c) { \
-                    using ret = typename std::remove_reference_t<Callable>::return_t; \
+                    using ret = typename no_ref<Callable>::return_t; \
                     return std::move(fwrap(std::forward<Callable>(c), \
-                        static_cast<ret(std::remove_reference_t<Callable>::*)(forwardable<Args>...) qualifiers>( \
-                            &std::remove_reference_t<Callable>::operator())) \
+                        static_cast<ret(no_ref<Callable>::*)(forwardable<Args>...) qualifiers>( \
+                            &no_ref<Callable>::operator())) \
                         ); \
                 } \
                 template<typename Callable> \
@@ -95,7 +94,7 @@ namespace clbl {
                 static inline constexpr auto default_harden(Callable&& c) -> std::enable_if_t< \
                     expr, \
                     decltype(fn(std::forward<Callable>(c)))> { \
-                    static_assert(!std::is_same<typename std::remove_reference_t<Callable>::args_t, ambiguous_args>::value, \
+                    static_assert(!std::is_same<typename no_ref<Callable>::args_t, ambiguous_args>::value, \
                         "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
                     return fn(std::forward<Callable>(c)); \
                 } \
@@ -108,16 +107,16 @@ namespace clbl {
                     return fn(c); \
                 }
 
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_deep_const && std::remove_reference_t<Callable>::clbl_is_deep_volatile, harden_cv)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(std::remove_reference_t<Callable>::clbl_is_deep_const && !std::remove_reference_t<Callable>::clbl_is_deep_volatile, harden_c)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_deep_const && std::remove_reference_t<Callable>::clbl_is_deep_volatile, harden_v)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!std::remove_reference_t<Callable>::clbl_is_deep_const && !std::remove_reference_t<Callable>::clbl_is_deep_volatile, harden_no_cv)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(no_ref<Callable>::clbl_is_deep_const && no_ref<Callable>::clbl_is_deep_volatile, harden_cv)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(no_ref<Callable>::clbl_is_deep_const && !no_ref<Callable>::clbl_is_deep_volatile, harden_c)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!no_ref<Callable>::clbl_is_deep_const && no_ref<Callable>::clbl_is_deep_volatile, harden_v)
+                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!no_ref<Callable>::clbl_is_deep_const && !no_ref<Callable>::clbl_is_deep_volatile, harden_no_cv)
                 //todo ellipses, ref qualifiers
             };
 
             template<typename Callable>
             inline constexpr auto operator()(Callable&& c) const {
-                return unpack_args<typename std::remove_reference_t<Callable>::args_t>::default_harden(std::forward<Callable>(c));
+                return unpack_args<typename no_ref<Callable>::args_t>::default_harden(std::forward<Callable>(c));
             }
 
             template<typename Callable>

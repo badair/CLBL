@@ -7,7 +7,7 @@ namespace clbl {
     using no_ref = std::remove_reference_t<T>;
 
     template<typename Callable>
-    using args = typename std::remove_reference_t<Callable>::args_t;
+    using args = typename no_ref<Callable>::args_t;
 
     template<typename T>
     struct is_reference_wrapper_t : std::false_type {};

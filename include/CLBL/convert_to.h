@@ -6,6 +6,7 @@
 #include "CLBL/forwardable.h"
 #include "CLBL/abominable_function_decay.h"
 #include "CLBL/harden.h"
+#include "CLBL/utility.h"
 
 //sorry to anyone reading this - this is terribly tricky, and is very hard without macros
 
@@ -20,7 +21,7 @@ namespace clbl {
 
         template<typename Callable, typename... Args>
         struct foward_fn_t<Callable, hana::tuple<Args...> > {
-            using ret = typename std::remove_reference_t<Callable>::return_t;
+            using ret = typename no_ref<Callable>::return_t;
             using type = ret(forward<Args>...);
         };
     }
@@ -44,13 +45,13 @@ namespace clbl {
     //std::function doesn't call const functions on copies of const objects - we want to force this behavior
     template<typename FunctionType, typename Callable>
     auto enforce_cv(Callable&& c) {
-        return cv_enforcer<std::remove_reference_t<Callable>, FunctionType>{c};
+        return cv_enforcer<no_ref<Callable>, FunctionType>{c};
     }
 
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>
     inline auto convert_to(Callable&& c) {
 
-        static_assert(!std::is_same<typename std::remove_reference_t<Callable>::return_t, ambiguous_return>::value,
+        static_assert(!std::is_same<typename no_ref<Callable>::return_t, ambiguous_return>::value,
             "Ambiguous signature. You can harden before calling convert_to, but be aware of argument transformations for forwarding.");
 
         using fwd_fn = forward_fn<Callable>;

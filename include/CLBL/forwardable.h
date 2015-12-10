@@ -1,6 +1,10 @@
 #ifndef CLBL_FORWARDABLE_H
 #define CLBL_FORWARDABLE_H
 
+#include <type_traits>
+
+#include "CLBL/utility.h"
+
 namespace clbl {
 
     namespace detail {
@@ -42,9 +46,9 @@ namespace clbl {
 
         T value;
 
-        inline forward(std::remove_reference_t<T>&& t) : value(t) {}
-        inline forward(std::remove_const<std::remove_reference_t<T> >& t) : value(t) {}
-        inline forward(const std::remove_const<std::remove_reference_t<T> >& t) : value(t) {}
+        inline forward(no_ref<T>&& t) : value(t) {}
+        inline forward(std::remove_const<no_ref<T> >& t) : value(t) {}
+        inline forward(const std::remove_const<no_ref<T> >& t) : value(t) {}
 
         inline forward() = default;
         inline forward(forward<FwdType>&) = default;
@@ -53,7 +57,7 @@ namespace clbl {
         inline forward(volatile forward<FwdType>& other) : value(other.value) {}
         inline forward(const volatile forward<FwdType>& other) : value(other.value) {}
 
-        using no_ref_type = std::remove_reference_t<T>;
+        using no_ref_type = no_ref<T>;
 
         /*template<typename U>
         static constexpr inline T convert(U&& v) {
