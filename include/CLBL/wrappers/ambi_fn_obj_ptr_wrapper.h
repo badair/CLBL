@@ -1,10 +1,13 @@
 #ifndef CLBL_AMBI_FN_OBJ_PTR_WRAPPER_H
 #define CLBL_AMBI_FN_OBJ_PTR_WRAPPER_H
 
-#include "CLBL/tags.h"
-#include "CLBL/cv_checks.h"
-#include "CLBL/utility.h"
 #include <type_traits>
+
+#include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
+#include "CLBL/utility.h"
+#include "CLBL/harden_cast.h"
+#include "CLBL/invocation_macros.h"
 
 namespace clbl {
 
@@ -16,6 +19,7 @@ namespace clbl {
         using clbl_tag = ambi_fn_obj_ptr_tag;
         using semantics = ptr_call_semantics;
         using type = ambiguous_return(ambiguous_args);
+        using forwarding_glue = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
         using return_t = ambiguous_return;
         using my_type = ambi_fn_obj_ptr_wrapper<Creator, CvFlags, TPtr>;
@@ -55,12 +59,12 @@ namespace clbl {
         back to ctor defaults for self-safe substitution failure
         */
 
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, int>* = nullptr>
+        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
         inline ambi_fn_obj_ptr_wrapper(ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
             : _value(other._value), _object(other._object)
         {}
 
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, int>* = nullptr>
+        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
         inline ambi_fn_obj_ptr_wrapper(const ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
             : _value(other._value), _object(other._object)
         {}

@@ -3,13 +3,11 @@
 #include <boost/hana.hpp>
 
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/forwardable.h"
-#include "CLBL/abominable_function_decay.h"
 #include "CLBL/harden.h"
 #include "CLBL/utility.h"
 #include "CLBL/forwarding_glue.h"
-
-//sorry to anyone reading this - this is terribly tricky, and is very hard without macros
 
 namespace hana = boost::hana;
 
@@ -42,8 +40,7 @@ namespace clbl {
         static_assert(!std::is_same<typename no_ref<Callable>::return_t, ambiguous_return>::value,
             "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to .");
 
-        using glue = fowarding_glue<Callable>;
-
+        using glue = no_ref<Callable>::forwarding_glue;
         return TypeErasedFunctionTemplate<glue> { apply_glue<glue>(std::forward<Callable>(c)) };
     }
 }

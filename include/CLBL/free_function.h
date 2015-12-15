@@ -1,8 +1,6 @@
 #ifndef CLBL_FREE_FUNCTION_H
 #define CLBL_FREE_FUNCTION_H
 
-#include "CLBL/callable.h"
-
 namespace clbl {
 
     //dispatch failure case for free functions

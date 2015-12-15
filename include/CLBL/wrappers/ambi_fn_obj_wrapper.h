@@ -2,8 +2,10 @@
 #define CLBL_AMBI_FN_OBJ_WRAPPER_H
 
 #include "CLBL/tags.h"
-#include "CLBL/cv_checks.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/utility.h"
+#include "CLBL/harden_cast.h"
+#include "CLBL/invocation_macros.h"
 
 #include <type_traits>
 
@@ -17,6 +19,7 @@ namespace clbl {
         using clbl_tag = ambi_fn_obj_tag;
         using semantics = ptr_call_semantics;
         using type = ambiguous_return(ambiguous_args);
+        using forwarding_glue = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
         using return_t = ambiguous_return;
         using my_type = ambi_fn_obj_wrapper<Creator, cv_flags, T>;

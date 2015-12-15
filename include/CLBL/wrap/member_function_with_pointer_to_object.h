@@ -3,6 +3,7 @@
 
 #include "CLBL/utility.h"
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/wrappers/pmf_wrapper.h"
 

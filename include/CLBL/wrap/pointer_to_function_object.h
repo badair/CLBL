@@ -3,6 +3,7 @@
 
 #include "CLBL/utility.h"
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/wrap/member_function_with_pointer_to_object.h"
 #include "CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h"

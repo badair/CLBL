@@ -1,9 +1,12 @@
 #ifndef CLBL_FREE_FN_WRAPPER_H
 #define CLBL_FREE_FN_WRAPPER_H
 
-#include "CLBL/callable.h"
 #include "CLBL/utility.h"
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
+#include "CLBL/forward.h"
+#include "CLBL/harden_cast.h"
+#include "CLBL/invocation_macros.h"
 
 namespace clbl {
 
@@ -19,6 +22,7 @@ namespace clbl {
         using clbl_tag = free_fn_tag;
         using my_type = free_fn_wrapper<Creator, Return(Args...)>;
         using type = Return(Args...);
+        using forwarding_glue = Return(forward<Args>...);
         using args_t = hana::tuple<Args...>;
         using return_t = Return;
         using underlying_type = my_type;

@@ -16,6 +16,7 @@
 #include "CLBL/wrap/member_function_with_pointer_to_object.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/utility.h"
 
 namespace clbl {
@@ -62,7 +63,7 @@ namespace clbl {
     free function pointer
     *********************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
     constexpr auto 
     fwrap(T&& t) {
         return free_function::template wrap<qflags::default_>(std::forward<T>(t));
@@ -72,7 +73,7 @@ namespace clbl {
     Pointer to object with a member function pointer
     ************************************************/
 
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::is_ptr, int>* = nullptr>
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
         return member_function_with_pointer_to_object::template wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
@@ -82,7 +83,7 @@ namespace clbl {
     Object with member function pointer
     ***********************************/
 
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && !detail::sfinae_switch<T>::is_ptr && !detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && !detail::sfinae_switch<T>::is_ptr && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
         return member_function_with_object::template wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
@@ -92,7 +93,7 @@ namespace clbl {
     Pointer to object with operator()
     *********************************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return pointer_to_function_object::template wrap<qflags::default_>(std::forward<T>(t));
@@ -102,18 +103,17 @@ namespace clbl {
     Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
     ******************************************************************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return pointer_to_function_object::ambiguous::template wrap<qflags::default_>(std::forward<T>(t));
     }
 
-
     /**********************
     Object with operator()
     ***********************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return function_object::template wrap<qflags::default_>(std::forward<T>(t));
@@ -123,7 +123,7 @@ namespace clbl {
     Object with AMBIGUOUS (templated/overloaded) operator()
     *******************************************************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return function_object::ambiguous::template wrap<qflags::default_>(std::forward<T>(t));
@@ -133,7 +133,7 @@ namespace clbl {
     std::reference_wrapper
     **********************/
 
-    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return   fwrap(std::addressof(t.get()));
@@ -143,7 +143,7 @@ namespace clbl {
     std::reference_wrapper with member function pointer
     ***************************************************/
 
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t, TMemberFnPtr ptr) {
         return   fwrap(std::addressof(t.get()), ptr);

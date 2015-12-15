@@ -2,7 +2,7 @@
 #define CLBL_FORWARDING_GLUE_H
 
 #include "CLBL/utility.h"
-#include "CLBL/forwardable.h"
+#include "CLBL/forward.h"
 
 namespace clbl {
 

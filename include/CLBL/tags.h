@@ -9,20 +9,13 @@
 
 namespace clbl {
 
+    //dummy is used whenever we need a type, but don't care what it is
     struct dummy {
         using underlying_type = dummy;
     };
 
     struct ambiguous_return {};
     struct ambiguous_args {};
-
-    //todo - tag dispatch into safe_caller to extract deep constness and call member
-    //todo - use tag dispatch in harden specializations
-
-    struct default_harden_tag {};
-    
-
-
 
     struct unknown_tag {};
     struct free_fn_tag {};
@@ -33,26 +26,11 @@ namespace clbl {
     struct fn_obj_ptr_tag {};
     struct ambi_fn_obj_ptr_tag {};
 
-
-
-    // TODO use these?
+    // TODO use these to help clean up the _object/_value mess?
     struct ptr_call_semantics {};
     struct value_call_semantics {};
     struct pmf_call_semantics {};
     struct ptr_pmf_call_semantics {};
-
-    using qualify_flags = short;
-    namespace qflags {
-        constexpr qualify_flags default_ = 0;
-        constexpr qualify_flags const_ = 1;
-        constexpr qualify_flags volatile_ = 2;
-        constexpr qualify_flags const_volatile_ = const_ | volatile_;
-        constexpr qualify_flags lvalue_reference_ = 4;
-        constexpr qualify_flags rvalue_reference_ = 8;
-
-
-
-    }
 }
 
 #endif

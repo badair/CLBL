@@ -11,7 +11,7 @@ namespace clbl {
     //todo implement "slim" version of pmf_wrapper that doesn't store a PMF
     struct function_object {
 
-        template<qualify_flags Flags, typename T, std::enable_if_t<!is_clbl<T>, int>* = nullptr>
+        template<qualify_flags Flags, typename T, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto 
         wrap(T&& t, dummy d = dummy{}) {
             constexpr auto member_fn = &underlying_type<no_ref<T> >::operator();

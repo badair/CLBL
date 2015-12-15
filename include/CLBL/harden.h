@@ -4,11 +4,10 @@
 #define CLBL_HARDEN_H
 
 #include <functional>
-
 #include <boost/hana.hpp>
 
-#include "CLBL/cv_checks.h"
 #include "CLBL/tags.h"
+#include "CLBL/qualify_flags.h"
 #include "CLBL/forwardable.h"
 #include "CLBL/fwrap.h"
 #include "CLBL/wrappers/pmf_ptr_wrapper.h"

@@ -3,9 +3,11 @@
 
 #include <type_traits>
 
-#include "CLBL/cv_checks.h"
-#include "CLBL/callable.h"
+#include "CLBL/cv.h"
 #include "CLBL/utility.h"
+#include "CLBL/forward.h"
+#include "CLBL/harden_cast.h"
+#include "CLBL/invocation_macros.h"
 
 namespace clbl {
 
@@ -19,6 +21,7 @@ namespace clbl {
         using creator = Creator;
         using clbl_tag = pmf_tag;
         using type = Return(Args...);
+        using forwarding_glue = Return(forward<Args>...);
         using args_t = hana::tuple<Args...>;
         using return_t = Return;
         using my_type = pmf_wrapper<Creator, cv_flags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;

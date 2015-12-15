@@ -1,7 +1,6 @@
 #ifndef CLBL_MEMBER_FUNCTION_DECAY_H
 #define CLBL_MEMBER_FUNCTION_DECAY_H
 
-//#include "CLBL/abominable_function_decay.h"
 #include<type_traits>
 
 #define __SPECIALIZE_MEMBER_FUNCTION_DECAY(qualifiers) \
@@ -14,8 +13,8 @@
 
 namespace clbl {
 
-    //primary template "fails" silently
-    template<typename Other> struct member_function_decay_t { using type = Other;/*abominable_function_decay<Other>;*/ };
+    //primary template fails silently
+    template<typename Other> struct member_function_decay_t { using type = Other; };
 
     template<typename T, typename Return, typename... Args>
     struct member_function_decay_t<Return(T::*)(Args...)> { using type = Return(T::*)(Args...); };
