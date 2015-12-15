@@ -7,7 +7,6 @@
 #include "CLBL/forwardable.h"
 #include "CLBL/harden.h"
 #include "CLBL/utility.h"
-#include "CLBL/forwarding_glue.h"
 
 namespace hana = boost::hana;
 
