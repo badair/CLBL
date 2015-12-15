@@ -47,8 +47,8 @@ namespace clbl {
         T value;
 
         inline forward(no_ref<T>&& t) : value(t) {}
-        inline forward(std::remove_const<no_ref<T> >& t) : value(t) {}
-        inline forward(const std::remove_const<no_ref<T> >& t) : value(t) {}
+        inline forward(std::remove_const_t<no_ref<T> >& t) : value(t) {}
+        inline forward(const std::remove_const_t<no_ref<T> >& t) : value(t) {}
 
         inline forward() = default;
         inline forward(forward<FwdType>&) = default;

@@ -12,7 +12,7 @@ namespace clbl {
         template<qualify_flags Flags, typename T>
         static inline constexpr auto
         wrap(T&& t, dummy d = dummy{}) {
-            using function_type = no_ref<std::remove_pointer_t<T> >;
+            using function_type = std::remove_pointer_t<no_ref<T> >;
             using wrapper = free_fn_wrapper<free_function, function_type>;
             return wrapper{ std::forward<T>(t) };
         }
