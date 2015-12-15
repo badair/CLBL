@@ -105,22 +105,20 @@ namespace clbl {
                 template<typename Callable> \
                 static inline constexpr auto fn(Callable&& c) { \
                     using ret = typename no_ref<Callable>::return_t; \
-                    return std::move(fwrap(std::forward<Callable>(c), \
+                    return fwrap(std::forward<Callable>(c), \
                         static_cast<ret(no_ref<Callable>::*)(forwardable<Args>...) qualifiers>( \
-                            &no_ref<Callable>::operator())) \
-                        ); \
+                            &no_ref<Callable>::operator())); \
                 } \
                 template<typename Callable> \
                 static inline constexpr auto fn(std::reference_wrapper<Callable> c) { \
-                    return std::move(fwrap(c, \
-                        static_cast<typename Callable::return_t(Callable::*)(forwardable<Args>...) qualifiers>(&Callable::operator()))); \
+                    return fwrap(c, static_cast<typename Callable::return_t(Callable::*)(forwardable<Args>...) qualifiers>(&Callable::operator())); \
                 }
 
                 __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_no_cv, CLBL_NOTHING)
-                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_c, const)
-                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_v, volatile)
-                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_cv, const volatile)
-                //todo ellipses, ref qualifiers
+                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_c, const)
+                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_v, volatile)
+                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_cv, const volatile)
+                    //todo ellipses, ref qualifiers
 
 #define __CLBL_SPECIALIZE_DEFAULT_HARDEN(expr, fn) \
                 template<typename Callable> \
@@ -140,10 +138,10 @@ namespace clbl {
                     return fn(c); \
                 }
 
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(no_ref<Callable>::clbl_is_deep_const && no_ref<Callable>::clbl_is_deep_volatile, harden_cv)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(no_ref<Callable>::clbl_is_deep_const && !no_ref<Callable>::clbl_is_deep_volatile, harden_c)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!no_ref<Callable>::clbl_is_deep_const && no_ref<Callable>::clbl_is_deep_volatile, harden_v)
-                __CLBL_SPECIALIZE_DEFAULT_HARDEN(!no_ref<Callable>::clbl_is_deep_const && !no_ref<Callable>::clbl_is_deep_volatile, harden_no_cv)
+                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == (qflags::const_ | qflags::volatile_), harden_cv)
+                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::const_, harden_c)
+                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::volatile_, harden_v)
+                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::default_, harden_no_cv)
                 //todo ellipses, ref qualifiers
             };
 

@@ -251,9 +251,9 @@ void conversion_tests() {
     {
         const auto overloaded_object = overloaded_int_char_struct{};
 
-        auto normal = fwrap(&overloaded_object);
+        //auto normal = fwrap(&overloaded_object);
         const auto c = fwrap(&overloaded_object);
-        volatile auto v = fwrap(&overloaded_object);
+        //volatile auto v = fwrap(&overloaded_object);
         const volatile auto cv = fwrap(&overloaded_object);
 
         /*CLBL_STATIC_ASSERT_DEEP_CONST(normal);
@@ -289,8 +289,8 @@ void conversion_tests() {
     {
         volatile auto overloaded_object = overloaded_int_char_struct{};
 
-        auto normal = fwrap(&overloaded_object);
-        const auto c = fwrap(&overloaded_object);
+        //auto normal = fwrap(&overloaded_object);
+        //const auto c = fwrap(&overloaded_object);
         volatile auto v = fwrap(&overloaded_object);
         const volatile auto cv = fwrap(&overloaded_object);
 

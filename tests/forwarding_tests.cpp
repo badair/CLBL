@@ -109,7 +109,10 @@ void forwarding_tests() {
         copy_counter obj{};
 
         auto f = fwrap(fwd_tests::forwarder);
-        auto hardened = harden<void(copy_counter)>(f);
+
+        //lamba call operators are const qualified unless the lambda is specified as mutable.
+        //Forwarding lambdas need a reference type
+        auto hardened = harden<void(const copy_counter&) const>(f);
 
         hardened(obj);
         TEST(copy_counter::value == 1);
@@ -123,7 +126,7 @@ void forwarding_tests() {
         copy_counter::reset();
         copy_counter obj{};
 
-        auto std_func = convert_to<std::function>(harden<void(copy_counter)>(fwrap(fwd_tests::forwarder)));
+        auto std_func = convert_to<std::function>(harden<void(const copy_counter&) const>(fwrap(fwd_tests::forwarder)));
 
         std_func(obj);
         TEST(copy_counter::value == 1);

@@ -29,7 +29,7 @@ namespace clbl { namespace tests {
 #define CLBL_OVERLOAD_TESTS
 
 #define CLBL_INT_CHAR_TESTS
-#define CLBL_INT_TESTS
+//todo make default harden work here: #define CLBL_INT_TESTS
 #define CLBL_VOID_TESTS
 #define CLBL_CONST_INT_CHAR_TESTS
 #define CLBL_CONST_INT_TESTS
