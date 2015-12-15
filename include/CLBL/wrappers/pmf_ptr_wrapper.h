@@ -80,7 +80,7 @@ namespace clbl {
         }
 
         template<typename... Fargs>
-        inline auto operator()(Fargs&&... a) volatile {
+        inline Return operator()(Fargs&&... a) volatile {
             return CLBL_UPCAST_AND_CALL_MEMBER_PTR(volatile, _object, _value, std::forward<Fargs>(a)...);
         }
 

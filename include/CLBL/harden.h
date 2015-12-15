@@ -89,80 +89,13 @@ namespace clbl {
         __CLBL_SPECIALIZE_HARDEN_T(volatile);
         __CLBL_SPECIALIZE_HARDEN_T(const volatile);
 
-       
-        template<>
-        struct harden_t<default_harden_tag> {
-
-            template<typename T>
-            struct unpack_args {
-
-            };
-
-            template<typename... Args>
-            struct unpack_args<hana::tuple<Args...> > {
-
-#define __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(fn, qualifiers) \
-                template<typename Callable> \
-                static inline constexpr auto fn(Callable&& c) { \
-                    using ret = typename no_ref<Callable>::return_t; \
-                    return fwrap(std::forward<Callable>(c), \
-                        static_cast<ret(no_ref<Callable>::*)(forwardable<Args>...) qualifiers>( \
-                            &no_ref<Callable>::operator())); \
-                } \
-                template<typename Callable> \
-                static inline constexpr auto fn(std::reference_wrapper<Callable> c) { \
-                    return fwrap(c, static_cast<typename Callable::return_t(Callable::*)(forwardable<Args>...) qualifiers>(&Callable::operator())); \
-                }
-
-                __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_no_cv, CLBL_NOTHING)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_c, const)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_v, volatile)
-                    __CLBL_DEFINE_QUALIFIED_HARDEN_FUNCTION(harden_cv, const volatile)
-                    //todo ellipses, ref qualifiers
-
-#define __CLBL_SPECIALIZE_DEFAULT_HARDEN(expr, fn) \
-                template<typename Callable> \
-                static inline constexpr auto default_harden(Callable&& c) -> std::enable_if_t< \
-                    expr, \
-                    decltype(fn(std::forward<Callable>(c)))> { \
-                    static_assert(!std::is_same<typename no_ref<Callable>::args_t, ambiguous_args>::value, \
-                        "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
-                    return fn(std::forward<Callable>(c)); \
-                } \
-                template<typename Callable> \
-                static inline constexpr auto default_harden(std::reference_wrapper<Callable> c) -> std::enable_if_t< \
-                    expr, \
-                    decltype(fn(c))> { \
-                    static_assert(!std::is_same<typename Callable::args_t, ambiguous_args>::value, \
-                        "Unable to disambiguate. Please specify a function with clbl::harden<Return(Arg1, Arg2, ...) qualifiers>() "); \
-                    return fn(c); \
-                }
-
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == (qflags::const_ | qflags::volatile_), harden_cv)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::const_, harden_c)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::volatile_, harden_v)
-                    __CLBL_SPECIALIZE_DEFAULT_HARDEN((no_ref<Callable>::cv_flags & (qflags::const_ | qflags::volatile_)) == qflags::default_, harden_no_cv)
-                //todo ellipses, ref qualifiers
-            };
-
-            template<typename Callable>
-            inline constexpr auto operator()(Callable&& c) const {
-                return unpack_args<typename no_ref<Callable>::args_t>::default_harden(std::forward<Callable>(c));
-            }
-
-            template<typename Callable>
-            inline constexpr auto operator()(std::reference_wrapper<Callable> c) const {
-                return unpack_args<typename Callable::args_t>::default_harden(c);
-            }
-        };
-
         template<typename T>
         constexpr harden_t<T> harden_v{};
     }
 
     template<typename Callable>
     inline constexpr auto harden(Callable&& c) {
-        return detail::harden_v<default_harden_tag>(std::forward<Callable>(c));
+        return detail::harden_v<typename no_ref<Callable>::type>(std::forward<Callable>(c));
     }
 
     template<typename FunctionType, typename Callable>
