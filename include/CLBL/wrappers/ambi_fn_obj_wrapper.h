@@ -1,5 +1,5 @@
-#ifndef CLBL_OVERLOADED_FUNCTION_OBJECT_H
-#define CLBL_OVERLOADED_FUNCTION_OBJECT_H
+#ifndef CLBL_AMBI_FN_OBJ_WRAPPER_H
+#define CLBL_AMBI_FN_OBJ_WRAPPER_H
 
 #include "CLBL/tags.h"
 #include "CLBL/cv_checks.h"
@@ -9,70 +9,76 @@
 
 namespace clbl {
 
-    template<typename T>
+    template<typename Creator, qualify_flags CvFlags, typename T>
     struct ambi_fn_obj_wrapper {
 
+        static constexpr qualify_flags cv_flags = CvFlags;
+        using creator = Creator;
         using clbl_tag = ambi_fn_obj_tag;
         using semantics = ptr_call_semantics;
         using type = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
         using return_t = ambiguous_return;
-        using my_type = ambi_fn_obj_wrapper<T>;
+        using my_type = ambi_fn_obj_wrapper<Creator, cv_flags, T>;
+        using underlying_type = T;
 
-        ambi_fn_obj_wrapper(const std::remove_const_t<T>& o)
-            : value(o)
+        T _value;
+        dummy _object;
+
+        template<qualify_flags Flags>
+        using apply_cv = ambi_fn_obj_wrapper<Creator, CvFlags | Flags, T>;
+
+        ambi_fn_obj_wrapper(const std::remove_const_t<T>& o, dummy d = dummy{})
+            : _value(o)
         {}
+
+        inline operator underlying_type&(){
+            return _value;
+        }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {
-            return value(std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, _value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const {
-            return CLBL_UPCAST_AND_CALL_VAL(const, value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(const, _value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) volatile {
-            return CLBL_UPCAST_AND_CALL_VAL(volatile, value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(volatile, _value, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const volatile {
-            return CLBL_UPCAST_AND_CALL_VAL(const volatile, value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(const volatile, _value, std::forward<Fargs>(a)...);
         }
 
-        static constexpr bool clbl_is_deep_const = is_deep_const<T>() || std::is_const<T>::value;
-        static constexpr bool clbl_is_deep_volatile = is_deep_volatile<T>() || std::is_volatile<T>::value;
-
-
         static inline constexpr auto copy_invocation(my_type& c) {
-            return [v = c.value](auto&&... args){ 
-                return v(args...);
+            return [v = c._value](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return [v = c.value](auto&&... args){ 
+            return [v = c._value](auto&&... args){ 
                 return CLBL_UPCAST_AND_CALL_VAL(const, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return [v = c.value](auto&&... args){ 
+            return [v = c._value](auto&&... args){ 
                 return CLBL_UPCAST_AND_CALL_VAL(volatile, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return [v = c.value](auto&&... args){ 
+            return [v = c._value](auto&&... args){ 
                 return CLBL_UPCAST_AND_CALL_VAL(const volatile, v, args...);
             };
         }
-
-    private:
-        T value;
     };
 }
 

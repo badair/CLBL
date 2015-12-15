@@ -57,20 +57,8 @@ namespace clbl {
         inline forward(volatile forward<FwdType>& other) : value(other.value) {}
         inline forward(const volatile forward<FwdType>& other) : value(other.value) {}
 
-        using no_ref_type = no_ref<T>;
-
-        /*template<typename U>
-        static constexpr inline T convert(U&& v) {
-
-            if (std::is_rvalue_reference<T>::value) {
-                return std::move(v);
-            }
-
-            return v;
-        }*/
-
-        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref_type, T>() const { return value; }
-        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref_type, T>() const volatile { return value; }
+        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref<T>, T>() const { return value; }
+        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref<T>, T>() const volatile { return value; }
     };
 }
 

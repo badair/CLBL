@@ -9,22 +9,17 @@
 #include "CLBL/wrappers/pmf_ptr_wrapper.h"
 #include "CLBL/wrappers/ambi_fn_obj_wrapper.h"
 #include "CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h"
+#include "CLBL/wrap/free_function.h"
+#include "CLBL/wrap/function_object.h"
+#include "CLBL/wrap/pointer_to_function_object.h"
+#include "CLBL/wrap/member_function_with_object.h"
+#include "CLBL/wrap/member_function_with_pointer_to_object.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/tags.h"
 #include "CLBL/utility.h"
 
 namespace clbl {
     namespace detail {
-
-        /* todo why does this not work but the macro does?
-        template<typename T>
-        struct underlying_type_t{
-            using type = std::remove_cv_t<no_ref<decltype(*std::declval<T>())> >;
-        };
-
-        template<typename T>
-        using underlying_type = typename underlying_type_t<T>::type;
-        */
 
         auto has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
         auto ptr_has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
@@ -35,23 +30,18 @@ namespace clbl {
         template<typename T>
         constexpr bool ptr_has_normal_call_operator = decltype(ptr_has_normal_call_operator_impl(std::declval<T>()))::value;
 
-        auto can_dereference_impl = hana::is_valid([](auto arg)->decltype(*arg) {});
-
-        template<typename T>
-        constexpr bool can_dereference = decltype(can_dereference_impl(std::declval<T>()))::value;
-
         template<typename T> 
         struct sfinae_switch {
         private:
             
             static constexpr auto is_ref_wrapper = is_reference_wrapper<T>;
-            static constexpr auto is_overloaded = !has_normal_call_operator<T>;
-            static constexpr auto ptr_is_overloaded = !ptr_has_normal_call_operator<T>;
+            static constexpr auto is_ambiguous = !has_normal_call_operator<T>;
+            static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>;
             static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<T> >::value;
             static constexpr auto is_member_function_ptr = std::is_member_function_pointer<T>::value;
 
         public:
-            static constexpr auto is_ptr = can_dereference<T>;
+            static constexpr auto is_ptr = can_dereference<no_ref<T>>;
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
             static constexpr auto function_ptr_case = is_function_ptr;
             static constexpr auto member_function_ptr_case = !is_function_ptr && is_member_function_ptr;
@@ -60,111 +50,62 @@ namespace clbl {
             static constexpr auto is_complex_case = !reference_wrapper_case && !function_ptr_case && !member_function_ptr_case;
 
         public:
-            static constexpr auto function_object_case =                is_complex_case && !is_ptr && !is_overloaded;
-            static constexpr auto overloaded_function_object_case =     is_complex_case && !is_ptr && is_overloaded;
+            static constexpr auto function_object_case =                is_complex_case && !is_ptr && !is_ambiguous;
+            static constexpr auto ambiguous_function_object_case =     is_complex_case && !is_ptr && is_ambiguous;
 
-            static constexpr auto function_object_ptr_case =            is_complex_case && is_ptr && !ptr_is_overloaded;
-            static constexpr auto overloaded_function_object_ptr_case = is_complex_case && is_ptr &&  ptr_is_overloaded;
+            static constexpr auto function_object_ptr_case =            is_complex_case && is_ptr && !ptr_is_ambiguous;
+            static constexpr auto ambiguous_function_object_ptr_case = is_complex_case && is_ptr &&  ptr_is_ambiguous;
         };
     }
-
 
     /********************
     free function pointer
     *********************/
 
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case,
-            free_fn_wrapper<no_ref<std::remove_pointer_t<T> > >
-        > {
-        return free_fn_wrapper<no_ref<std::remove_pointer_t<T> > >{ std::forward<T>(t) };
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case, int>* = nullptr>
+    constexpr auto 
+    fwrap(T&& t) {
+        return free_function::template wrap<qflags::default_>(std::forward<T>(t));
     }
-
 
     /***********************************************
     Pointer to object with a member function pointer
     ************************************************/
 
-    template<typename T, typename TMemberFnPtr>
-    constexpr auto fwrap(T&& t, TMemberFnPtr member_fn_ptr) ->
-        std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
-                         && detail::sfinae_switch<T>::is_ptr,
-        pmf_ptr_wrapper<
-        no_ref<decltype(*std::declval<T>())>,
-        no_ref<T>,
-        TMemberFnPtr,
-        member_function_decay<TMemberFnPtr>
-        >
-        > {
-
-        return pmf_ptr_wrapper<
-            no_ref<decltype(*std::declval<T>())>,
-            no_ref<T>,
-            TMemberFnPtr,
-            member_function_decay<TMemberFnPtr>
-        >{ std::forward<T>(t), member_fn_ptr };
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::is_ptr, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
+        return member_function_with_pointer_to_object::template wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
     }
-
 
     /**********************************
     Object with member function pointer
     ***********************************/
 
-    template<typename T, typename TMemberFnPtr>
-    constexpr auto fwrap(T&& t, TMemberFnPtr member_fn_ptr) ->
-        std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
-                         && !detail::sfinae_switch<T>::is_ptr 
-                         && !detail::sfinae_switch<T>::reference_wrapper_case,
-        pmf_wrapper<
-        no_ref<T>,
-        TMemberFnPtr,
-        member_function_decay<TMemberFnPtr>
-        >
-        > {
-
-        return pmf_wrapper<
-            no_ref<T>,
-            TMemberFnPtr,
-            member_function_decay<TMemberFnPtr>
-        >{ std::forward<T>(t), member_fn_ptr };
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && !detail::sfinae_switch<T>::is_ptr && !detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
+        return member_function_with_object::template wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
     }
 
     /********************************
     Pointer to object with operator()
     *********************************/
 
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case,
-            pmf_ptr_wrapper<
-                no_ref<decltype(*std::declval<T>())>,
-                no_ref<T>,
-                decltype(&no_ref<decltype(*std::declval<T>())>::operator()),
-                member_function_decay<decltype(&no_ref<decltype(*std::declval<T>())>::operator())>
-            > 
-        > {
-
-        return pmf_ptr_wrapper<
-            no_ref<decltype(*std::declval<T>())>,
-            no_ref<T>,
-            decltype(&no_ref<decltype(*std::declval<T>())>::operator()),
-            member_function_decay<decltype(&no_ref<decltype(*std::declval<T>())>::operator())>
-        >{ std::forward<T>(t), &no_ref<decltype(*std::declval<T>())>::operator() };
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_ptr_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return pointer_to_function_object::template wrap<qflags::default_>(std::forward<T>(t));
     }
 
+    /*****************************************************************
+    Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
+    ******************************************************************/
 
-    /********************************************
-    Pointer to object with AMBIGUOUS operator()
-    *********************************************/
-
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_ptr_case,
-        ambi_fn_obj_ptr_wrapper<no_ref<T> >
-        > {
-
-        return ambi_fn_obj_ptr_wrapper<no_ref<T> >{ std::forward<T>(t) };
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return pointer_to_function_object::ambiguous::template wrap<qflags::default_>(std::forward<T>(t));
     }
 
 
@@ -172,60 +113,40 @@ namespace clbl {
     Object with operator()
     ***********************/
 
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::function_object_case,
-            pmf_wrapper<
-                no_ref<T>,
-                decltype(&no_ref<T>::operator()),
-                member_function_decay<decltype(&no_ref<T>::operator())>
-            >
-        > {
-
-        return pmf_wrapper<
-            no_ref<T>,
-            decltype(&no_ref<T>::operator()),
-            member_function_decay<decltype(&no_ref<T>::operator())>
-        >{std::forward<T>(t), &no_ref<T>::operator()};
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_object_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return function_object::template wrap<qflags::default_>(std::forward<T>(t));
     }
 
+    /******************************************************
+    Object with AMBIGUOUS (templated/overloaded) operator()
+    *******************************************************/
 
-    /*******************************
-    Object with AMBIGUOUS operator()
-    ********************************/
-
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::overloaded_function_object_case,
-            ambi_fn_obj_wrapper<no_ref<T> > 
-        > {
-
-        return ambi_fn_obj_wrapper< no_ref<T> >{std::forward<T>(t)};
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::ambiguous_function_object_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return function_object::ambiguous::template wrap<qflags::default_>(std::forward<T>(t));
     }
 
     /*********************
     std::reference_wrapper
     **********************/
 
-    template<typename T>
-    constexpr auto fwrap(T&& t)
-        -> std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case,
-            decltype(fwrap(std::addressof(t.get())))
-        > {
-
-        //toss the reference
-        return fwrap(std::addressof(t.get()));
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return   fwrap(std::addressof(t.get()));
     }
 
-    template<typename T, typename TMemberFnPtr>
-    constexpr auto fwrap(T&& t, TMemberFnPtr ptr)
-        -> std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && 
-                            detail::sfinae_switch<T>::reference_wrapper_case,
-        decltype(fwrap(std::addressof(t.get())))
-        > {
+    /**************************************************
+    std::reference_wrapper with member function pointer
+    ***************************************************/
 
-        //toss the reference
-        return fwrap(std::addressof(t.get()), ptr);
+    template<typename T, typename TMemberFnPtr, std::enable_if_t<detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case && detail::sfinae_switch<T>::reference_wrapper_case, int>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t, TMemberFnPtr ptr) {
+        return   fwrap(std::addressof(t.get()), ptr);
     }
 }
 

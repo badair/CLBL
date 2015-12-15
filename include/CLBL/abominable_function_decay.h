@@ -19,12 +19,7 @@ namespace clbl {
     //primary template fails silently
     template<typename Other> struct abominable_decay_t { using type = std::remove_cv_t<Other>; };
 
-    template<typename Return, typename... Args>
-    struct abominable_decay_t<Return(Args...)> { using type = Return(Args...); };
-
-    template<typename Return, typename... Args>
-    struct abominable_decay_t<Return(Args..., ...)> { using type = Return(Args..., ...); };
-
+    __SPECIALIZE_ABOMINABLE_DECAY(CLBL_NOTHING);
     __SPECIALIZE_ABOMINABLE_DECAY(&);
     __SPECIALIZE_ABOMINABLE_DECAY(&&);
     __SPECIALIZE_ABOMINABLE_DECAY(const);
@@ -37,6 +32,7 @@ namespace clbl {
     __SPECIALIZE_ABOMINABLE_DECAY(volatile &&);
     __SPECIALIZE_ABOMINABLE_DECAY(const volatile &&);
 
+    __SPECIALIZE_ABOMINABLE_DECAY_ELLIPSES(CLBL_NOTHING);
     __SPECIALIZE_ABOMINABLE_DECAY_ELLIPSES(&);
     __SPECIALIZE_ABOMINABLE_DECAY_ELLIPSES(&&);
     __SPECIALIZE_ABOMINABLE_DECAY_ELLIPSES(const);

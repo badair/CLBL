@@ -19,34 +19,67 @@ namespace hana = boost::hana;
 namespace clbl {
 
     namespace detail {
+
+        template<typename TMemberFnPtr, typename Callable, typename Creator>
+        struct disambiguate : Creator {};
+
+        template<typename TMemberFnPtr, typename C>
+        struct disambiguate<TMemberFnPtr, C, typename pointer_to_function_object::ambiguous> {
+            template<qualify_flags Flags, typename T, typename Dummy>
+            static inline constexpr auto
+            wrap(T&& t, Dummy&&) {
+                using object_type = no_ref<decltype(*std::declval<T>())>;
+                constexpr auto member_fn = static_cast<TMemberFnPtr>(&object_type::operator());
+                return member_function_with_pointer_to_object::template wrap<Flags>(member_fn, t);
+            }
+        };
+
+        template<typename TMemberFnPtr, typename C>
+        struct disambiguate<TMemberFnPtr, C, typename function_object::ambiguous> {
+            template<qualify_flags Flags, typename T, typename Dummy>
+            static inline constexpr auto
+            wrap(T&& t, Dummy&&) {
+                constexpr auto member_fn = static_cast<TMemberFnPtr>(&no_ref<T>::operator());
+                return member_function_with_object::template wrap<Flags>(member_fn, std::forward<T>(t));
+            }
+        };
+
+        template<typename TMemberFnPtr, typename C>
+        struct disambiguate<TMemberFnPtr, C, std::enable_if_t<C::creator::has_member_function_pointer, typename C::creator> > {
+            template<qualify_flags Flags, typename T, typename TExistingMemberFnPtr>
+            static inline constexpr auto
+            wrap(TExistingMemberFnPtr member_fn, T&& t) {
+                return C::creator::template wrap<Flags>(member_fn, std::forward<T>(t));
+            }
+        };
+
         template<typename Bad>
         struct harden_t {
             static_assert(sizeof(Bad) < 0, "Not a valid function type.");
         };
 
-#define __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, shallow_cv) \
-            template<typename Ut, typename P, typename Pmf, typename Ret, typename... Args> \
-            inline constexpr auto operator()(shallow_cv pmf_ptr_wrapper<Ut, P, Pmf, Ret(Ut::*)(Args...)>& c) const { \
-                using abominable_fn_type = std::conditional_t<is_clbl<Ut>, Return(forwardable<Args>...) deep_cv, Return(Args...) deep_cv>; \
-                using qualified_object_type = deep_cv std::remove_cv_t<Ut>; \
-                using requested_pmf_type = abominable_fn_type qualified_object_type::*; \
-                return fwrap<qualified_object_type, requested_pmf_type>(CLBL_UPCAST(deep_cv, c).object_ptr, static_cast<requested_pmf_type>(c.value)); \
-            } \
-            template<typename TPtr> \
-            inline constexpr auto operator()(shallow_cv ambi_fn_obj_ptr_wrapper<TPtr>& c) const { \
-                using T = no_ref<decltype(*std::declval<TPtr>())>; \
-                using abominable_fn_type = std::conditional_t<is_clbl<T>, Return(forwardable<Args>...) deep_cv, Return(Args...) deep_cv>; \
-                using requested_pmf_type = abominable_fn_type T::*; \
-                return fwrap<shallow_cv TPtr&, requested_pmf_type>(CLBL_UPCAST(deep_cv, c).value, static_cast<requested_pmf_type>(&T::operator())); \
-            }
+#define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
+        template<typename Callable> \
+        inline constexpr auto operator()(cv_present Callable& c) const { \
+            constexpr qualify_flags requested = cv<cv_requested dummy>; \
+            constexpr qualify_flags present = cv<cv_present dummy>; \
+            using C = no_ref<Callable>; \
+            using underlying_type = typename C::underlying_type; \
+            using abominable_fn_type = std::conditional_t<is_clbl<underlying_type>, \
+                                                            Return(forwardable<Args>...) cv_requested, \
+                                                            Return(Args...) cv_requested>; \
+            using requested_pmf_type = abominable_fn_type underlying_type::*; \
+            using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
+            return disambiguator::template wrap<requested | present>(c._value, c._object); \
+        }
             
-#define __CLBL_SPECIALIZE_HARDEN_T(deep_cv) \
+#define __CLBL_SPECIALIZE_HARDEN_T(cv_requested) \
         template<typename Return, typename... Args> \
-            struct harden_t<Return(Args...) deep_cv> { \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, CLBL_NOTHING) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, const) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, volatile) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(deep_cv, const volatile) \
+            struct harden_t<Return(Args...) cv_requested> { \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, CLBL_NOTHING) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, volatile) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const volatile) \
         }
 
         //todo ellipses and ref qualifiers... :(

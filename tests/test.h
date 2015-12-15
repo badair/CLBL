@@ -2,6 +2,7 @@
 #define TEST_H
 
 #include <string>
+#include <cstring>
 #include <functional>
 
 #include "CLBL/clbl.h"
@@ -40,10 +41,19 @@ namespace clbl { namespace tests {
 //#define CLBL_VOLATILE_INT_CHAR_TESTS
 //#define CLBL_VOLATILE_VOID_TESTS
 
-#define CLBL_STATIC_ASSERT_DEEP_CONST(x) static_assert(std::remove_reference_t<decltype(x)>::clbl_is_deep_const, "")
-#define CLBL_STATIC_ASSERT_DEEP_VOLATILE(x) static_assert(std::remove_reference_t<decltype(x)>::clbl_is_deep_volatile, "")
-#define CLBL_STATIC_ASSERT_NOT_DEEP_CONST(x) static_assert(!std::remove_reference_t<decltype(x)>::clbl_is_deep_const, "")
-#define CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(x) static_assert(!std::remove_reference_t<decltype(x)>::clbl_is_deep_volatile, "")
+#define CLBL_STATIC_ASSERT_DEEP_CONST(x) static_assert(std::remove_reference_t<decltype(x)>::cv_flags & qflags::const_, "")
+#define CLBL_STATIC_ASSERT_DEEP_VOLATILE(x) static_assert(std::remove_reference_t<decltype(x)>::cv_flags & qflags::volatile_, "")
+#define CLBL_STATIC_ASSERT_NOT_DEEP_CONST(x) static_assert(~std::remove_reference_t<decltype(x)>::cv_flags & qflags::const_, "")
+#define CLBL_STATIC_ASSERT_NOT_DEEP_VOLATILE(x) static_assert(~std::remove_reference_t<decltype(x)>::cv_flags & qflags::volatile_, "")
+
+template<typename T>
+struct start_of_type_name {
+    static const char* end_of_type_name(void) {
+        return __PRETTY_FUNCTION__;
+    }
+};
+
+#define CLBL_PRINT_NAME_AND_TYPE(x) std::cout << "(line " << __LINE__ << ")" << #x << ": " << start_of_type_name<decltype(x)>::end_of_type_name() << std::endl << std::endl
 
 template<typename F, typename G, typename H, typename... Args>
 void run_tests(
