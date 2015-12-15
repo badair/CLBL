@@ -35,7 +35,7 @@ namespace clbl {
     };
 
     template<>
-    struct qualifiers<qflags::default_ | qflags::lvalue_reference_> {
+    struct qualifiers<qflags::lvalue_reference_> {
         template<typename T>
         using apply = T&;
     };

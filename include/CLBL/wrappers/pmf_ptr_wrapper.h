@@ -24,7 +24,6 @@ namespace clbl {
         using args_t = hana::tuple<Args...>;
         using return_t = Return;
         using my_type = pmf_ptr_wrapper<Creator, cv_flags, UnderlyingType, TPtr, TMemberFnPtr, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>;
-
         using underlying_type = clbl::underlying_type<UnderlyingType>;
 
         TMemberFnPtr _value;
@@ -47,29 +46,6 @@ namespace clbl {
         inline pmf_ptr_wrapper(my_type& other) = default;
         inline pmf_ptr_wrapper(const my_type& other) = default;
         inline pmf_ptr_wrapper(my_type&& other) = default;
-
-        /*
-        implicit conversion to other cv representations - will fail if it's a downcast. falls 
-        back to ctor defaults for self-safe substitution failure 
-        */
-
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
-        inline pmf_ptr_wrapper(pmf_ptr_wrapper<Creator, Flags, UnderlyingType, TPtr, TMemberFnPtr, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>& other)
-            : _value(other._value), _object(other._object)
-        {}
-
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
-        inline pmf_ptr_wrapper(const pmf_ptr_wrapper<Creator, Flags, UnderlyingType, TPtr, TMemberFnPtr, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>& other)
-            : _value(other._value), _object(other._object)
-        {}
-
-        inline pmf_ptr_wrapper(volatile my_type& other)
-            : _value(other._value), _object(other._object)
-        {}
-
-        inline pmf_ptr_wrapper(const volatile my_type& other)
-            : _value(other._value), _object(other._object)
-        {}
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) {
@@ -113,7 +89,7 @@ namespace clbl {
 
         template<typename T = UnderlyingType, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args){
+            return[v = c._value, o = c._object](auto&&... args) mutable {
                 return CLBL_UPCAST_AND_CALL_MEMBER_PTR(CLBL_NOTHING, o, v, args...);
             };
         }
@@ -127,7 +103,7 @@ namespace clbl {
 
         template<typename T = UnderlyingType, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args){ 
+            return[v = c._value, o = c._object](auto&&... args) mutable { 
                 return CLBL_UPCAST_AND_CALL_MEMBER_PTR(volatile, o, v, args...);
             };
         }

@@ -55,21 +55,6 @@ namespace clbl {
     template<typename T>
     static constexpr auto is_clbl = already_has_cv_flags<T>;
 
-    namespace detail {
-        template<typename T>
-        struct creator_of_t {
-            using type = unknown_tag;
-        };
-
-        template<typename T>
-        struct creator_of_t<T::creator> {
-            using type = typename T::creator;
-        };
-    }
-
-    template<typename T>
-    using creator_of = typename detail::creator_of_t<no_ref<T>>::type;
-
     namespace underlying_type_detail {
         template<typename T>
         struct identity {

@@ -26,7 +26,12 @@ namespace clbl {
         };
     }
 
-    //std::function doesn't call const functions on copies of const objects - we want to force this behavior
+    /*
+    std::function doesn't call cv-qualified overloads because
+    it takes a copy. We elimiate overloads except the hardened one
+    by copying the desired invocation to achieve the desired behavior
+    of calling the const-qualified version
+    */
     template<typename GlueType, typename Callable>
     constexpr inline auto apply_glue(Callable&& c) {
         using C = no_ref<Callable>;
@@ -37,7 +42,7 @@ namespace clbl {
     inline auto convert_to(Callable&& c) {
 
         static_assert(!std::is_same<typename no_ref<Callable>::return_t, ambiguous_return>::value,
-            "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to .");
+            "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to.");
 
         using glue = no_ref<Callable>::forwarding_glue;
         return TypeErasedFunctionTemplate<glue> { apply_glue<glue>(std::forward<Callable>(c)) };

@@ -22,7 +22,7 @@ namespace clbl { namespace tests {
 #define CLBL_REFERENCE_ARG_TESTS
 #define CLBL_VALUE_TESTS
 #define CLBL_FORWARDING_TESTS
-#define CLBL_CONVERSION_TESTS
+#define CLBL_CV_TESTS
 #define CLBL_SHARED_PTR_TESTS
 #define CLBL_UNIQUE_PTR_TESTS
 

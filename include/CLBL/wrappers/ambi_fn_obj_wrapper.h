@@ -31,8 +31,19 @@ namespace clbl {
         template<qualify_flags Flags>
         using apply_cv = ambi_fn_obj_wrapper<Creator, CvFlags | Flags, T>;
 
-        ambi_fn_obj_wrapper(const std::remove_const_t<T>& o, dummy d = dummy{})
+        inline ambi_fn_obj_wrapper(const std::remove_const_t<T>& o, dummy d = dummy{})
             : _value(o)
+        {}
+
+        inline ambi_fn_obj_wrapper(my_type& other) = default;
+        inline ambi_fn_obj_wrapper(const my_type& other) = default;
+
+        inline ambi_fn_obj_wrapper(volatile my_type& other)
+            : _value(other._value)
+        {}
+
+        inline ambi_fn_obj_wrapper(const volatile my_type& other)
+            : _value(other._value)
         {}
 
         inline operator underlying_type&(){
@@ -60,7 +71,7 @@ namespace clbl {
         }
 
         static inline constexpr auto copy_invocation(my_type& c) {
-            return [v = c._value](auto&&... args){ 
+            return [v = c._value](auto&&... args) mutable { 
                 return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, v, args...);
             };
         }
@@ -72,7 +83,7 @@ namespace clbl {
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return [v = c._value](auto&&... args){ 
+            return [v = c._value](auto&&... args) mutable { 
                 return CLBL_UPCAST_AND_CALL_VAL(volatile, v, args...);
             };
         }

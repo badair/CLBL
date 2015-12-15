@@ -17,7 +17,7 @@ namespace clbl {
         wrap(TMemberFnPtr member_fn_ptr, T&& t) {
             constexpr auto cv_qualifiers = cv<T> | Flags;
             using decayed_fn = member_function_decay<no_ref<TMemberFnPtr> >;
-            using wrapper = pmf_wrapper<member_function_with_object, cv_qualifiers, no_ref<T>, TMemberFnPtr, decayed_fn>;
+            using wrapper = pmf_wrapper<member_function_with_object, cv_qualifiers, no_ref<T>, no_ref<TMemberFnPtr>, decayed_fn>;
             return wrapper{ member_fn_ptr, std::forward<T>(t) };
         }
 
