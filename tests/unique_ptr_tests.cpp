@@ -20,7 +20,7 @@ namespace unique_tests {
 
         scope_test(std::stringstream& s) : ss(s) {}
 
-        void fwrap(int i) { ss << i; }
+        void func(int i) { ss << i; }
 
         ~scope_test() {
             ss << destroyed_message;
@@ -35,16 +35,18 @@ void unique_ptr_tests() {
 #ifdef CLBL_UNIQUE_PTR_TESTS
     std::cout << "running CLBL_UNIQUE_PTR_TESTS" << std::endl;
 
-    std::stringstream ss{};
-    
     {
-        auto ptr = std::make_unique<scope_test>(ss);
-        auto f = fwrap(std::move(ptr), &scope_test::fwrap);
-        f(1);
-    }
+        std::stringstream ss{};
 
-    auto expected_result = std::string{ "1" } + std::string{ destroyed_message };
-    TEST(ss.str() == expected_result);
+        {
+            auto ptr = std::make_unique<scope_test>(ss);
+            auto f = fwrap(std::move(ptr), &scope_test::func);
+            f(1);
+        }
+
+        auto expected_result = std::string{ "1" } +std::string{ destroyed_message };
+        TEST(ss.str() == expected_result);
+    }
 
 #endif
 }

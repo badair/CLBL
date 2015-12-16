@@ -17,7 +17,7 @@ namespace clbl {
         template<typename T>
         inline constexpr qualify_flags cv_flags() {
             constexpr auto can_deref = can_dereference<T>;
-            using derferenceable = std::conditional_t<can_deref, T, int*>;
+            using derferenceable = std::conditional_t<can_deref, T, dummy*>;
             using cv_type = no_ref<std::conditional_t<can_deref, decltype(*std::declval<derferenceable>()), T> >;
             constexpr auto constness = std::is_const<cv_type>::value ? qflags::const_ : qflags::default_;
             constexpr auto volatileness = std::is_volatile<cv_type>::value ? qflags::volatile_ : qflags::default_;
