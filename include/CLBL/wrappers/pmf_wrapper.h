@@ -20,6 +20,7 @@ namespace clbl {
     struct pmf_wrapper<Creator, CvFlags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)> {
 
         static constexpr qualify_flags cv_flags = CvFlags;
+        static constexpr bool is_ambiguous = std::is_same<Return(Args...), ambiguous_return(ambiguous_args)>::value;
         using creator = Creator;
         using clbl_tag = pmf_tag;
         using type = Return(Args...);

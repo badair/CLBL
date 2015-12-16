@@ -20,6 +20,7 @@ namespace clbl {
     struct free_fn_wrapper<Creator, Return(Args...)> {
 
         static constexpr qualify_flags cv_flags = qflags::default_;
+        static constexpr bool is_ambiguous = false;
         using creator = Creator;
         using clbl_tag = free_fn_tag;
         using my_type = free_fn_wrapper<Creator, Return(Args...)>;

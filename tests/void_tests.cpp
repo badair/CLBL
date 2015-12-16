@@ -18,6 +18,10 @@ void void_tests() {
     auto g = fwrap(&void_func);
     auto h = fwrap(&void_object, &void_struct::func);
 
+    /*todo make this work (also try_call)
+    static_assert(!can_call(f, 1), "");
+    static_assert(can_call(f), "");*/
+
     run_tests(
         f, test_id::void_struct_op,
         g, test_id::void_func,

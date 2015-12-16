@@ -25,6 +25,10 @@ void int_tests() {
     auto default_hardened_g = harden(g);
     auto default_hardened_h = harden(h);
 
+    /*todo static_assert(!can_call(f, 1, 2), "");
+    static_assert(can_call(f, 1), "");
+    static_assert(!can_call(f, "illegal argument"), "");*/
+
     static_assert(std::is_same<decltype(f)::type, const char*(int)>::value, "std::is_same<decltype(f)::type, const char*(int)>::value");
 
     run_tests(

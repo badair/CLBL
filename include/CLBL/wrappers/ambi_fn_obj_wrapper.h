@@ -15,6 +15,7 @@ namespace clbl {
     struct ambi_fn_obj_wrapper {
 
         static constexpr qualify_flags cv_flags = CvFlags;
+        static constexpr bool is_ambiguous = true;
         using creator = Creator;
         using clbl_tag = ambi_fn_obj_tag;
         using semantics = ptr_call_semantics;
