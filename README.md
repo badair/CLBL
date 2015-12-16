@@ -161,10 +161,10 @@ int main() {
     As you can see, CLBL wrappers define a return_t alias for the return type, which, in this case,
     is deduced to be const char*.
 
-    clbl::harden is only useful for ambiguous cases of operator(). To disambiguate free functions
+    clbl::harden is only useful for ambiguous cases of operator(). This will be increasingly useful
+    in the wild as generic lambdas make their way into C++ codebases. To disambiguate free functions
     and member functions, you still need to static_cast before creating the CLBL wrapper, as has
-    always been the case. This will be increasingly useful in the wild as generic lambdas make
-    their way into C++ codebases. 
+    always been the case. 
 
     ...
 
