@@ -2,10 +2,12 @@
 #define CLBL_MEMBER_FUNCTION_H
 
 #include <type_traits>
+#include <tuple>
 
 #include "CLBL/cv.h"
 #include "CLBL/utility.h"
 #include "CLBL/forward.h"
+#include "CLBL/forwardable.h"
 #include "CLBL/harden_cast.h"
 #include "CLBL/invocation_macros.h"
 
@@ -22,8 +24,9 @@ namespace clbl {
         using clbl_tag = pmf_tag;
         using type = Return(Args...);
         using forwarding_glue = Return(forward<Args>...);
-        using args_t = hana::tuple<Args...>;
+        using args_t = std::tuple<Args...>;
         using return_t = Return;
+        using forward_return = return_forwardable<Return>;
         using my_type = pmf_wrapper<Creator, cv_flags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;
         using qualified_object = apply_qualifiers<T, cv_flags>;
         using underlying_type = qualified_object;

@@ -4,7 +4,6 @@
 #define CLBL_HARDEN_H
 
 #include <functional>
-#include <boost/hana.hpp>
 
 #include "CLBL/tags.h"
 #include "CLBL/qualify_flags.h"
@@ -12,8 +11,6 @@
 #include "CLBL/fwrap.h"
 #include "CLBL/wrappers/pmf_ptr_wrapper.h"
 #include "CLBL/utility.h"
-
-namespace hana = boost::hana;
 
 namespace clbl {
 
@@ -59,7 +56,8 @@ namespace clbl {
 
 #define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
         template<typename Callable> \
-        inline constexpr auto operator()(cv_present Callable& c) const { \
+        inline constexpr auto \
+        operator()(cv_present Callable& c) const { \
             constexpr qualify_flags requested = cv<cv_requested dummy>; \
             constexpr qualify_flags present = cv<cv_present dummy>; \
             using C = no_ref<Callable>; \

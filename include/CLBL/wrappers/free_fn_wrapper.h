@@ -1,6 +1,8 @@
 #ifndef CLBL_FREE_FN_WRAPPER_H
 #define CLBL_FREE_FN_WRAPPER_H
 
+#include <tuple>
+
 #include "CLBL/utility.h"
 #include "CLBL/tags.h"
 #include "CLBL/qualify_flags.h"
@@ -23,7 +25,7 @@ namespace clbl {
         using my_type = free_fn_wrapper<Creator, Return(Args...)>;
         using type = Return(Args...);
         using forwarding_glue = Return(forward<Args>...);
-        using args_t = hana::tuple<Args...>;
+        using args_t = std::tuple<Args...>;
         using return_t = Return;
         using underlying_type = my_type;
 

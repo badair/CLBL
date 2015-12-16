@@ -2,6 +2,7 @@
 #define CLBL_PMF_PTR_WRAPPER_H
 
 #include <type_traits>
+#include <tuple>
 
 #include "CLBL/utility.h"
 #include "CLBL/forward.h"
@@ -21,8 +22,9 @@ namespace clbl {
         using clbl_tag = pmf_ptr_tag;
         using type = Return(Args...);
         using forwarding_glue = Return(forward<Args>...);
-        using args_t = hana::tuple<Args...>;
+        using args_t = std::tuple<Args...>;
         using return_t = Return;
+
         using my_type = pmf_ptr_wrapper<Creator, cv_flags, UnderlyingType, TPtr, TMemberFnPtr, Return(std::remove_cv_t<UnderlyingType>::*)(Args...)>;
         using underlying_type = clbl::underlying_type<UnderlyingType>;
 

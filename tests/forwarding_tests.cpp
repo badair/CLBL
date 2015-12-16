@@ -39,11 +39,17 @@ namespace fwd_tests {
     struct copy_taker{
         void take_copy(copy_counter) const {}
     };
+
+    struct copy_returner {
+        copy_counter return_copy() {
+            copy_counter c{};
+            return c;
+        }
+    };
 }
 
 int fwd_tests::copy_counter::value = 0;
 
-//todo test for RVO
 void forwarding_tests() {
 
 #ifdef CLBL_FORWARDING_TESTS
@@ -110,9 +116,9 @@ void forwarding_tests() {
 
         auto f = fwrap(fwd_tests::forwarder);
 
-        //lamba call operators are const qualified unless the lambda is specified as mutable.
+        //lamba operator()s are const qualified unless the lambda is specified as mutable.
         //Forwarding lambdas need a reference type
-        auto hardened = harden<void(const copy_counter&) const>(f);
+        auto hardened = harden<void(copy_counter&) const>(f);
 
         hardened(obj);
         TEST(copy_counter::value == 1);
@@ -145,6 +151,51 @@ void forwarding_tests() {
 
         std_func(obj);
         TEST(copy_counter::value == 2);
+    }
+    {
+        //testing presence of RVO for non-trivially copyable types
+        static_assert(!std::is_trivially_copyable<copy_counter>::value, "");
+
+        copy_counter::reset();
+        auto f = fwrap(fwd_tests::copy_returner{}, &fwd_tests::copy_returner::return_copy);
+        auto hardened = harden<copy_counter()>(f);
+        auto std_func = convert_to<std::function>(f);
+        auto std_func2 = convert_to<std::function>(hardened);
+
+        f();
+        TEST(copy_counter::value == 0);
+
+        hardened();
+        TEST(copy_counter::value == 0);
+
+        std_func();
+        TEST(copy_counter::value == 0);
+
+        std_func2();
+        TEST(copy_counter::value == 0);
+    }
+    {
+        //testing presence of RVO for non-trivially copyable types
+        static_assert(!std::is_trivially_copyable<copy_counter>::value, "");
+
+        copy_counter::reset();
+        auto obj = fwd_tests::copy_returner{};
+        auto f = fwrap(&obj, &fwd_tests::copy_returner::return_copy);
+        auto hardened = harden<copy_counter()>(f);
+        auto std_func = convert_to<std::function>(f);
+        auto std_func2 = convert_to<std::function>(hardened);
+
+        f();
+        TEST(copy_counter::value == 0);
+
+        hardened();
+        TEST(copy_counter::value == 0);
+
+        std_func();
+        TEST(copy_counter::value == 0);
+
+        std_func2();
+        TEST(copy_counter::value == 0);
     }
 
 #endif

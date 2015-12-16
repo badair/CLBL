@@ -18,12 +18,13 @@
 #include "CLBL/tags.h"
 #include "CLBL/qualify_flags.h"
 #include "CLBL/utility.h"
+#include "CLBL/is_valid.h"
 
 namespace clbl {
     namespace detail {
 
-        auto has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
-        auto ptr_has_normal_call_operator_impl = hana::is_valid([](auto arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
+        auto has_normal_call_operator_impl = is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
+        auto ptr_has_normal_call_operator_impl = is_valid([](auto arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
 
         template<typename T>
         constexpr bool has_normal_call_operator = decltype(has_normal_call_operator_impl(std::declval<T>()))::value;
@@ -64,7 +65,7 @@ namespace clbl {
     *********************/
 
     template<typename T, std::enable_if_t<detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
-    constexpr auto 
+    inline constexpr auto 
     fwrap(T&& t) {
         return free_function::template wrap<qflags::default_>(std::forward<T>(t));
     }
@@ -148,6 +149,13 @@ namespace clbl {
     fwrap(T&& t, TMemberFnPtr ptr) {
         return   fwrap(std::addressof(t.get()), ptr);
     }
+
+    /* todo - shorter creator aliases for use with fast_wrap
+    template<typename Creator, typename... Args>
+    inline constexpr auto
+        fast_wrap(Args&&... args) {
+        return Creator::template wrap<qflags::default_>(std::forward<Args>(args)...);
+    }*/
 }
 
 #endif

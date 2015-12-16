@@ -2,7 +2,8 @@
 #include "CLBL/clbl.h"
 #include "int_definitions.h"
 
-#include<iostream>
+#include <iostream>
+#include <functional>
 
 using namespace clbl::tests;
 using namespace clbl;
@@ -24,16 +25,6 @@ void int_tests() {
     auto default_hardened_g = harden(g);
     auto default_hardened_h = harden(h);
 
-    auto j = fwrap(int_object);
-    auto k = fwrap(&int_func);
-    auto l = fwrap(int_object, &int_struct::func);
-    auto hardened_j = harden<const char*(int)>(j);
-    auto hardened_k = harden<const char*(int)>(k);
-    auto hardened_l = harden<const char*(int)>(l);
-    auto default_hardened_j = harden(j);
-    auto default_hardened_k = harden(k);
-    auto default_hardened_l = harden(l);
-
     static_assert(std::is_same<decltype(f)::type, const char*(int)>::value, "std::is_same<decltype(f)::type, const char*(int)>::value");
 
     run_tests(
@@ -41,7 +32,7 @@ void int_tests() {
         g, test_id::int_func,
         h, test_id::int_struct_func,
         1
-    );
+        );
 
     run_tests(
         hardened_f, test_id::int_struct_op,
@@ -55,7 +46,17 @@ void int_tests() {
         default_hardened_g, test_id::int_func,
         default_hardened_h, test_id::int_struct_func,
         1
-    );
+        );
+
+    auto j = fwrap(int_object);
+    auto k = fwrap(&int_func);
+    auto l = fwrap(int_object, &int_struct::func);
+    auto hardened_j = harden<const char*(int)>(j);
+    auto hardened_k = harden<const char*(int)>(k);
+    auto hardened_l = harden<const char*(int)>(l);
+    auto default_hardened_j = harden(j);
+    auto default_hardened_k = harden(k);
+    auto default_hardened_l = harden(l);
 
     run_tests(
         j, test_id::int_struct_op,
@@ -78,5 +79,35 @@ void int_tests() {
         1
         );
 
+    auto m = fwrap(std::ref(int_object));
+    auto n = fwrap(&int_func);
+    auto o = fwrap(std::ref(int_object), &int_struct::func);
+    auto hardened_m = harden<const char*(int)>(m);
+    auto hardened_n = harden<const char*(int)>(n);
+    auto hardened_o = harden<const char*(int)>(o);
+    auto default_hardened_m = harden(m);
+    auto default_hardened_n = harden(n);
+    auto default_hardened_o = harden(o);
+
+    run_tests(
+        m, test_id::int_struct_op,
+        n, test_id::int_func,
+        o, test_id::int_struct_func,
+        1
+        );
+
+    run_tests(
+        hardened_m, test_id::int_struct_op,
+        hardened_n, test_id::int_func,
+        hardened_o, test_id::int_struct_func,
+        1
+        );
+
+    run_tests(
+        default_hardened_m, test_id::int_struct_op,
+        default_hardened_n, test_id::int_func,
+        default_hardened_o, test_id::int_struct_func,
+        1
+        );
 #endif
 }

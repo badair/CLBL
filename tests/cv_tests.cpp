@@ -389,10 +389,10 @@ void conversion_tests() {
         auto hv = harden<const char*(int, char) volatile>(nested_v);
         auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
 
-        CLBL_PRINT_NAME_AND_TYPE(hnormal);
+        /*CLBL_PRINT_NAME_AND_TYPE(hnormal);
         CLBL_PRINT_NAME_AND_TYPE(hc);
         CLBL_PRINT_NAME_AND_TYPE(hv);
-        CLBL_PRINT_NAME_AND_TYPE(hcv);
+        CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
         TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
         TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
@@ -404,10 +404,10 @@ void conversion_tests() {
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
 
-        CLBL_PRINT_NAME_AND_TYPE(stdn);
+        /*CLBL_PRINT_NAME_AND_TYPE(stdn);
         CLBL_PRINT_NAME_AND_TYPE(stdc);
         CLBL_PRINT_NAME_AND_TYPE(stdv);
-        CLBL_PRINT_NAME_AND_TYPE(stdcv);
+        CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
         TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
         TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);

@@ -1,12 +1,9 @@
 #ifndef CLBL_UTILITY_H
 #define CLBL_UTILITY_H
 
-#include <boost/hana.hpp>
-
-namespace hana = boost::hana;
-
 #include "CLBL/tags.h"
 #include "CLBL/qualify_flags.h"
+#include "CLBL/is_valid.h"
 
 #define CLBL_CALL_PTR(cv_ignored, ptr, args) (*ptr)(args)
 #define CLBL_UPCAST_AND_CALL_PTR(qual, ptr, args) harden_cast<cv<qual dummy> | cv_flags>(*ptr)(args)
@@ -30,11 +27,11 @@ namespace clbl {
         template <typename T>
         struct is_reference_wrapper_t<std::reference_wrapper<T> > : std::true_type {};
 
-        auto can_dereference_impl = hana::is_valid([](auto arg)->decltype(*arg) {});
+        auto can_dereference_impl = is_valid([](auto arg)->decltype(*arg) {});
 
-        static auto already_has_cv_flags_t = hana::is_valid([](auto c) -> decltype(decltype(c)::cv_flags) {});
+        static auto already_has_cv_flags_t = is_valid([](auto c) -> decltype(decltype(c)::cv_flags) {});
 
-        auto has_creator_t = hana::is_valid([](auto arg)-> decltype(arg)::creator{});
+        auto has_creator_t = is_valid([](auto arg)-> typename decltype(arg)::creator{});
     }
 
     template<typename T>

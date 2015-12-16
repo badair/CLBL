@@ -51,6 +51,18 @@ void reference_arg_tests() {
         TEST(i == 2);
     }
     {
+        auto f = fwrap(&ref_tests::increment_int);
+        auto stdf = convert_to<std::function>(f);
+        auto i = 0;
+        stdf(i);
+        TEST(i == 1);
+
+        auto g = fwrap(&f);
+        auto stdg = convert_to<std::function>(harden<typename decltype(f)::type>(g));
+        stdg(i);
+        TEST(i == 2);
+    }
+    {
         //argument forwarding - const reference
         auto f = fwrap(&ref_tests::address_of_int);
         auto i = 0;

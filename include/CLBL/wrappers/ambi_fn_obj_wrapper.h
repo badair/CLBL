@@ -35,6 +35,10 @@ namespace clbl {
             : _value(o)
         {}
 
+        inline ambi_fn_obj_wrapper(std::remove_const_t<T>&& o, dummy d = dummy{})
+            : _value(o)
+        {}
+
         inline ambi_fn_obj_wrapper(my_type& other) = default;
         inline ambi_fn_obj_wrapper(const my_type& other) = default;
 
