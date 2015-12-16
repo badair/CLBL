@@ -13,7 +13,8 @@ namespace clbl {
     struct dummy {
         using underlying_type = dummy;
     };
-
+    
+    struct auto_ {};
     struct ambiguous_return {};
     struct ambiguous_args {};
 

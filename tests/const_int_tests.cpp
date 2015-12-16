@@ -50,9 +50,9 @@ void const_int_tests() {
         auto f = fwrap(const_int_object);
         auto g = fwrap(&int_func);
         auto h = fwrap(const_int_object, &const_int_struct::func);
-        auto hardened_f = harden<const char*(int)>(f);
-        auto hardened_g = harden<const char*(int)>(g);
-        auto hardened_h = harden<const char*(int)>(h);
+        auto hardened_f = harden<auto_(int)>(f);
+        auto hardened_g = harden<auto_(int)>(g);
+        auto hardened_h = harden<auto_(int)>(h);
         auto default_hardened_f = harden(f);
         auto default_hardened_g = harden(g);
         auto default_hardened_h = harden(h);

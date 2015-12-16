@@ -132,10 +132,10 @@ void conversion_tests() {
         TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
         TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-        auto hnormal = harden<const char*(int, char)>(nested_normal);
-        auto hc = harden<const char*(int, char) const>(nested_c);
-        auto hv = harden<const char*(int, char) volatile>(nested_v);
-        auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
+        auto hnormal = harden<auto_(int, char)>(nested_normal);
+        auto hc = harden<auto_(int, char) const>(nested_c);
+        auto hv = harden<auto_(int, char) volatile>(nested_v);
+        auto hcv = harden<auto_(int, char) const volatile>(nested_cv);
 
         /*CLBL_PRINT_NAME_AND_TYPE(hnormal);
         CLBL_PRINT_NAME_AND_TYPE(hc);
@@ -200,10 +200,10 @@ void conversion_tests() {
         TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
         TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-        auto hnormal = harden<const char*(int, char)>(nested_normal);
-        auto hc = harden<const char*(int, char) const>(nested_c);
-        auto hv = harden<const char*(int, char) volatile>(nested_v);
-        auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
+        auto hnormal = harden<auto_(int, char)>(nested_normal);
+        auto hc = harden<auto_(int, char) const>(nested_c);
+        auto hv = harden<auto_(int, char) volatile>(nested_v);
+        auto hcv = harden<auto_(int, char) const volatile>(nested_cv);
 
         /*CLBL_PRINT_NAME_AND_TYPE(hnormal);
         CLBL_PRINT_NAME_AND_TYPE(hc);
@@ -281,9 +281,9 @@ void conversion_tests() {
         const volatile auto cv = fwrap(&overloaded_object);
 
         //should cause compile error if called: auto hnormal = harden<const char*(int, char)>(normal);
-        const auto hc = harden<const char*(int, char) const>(c);
+        const auto hc = harden<auto_(int, char) const>(c);
         //should cause compile error if called: volatile auto hv = harden<const char*(int, char) volatile>(v);
-        const volatile auto hcv = harden<const char*(int, char) const volatile>(cv);
+        const volatile auto hcv = harden<auto_(int, char) const volatile>(cv);
 
         auto stdc = convert_to<std::function>(hc);
         auto stdcv = convert_to<std::function>(hcv);

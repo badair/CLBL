@@ -11,6 +11,7 @@
 #include "CLBL/fwrap.h"
 #include "CLBL/wrappers/pmf_ptr_wrapper.h"
 #include "CLBL/utility.h"
+#include "CLBL/harden_cast.h"
 
 namespace clbl {
 
@@ -62,9 +63,12 @@ namespace clbl {
             constexpr qualify_flags present = cv<cv_present dummy>; \
             using C = no_ref<Callable>; \
             using underlying_type = typename C::underlying_type; \
+            using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
+                                                    decltype(harden_cast<(requested | present)>(c)(std::declval<Args>()...)), \
+                                                    Return>; \
             using abominable_fn_type = std::conditional_t<is_clbl<underlying_type>, \
-                                                            Return(forwardable<Args>...) cv_requested, \
-                                                            Return(Args...) cv_requested>; \
+                                                            return_type(forwardable<Args>...) cv_requested, \
+                                                            return_type(Args...) cv_requested>; \
             using requested_pmf_type = abominable_fn_type underlying_type::*; \
             using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
             return disambiguator::template wrap<requested | present>(c._value, c._object); \

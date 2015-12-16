@@ -11,6 +11,13 @@
 
 namespace clbl {
 
+    /*
+    "ambiguous function object pointer wrapper" - wraps a pointer to a 
+    callable object whose operator() is overloaded and/or templated.
+    You may still call this wrapper as you would call the original
+    object, but you must disambiguate by calling clbl::harden before
+    using any of the additional features in CLBL
+    */
     template<typename Creator, qualify_flags CvFlags, typename TPtr>
     struct ambi_fn_obj_ptr_wrapper {
 
@@ -58,7 +65,6 @@ namespace clbl {
         implicit conversion to other cv representations - will fail if it's a downcast. falls
         back to ctor defaults for self-safe substitution failure
         */
-
         template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
         inline ambi_fn_obj_ptr_wrapper(ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
             : _value(other._value), _object(other._object)
