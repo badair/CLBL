@@ -62,7 +62,7 @@ int main() {
 
     /*
     Here we create a CLBL callable object by wrapping a cv_reporter lvalue (which is copied).
-    clbl::fwrap also accepts pointers, smart pointers, rvalues (to copy), and std::reference_wrapper.
+    clbl::fwrap also accepts pointers, smart pointers, rvalues, and std::reference_wrapper.
     */
     auto callable = clbl::fwrap(obj);
 
