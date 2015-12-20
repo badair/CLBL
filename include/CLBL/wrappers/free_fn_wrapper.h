@@ -9,77 +9,78 @@
 #include "CLBL/forward.h"
 #include "CLBL/harden_cast.h"
 #include "CLBL/invocation_macros.h"
+#include "CLBL/invocation_data.h"
 
 namespace clbl {
 
-    //dispatch failure case for free functions
     template<typename, typename Failure>
     struct free_fn_wrapper { static_assert(sizeof(Failure) < 0, "Not a function."); };
 
     template<typename Creator, typename Return, typename... Args>
     struct free_fn_wrapper<Creator, Return(Args...)> {
 
-        static constexpr qualify_flags cv_flags = qflags::default_;
-        static constexpr bool is_ambiguous = false;
-        using creator = Creator;
-        using clbl_tag = free_fn_tag;
-        using my_type = free_fn_wrapper<Creator, Return(Args...)>;
-        using type = Return(Args...);
-        using forwarding_glue = Return(forward<Args>...);
         using args_t = std::tuple<Args...>;
+        using clbl_tag = free_fn_tag;
+        using creator = Creator;
+        using forwarding_glue = Return(forward<Args>...);
+        using invocation_data_type = ptr_invocation_data<Return(*)(Args...)>;
+        using my_type = free_fn_wrapper<Creator, Return(Args...)>;
         using return_t = Return;
+        using type = Return(Args...);
         using underlying_type = my_type;
-
-        Return(*_value)(Args...);
-        dummy _object;
-
+        
         template<qualify_flags>
         using apply_cv = my_type;
 
+        static constexpr auto cv_flags = qflags::default_;
+        static constexpr auto is_ambiguous = false;
+
+        invocation_data_type data;
+
         free_fn_wrapper(Return(*f_ptr)(Args...), dummy d = dummy{})
-            : _value(f_ptr) 
+            : data{ f_ptr }
         {}
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) { 
-            return (*_value)(std::forward<Fargs>(a)...);
+            return (*data.ptr)(std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const {
-            return CLBL_CALL_PTR(const, _value, std::forward<Fargs>(a)...);
+            return CLBL_CALL_PTR(const, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) volatile {
-            return CLBL_CALL_PTR(volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_CALL_PTR(volatile, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const volatile {
-            return CLBL_CALL_PTR(const volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_CALL_PTR(const volatile, data.ptr, std::forward<Fargs>(a)...);
         }
 
         static inline constexpr auto copy_invocation(my_type& c) {
-            return[&v = c._value](auto&&... args){ 
+            return[&v = c.data.ptr](auto&&... args){
                 return (*v)(args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return[v = c._value](auto&&... args){ 
+            return[v = c.data.ptr](auto&&... args){
                 return CLBL_CALL_PTR(const, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return[v = c._value](auto&&... args){
+            return[v = c.data.ptr](auto&&... args){
                 return CLBL_CALL_PTR(volatile, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return[v = c._value](auto&&... args){
+            return[v = c.data.ptr](auto&&... args){
                 return CLBL_CALL_PTR(const volatile, v, args...);
             };
         }

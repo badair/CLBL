@@ -8,6 +8,7 @@
 #include "CLBL/utility.h"
 #include "CLBL/harden_cast.h"
 #include "CLBL/invocation_macros.h"
+#include "CLBL/invocation_data.h"
 
 namespace clbl {
 
@@ -21,33 +22,34 @@ namespace clbl {
     template<typename Creator, qualify_flags CvFlags, typename TPtr>
     struct ambi_fn_obj_ptr_wrapper {
 
-        static constexpr qualify_flags cv_flags = CvFlags;
-        static constexpr bool is_ambiguous = true;
-        using creator = Creator;
-        using clbl_tag = ambi_fn_obj_ptr_tag;
-        using semantics = ptr_call_semantics;
-        using type = ambiguous_return(ambiguous_args);
-        using forwarding_glue = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
-        using return_t = ambiguous_return;
+        using clbl_tag = ambi_fn_obj_ptr_tag;
+        using creator = Creator;
+        using forwarding_glue = ambiguous_return(ambiguous_args);
+        using invocation_data_type = ptr_invocation_data<TPtr>;
         using my_type = ambi_fn_obj_ptr_wrapper<Creator, CvFlags, TPtr>;
+        using return_t = ambiguous_return;
+        using type = ambiguous_return(ambiguous_args);
         using underlying_type = no_ref<decltype(*std::declval<TPtr>())>;
-
-        TPtr _value;
-        dummy _object;
 
         template<qualify_flags Flags>
         using apply_cv = ambi_fn_obj_ptr_wrapper<Creator, CvFlags | Flags, TPtr>;
 
-        ambi_fn_obj_ptr_wrapper()
+        static constexpr auto cv_flags = CvFlags;
+        static constexpr auto is_ambiguous = true;
+
+        invocation_data_type data;
+
+        ambi_fn_obj_ptr_wrapper(std::remove_const_t<TPtr>& o_ptr)
+            : data{ o_ptr }
         {}
 
-        ambi_fn_obj_ptr_wrapper(const TPtr& o_ptr, dummy d = dummy{})
-            : _value(std::forward<TPtr>(o_ptr))
+        ambi_fn_obj_ptr_wrapper(const TPtr& o_ptr)
+            : data{ o_ptr }
         {}
 
-        ambi_fn_obj_ptr_wrapper(TPtr&& o_ptr, dummy d = dummy{})
-            : _value(std::forward<TPtr>(o_ptr))
+        ambi_fn_obj_ptr_wrapper(TPtr&& o_ptr)
+            : data{ std::forward<TPtr>(o_ptr) }
         {}
 
         ambi_fn_obj_ptr_wrapper(my_type& other) = default;
@@ -55,11 +57,11 @@ namespace clbl {
         ambi_fn_obj_ptr_wrapper(my_type&& other) = default;
       
         inline ambi_fn_obj_ptr_wrapper(volatile my_type& other)
-            : _value(other._value)
+            : data(other.data)
         {}
 
         inline ambi_fn_obj_ptr_wrapper(const volatile my_type& other)
-            : _value(other._value)
+            : data(other.data)
         {}
 
         /*
@@ -68,52 +70,52 @@ namespace clbl {
         */
         template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
         inline ambi_fn_obj_ptr_wrapper(ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
-            : _value(other._value), _object(other._object)
+            : data(other.data)
         {}
 
         template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
         inline ambi_fn_obj_ptr_wrapper(const ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
-            : _value(other._value), _object(other._object)
+            : data(other.data)
         {}
 
         inline operator underlying_type&() {
-            return _value;
+            return data.ptr;
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {
-            return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const {
-            return CLBL_UPCAST_AND_CALL_PTR(const, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(const, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) volatile {
-            return CLBL_UPCAST_AND_CALL_PTR(volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(volatile, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const volatile {
-            return CLBL_UPCAST_AND_CALL_PTR(const volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(const volatile, data.ptr, std::forward<Fargs>(a)...);
         }
 
         static inline constexpr auto copy_invocation(my_type& c) {
-            return[v = c._value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, v, args...);};
         }
 
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return[v = c._value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const, v, args...);};
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return[v = c._value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(volatile, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(volatile, v, args...);};
         }
 
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return[v = c._value](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const volatile, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const volatile, v, args...);};
         }
     };
 }

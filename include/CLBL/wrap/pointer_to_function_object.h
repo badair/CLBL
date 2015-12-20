@@ -21,16 +21,28 @@ namespace clbl {
             return member_function_with_pointer_to_object::wrap<Flags>(member_fn, std::forward<T>(t));
         }
 
+        template<qualify_flags Flags, typename Invocation>
+        static inline constexpr auto
+            wrap_data(Invocation data) {
+            return wrap<Flags>(data.ptr);
+        }
+
         static constexpr bool has_member_function_pointer = false;
 
         struct ambiguous {
 
             template<qualify_flags Flags, typename T>
             static inline constexpr auto
-            wrap(T&& t, dummy d = dummy{}) {
+            wrap(T&& t) {
                 constexpr auto cv_qualifiers = cv<T> | Flags;
                 using wrapper = ambi_fn_obj_ptr_wrapper<pointer_to_function_object::ambiguous, cv_qualifiers, no_ref<T> >;
                 return wrapper{std::forward<T>(t)};
+            }
+
+            template<qualify_flags Flags, typename Invocation>
+            static inline constexpr auto
+                wrap_data(Invocation data) {
+                return wrap<Flags>(data.ptr);
             }
 
             static constexpr bool has_member_function_pointer = false;

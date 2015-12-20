@@ -26,12 +26,6 @@ namespace clbl {
     struct ambi_fn_obj_tag {};
     struct fn_obj_ptr_tag {};
     struct ambi_fn_obj_ptr_tag {};
-
-    // TODO use these to help clean up the _object/_value mess
-    struct ptr_call_semantics {};
-    struct value_call_semantics {};
-    struct pmf_call_semantics {};
-    struct ptr_pmf_call_semantics {};
 }
 
 #endif

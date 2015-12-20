@@ -17,38 +17,40 @@ namespace clbl {
 
     namespace detail {
 
-        template<typename TMemberFnPtr, typename Callable, typename Creator>
+        template<typename, typename, typename Creator>
         struct disambiguate : Creator {};
 
         template<typename TMemberFnPtr, typename C>
         struct disambiguate<TMemberFnPtr, C, typename pointer_to_function_object::ambiguous> {
-            template<qualify_flags Flags, typename T, typename Dummy>
+            template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-            wrap(T&& t, Dummy&&) {
-                using object_type = no_ref<decltype(*std::declval<T>())>;
+            wrap_data(Invocation data) {
+                using object_type = no_ref<decltype(*data.ptr)>;
                 constexpr auto member_fn = static_cast<TMemberFnPtr>(&object_type::operator());
-                return member_function_with_pointer_to_object::template wrap<Flags>(member_fn, t);
+                return member_function_with_pointer_to_object::template wrap<Flags>(member_fn, data.ptr);
             }
         };
 
         template<typename TMemberFnPtr, typename C>
         struct disambiguate<TMemberFnPtr, C, typename function_object::ambiguous> {
-            template<qualify_flags Flags, typename T, typename Dummy>
+            template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-            wrap(T&& t, Dummy&&) {
-                constexpr auto member_fn = static_cast<TMemberFnPtr>(&no_ref<T>::operator());
-                return member_function_with_object::template wrap<Flags>(member_fn, std::forward<T>(t));
+            wrap_data(Invocation data) {
+                using object_type = decltype(data.object);
+                constexpr auto member_fn = static_cast<TMemberFnPtr>(&no_ref<object_type>::operator());
+                return member_function_with_object::template wrap<Flags>(member_fn, data.object);
             }
         };
 
+        /*
         template<typename TMemberFnPtr, typename C>
         struct disambiguate<TMemberFnPtr, C, std::enable_if_t<C::creator::has_member_function_pointer, typename C::creator> > {
             template<qualify_flags Flags, typename T, typename TExistingMemberFnPtr>
             static inline constexpr auto
-            wrap(TExistingMemberFnPtr member_fn, T&& t) {
+            wrap_data(Invocation data) {
                 return C::creator::template wrap<Flags>(member_fn, std::forward<T>(t));
             }
-        };
+        };*/
 
         template<typename Bad>
         struct harden_t {
@@ -71,7 +73,7 @@ namespace clbl {
                                                             return_type(Args...) cv_requested>; \
             using requested_pmf_type = abominable_fn_type underlying_type::*; \
             using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
-            return disambiguator::template wrap<requested | present>(c._value, c._object); \
+            return disambiguator::template wrap_data<requested | present>(c.data); \
         }
             
 #define __CLBL_SPECIALIZE_HARDEN_T(cv_requested) \

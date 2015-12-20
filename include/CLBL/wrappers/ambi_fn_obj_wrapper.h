@@ -6,6 +6,7 @@
 #include "CLBL/utility.h"
 #include "CLBL/harden_cast.h"
 #include "CLBL/invocation_macros.h"
+#include "CLBL/invocation_data.h"
 
 #include <type_traits>
 
@@ -14,87 +15,87 @@ namespace clbl {
     template<typename Creator, qualify_flags CvFlags, typename T>
     struct ambi_fn_obj_wrapper {
 
-        static constexpr qualify_flags cv_flags = CvFlags;
-        static constexpr bool is_ambiguous = true;
-        using creator = Creator;
-        using clbl_tag = ambi_fn_obj_tag;
-        using semantics = ptr_call_semantics;
-        using type = ambiguous_return(ambiguous_args);
-        using forwarding_glue = ambiguous_return(ambiguous_args);
         using args_t = ambiguous_args;
+        using clbl_tag = ambi_fn_obj_tag;
+        using creator = Creator;
+        using forwarding_glue = ambiguous_return(ambiguous_args);
+        using invocation_data_type = object_invocation_data<T>;
+        using my_type = ambi_fn_obj_wrapper<Creator, CvFlags, T>;
         using return_t = ambiguous_return;
-        using my_type = ambi_fn_obj_wrapper<Creator, cv_flags, T>;
+        using type = ambiguous_return(ambiguous_args);
         using underlying_type = T;
-
-        T _value;
-        dummy _object;
 
         template<qualify_flags Flags>
         using apply_cv = ambi_fn_obj_wrapper<Creator, CvFlags | Flags, T>;
 
-        inline ambi_fn_obj_wrapper(const std::remove_const_t<T>& o, dummy d = dummy{})
-            : _value(o)
+        static constexpr auto cv_flags = CvFlags;
+        static constexpr auto is_ambiguous = true;
+
+        invocation_data_type data;
+
+        inline ambi_fn_obj_wrapper(const std::remove_const_t<T>& o)
+            : data{ o }
         {}
 
-        inline ambi_fn_obj_wrapper(std::remove_const_t<T>&& o, dummy d = dummy{})
-            : _value(o)
+        inline ambi_fn_obj_wrapper(std::remove_const_t<T>&& o)
+            : data{ o }
         {}
 
         inline ambi_fn_obj_wrapper(my_type& other) = default;
         inline ambi_fn_obj_wrapper(const my_type& other) = default;
 
         inline ambi_fn_obj_wrapper(volatile my_type& other)
-            : _value(other._value)
+            : data{ other.data }
         {}
 
         inline ambi_fn_obj_wrapper(const volatile my_type& other)
-            : _value(other._value)
+            : data{ other.data }
         {}
 
         inline operator underlying_type&(){
-            return _value;
+            return data.object;
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {
-            return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, data.object, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const {
-            return CLBL_UPCAST_AND_CALL_VAL(const, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(const, data.object, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) volatile {
-            return CLBL_UPCAST_AND_CALL_VAL(volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(volatile, data.object, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) const volatile {
-            return CLBL_UPCAST_AND_CALL_VAL(const volatile, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(const volatile, data.object, std::forward<Fargs>(a)...);
         }
 
         static inline constexpr auto copy_invocation(my_type& c) {
-            return [v = c._value](auto&&... args) mutable { 
+            return [v = c.data.object](auto&&... args) mutable {
                 return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return [v = c._value](auto&&... args){ 
+            return [v = c.data.object](auto&&... args){
                 return CLBL_UPCAST_AND_CALL_VAL(const, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return [v = c._value](auto&&... args) mutable { 
+            return [v = c.data.object](auto&&... args) mutable {
                 return CLBL_UPCAST_AND_CALL_VAL(volatile, v, args...);
             };
         }
 
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return [v = c._value](auto&&... args){ 
+            return [v = c.data.object](auto&&... args){
                 return CLBL_UPCAST_AND_CALL_VAL(const volatile, v, args...);
             };
         }

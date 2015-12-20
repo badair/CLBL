@@ -10,6 +10,7 @@
 #include "CLBL/forwardable.h"
 #include "CLBL/harden_cast.h"
 #include "CLBL/invocation_macros.h"
+#include "CLBL/invocation_data.h"
 
 namespace clbl {
 
@@ -19,31 +20,30 @@ namespace clbl {
     template<typename Creator, qualify_flags CvFlags, typename T, typename TMemberFnPtr, typename Return, typename... Args>
     struct pmf_wrapper<Creator, CvFlags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)> {
 
-        static constexpr qualify_flags cv_flags = CvFlags;
-        static constexpr bool is_ambiguous = std::is_same<Return(Args...), ambiguous_return(ambiguous_args)>::value;
-        using creator = Creator;
-        using clbl_tag = pmf_tag;
-        using type = Return(Args...);
-        using forwarding_glue = Return(forward<Args>...);
         using args_t = std::tuple<Args...>;
+        using clbl_tag = pmf_tag;
+        using creator = Creator;
+        using forwarding_glue = Return(forward<Args>...);
+        using invocation_data_type = pmf_invocation_data<apply_qualifiers<T, CvFlags>, TMemberFnPtr>;
+        using my_type = pmf_wrapper<Creator, CvFlags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;
         using return_t = Return;
-        using forward_return = return_forwardable<Return>;
-        using my_type = pmf_wrapper<Creator, cv_flags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;
-        using qualified_object = apply_qualifiers<T, cv_flags>;
-        using underlying_type = qualified_object;
-
-        TMemberFnPtr _value;
-        qualified_object _object;
+        using type = Return(Args...);
+        using underlying_type = apply_qualifiers<T, CvFlags>;
 
         template<qualify_flags Flags>
-        using apply_cv = pmf_wrapper<Creator, cv_flags | Flags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;
+        using apply_cv = pmf_wrapper<Creator, CvFlags | Flags, T, TMemberFnPtr, Return(std::remove_cv_t<T>::*)(Args...)>;
+
+        static constexpr auto cv_flags = CvFlags;
+        static constexpr auto is_ambiguous = std::is_same<Return(Args...), ambiguous_return(ambiguous_args)>::value;
+
+        invocation_data_type data;
 
         inline pmf_wrapper(TMemberFnPtr f_ptr, T&& o)
-            : _value(f_ptr), _object(std::forward<T>(o))
+            : data{ f_ptr, std::forward<T>(o) }
         {}
 
         inline pmf_wrapper(TMemberFnPtr f_ptr, T& o)
-            :_value(f_ptr), _object(o)
+            : data{ f_ptr, o }
         {}
 
         inline pmf_wrapper(my_type& other) = default;
@@ -51,78 +51,78 @@ namespace clbl {
         inline pmf_wrapper(my_type&& other) = default;
 
         inline pmf_wrapper(volatile my_type& other)
-            : _object(other._object), _value(other._value)
+            : data(other.data)
         {}
 
         inline pmf_wrapper(const volatile my_type& other)
-            : _object(other._object), _value(other._value)
+            : data(other.data)
         {}
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) {
-            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(CLBL_NOTHING, _object, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(CLBL_NOTHING, data.object, data.pmf, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const {
-            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, _object, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, data.object, data.pmf, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) volatile {
-            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, _object, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, data.object, data.pmf, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) const volatile {
-            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, _object, _value, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, data.object, data.pmf, std::forward<Fargs>(a)...);
         }
 
         template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(T& c) {
-            return no_ref<decltype(_object)>::copy_invocation(harden_cast<cv_flags>(c._object));
+            return no_ref<decltype(c.data.object)>::copy_invocation(harden_cast<cv_flags>(c.data.object));
         }
 
         template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const T& c) {
-            return no_ref<decltype(_object)>::copy_invocation(harden_cast<qflags::const_ | cv_flags>(c._object));
+            return no_ref<decltype(c.data.object)>::copy_invocation(harden_cast<qflags::const_ | cv_flags>(c.data.object));
         }
 
         template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(volatile T& c) {
-            return no_ref<decltype(_object)>::copy_invocation(harden_cast<qflags::volatile_ | cv_flags>(c._object));
+            return no_ref<decltype(c.data.object)>::copy_invocation(harden_cast<qflags::volatile_ | cv_flags>(c.data.object));
         }
 
         template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const volatile T& c) {
-            return no_ref<decltype(_object)>::copy_invocation(harden_cast<qflags::const_ | qflags::volatile_ | cv_flags>(c._object));
+            return no_ref<decltype(data.object)>::copy_invocation(harden_cast<qflags::const_ | qflags::volatile_ | cv_flags>(c.data.object));
         }
 
         template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args) mutable {
-                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(CLBL_NOTHING, o, v, args...);
+            return[d = c.data](auto&&... args) mutable {
+                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(CLBL_NOTHING, d.object, d.pmf, args...);
             };
         }
 
         template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args){
-                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, o, v, args...);
+            return[d = c.data](auto&&... args){
+                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const, d.object, d.pmf, args...);
             };
         }
 
         template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args) mutable {
-                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, o, v, args...);
+            return[d = c.data](auto&&... args) mutable {
+                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile, d.object, d.pmf, args...);
             };
         }
 
         template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return[v = c._value, o = c._object](auto&&... args){
-                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, o, v, args...);
+            return[d = c.data](auto&&... args){
+                return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile, d.object, d.pmf, args...);
             };
         }
     };

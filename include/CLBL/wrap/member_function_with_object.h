@@ -21,6 +21,12 @@ namespace clbl {
             return wrapper{ member_fn_ptr, std::forward<T>(t) };
         }
 
+        template<qualify_flags Flags, typename Invocation>
+        static inline constexpr auto
+            wrap_data(Invocation data) {
+            return wrap<Flags>(data.pmf, data.object);
+        }
+
         static constexpr bool has_member_function_pointer = true;
     };
 }
