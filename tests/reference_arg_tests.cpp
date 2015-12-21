@@ -101,6 +101,43 @@ void reference_arg_tests() {
             TEST(mutable_object_ptr->value == 3);
         }
     }
+    {
+        auto lambda_wrapper = fwrap([](int& i) {++i;});
+        static_assert(std::is_same<decltype(lambda_wrapper)::type, void(int&)>::value, "");
+        int i = 0;
+        lambda_wrapper(i);
+        TEST(i == 1);
+        auto stdfunction_lambda_wrapper = convert_to<std::function>(lambda_wrapper);
+        stdfunction_lambda_wrapper(i);
+        TEST(i == 2);
+
+        //both of these should cause compiler errors
+        //lambda_wrapper(1);
+        //stdfunction_lambda_wrapper(1);
+    }
+    {
+        auto lambda_wrapper = fwrap([](int&& i) {return i + 1;});
+        static_assert(std::is_same<decltype(lambda_wrapper)::type, int(int&&)>::value, "");
+
+        auto stdfunction_lambda_wrapper = convert_to<std::function>(lambda_wrapper);
+        static_assert(std::is_same<decltype(stdfunction_lambda_wrapper), 
+                                   std::function<int(forward<int&&>)> >::value, "");
+        
+        int i = 0;
+
+        //both of these should cause compiler errors
+        //lambda_wrapper(i);
+        //stdfunction_lambda_wrapper(i);
+
+        TEST(lambda_wrapper(0) == 1);
+        TEST(stdfunction_lambda_wrapper(0) == 1);
+        
+        int&& j = 0;
+
+        TEST([](int&& i) {return i + 1;}(static_cast<int&&>(j)) == 1);
+        TEST(lambda_wrapper(static_cast<int&&>(j)) == 1);
+        TEST(stdfunction_lambda_wrapper(static_cast<int&&>(j)) == 1);
+    }
 
 #endif
 }

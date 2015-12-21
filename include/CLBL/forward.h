@@ -24,9 +24,11 @@ namespace clbl {
 
         T value;
 
-        inline forward(no_ref<T>&& t) : value(t) {}
-        inline forward(std::remove_const_t<no_ref<T> >& t) : value(t) {}
-        inline forward(const std::remove_const_t<no_ref<T> >& t) : value(t) {}
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline forward(forwardable<FwdType> t) : value(static_cast<FwdType&&>(t)) {}
+
+        template<typename U = FwdType, std::enable_if_t<!std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline forward(forwardable<FwdType> t) : value(t) {}
 
         inline forward() = default;
         inline forward(forward<FwdType>&) = default;
