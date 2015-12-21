@@ -101,8 +101,8 @@ namespace clbl {
             using abominable_fn_type = std::conditional_t<is_clbl<underlying_type>, \
                                         return_type(forwardable<Args>...) cv_requested, \
                                         return_type(Args...) cv_requested>; \
-            using requested_pmf_type = abominable_fn_type underlying_type::*; \
-            using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
+            using requested_pmf_type = abominable_fn_type std::remove_const_t<underlying_type>::*; \
+            using disambiguator = disambiguate<std::remove_cv_t<requested_pmf_type>, C, typename C::creator>; \
             return disambiguator::template wrap_data<requested | present>(c.data); \
         }
             
