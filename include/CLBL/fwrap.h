@@ -25,8 +25,8 @@
 namespace clbl {
     namespace detail {
 
-        auto has_normal_call_operator_impl = is_valid([](auto arg)->decltype(&decltype(arg)::operator()) {});
-        auto ptr_has_normal_call_operator_impl = is_valid([](auto arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
+        auto has_normal_call_operator_impl = is_valid([](auto&& arg)->decltype(&no_ref<decltype(arg)>::operator()) {});
+        auto ptr_has_normal_call_operator_impl = is_valid([](auto&& arg)->decltype(&no_ref<decltype(*arg)>::operator()) {});
 
         template<typename T>
         constexpr bool has_normal_call_operator = decltype(has_normal_call_operator_impl(std::declval<T>()))::value;
@@ -45,7 +45,7 @@ namespace clbl {
             static constexpr auto is_member_function_ptr = std::is_member_function_pointer<T>::value;
 
         public:
-            static constexpr auto is_ptr = can_dereference<no_ref<T>>;
+            static constexpr auto is_ptr = can_dereference<no_ref<T>> && !has_normal_call_operator<T>;
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
             static constexpr auto function_ptr_case = is_function_ptr;
             static constexpr auto member_function_ptr_case = !is_function_ptr && is_member_function_ptr;
