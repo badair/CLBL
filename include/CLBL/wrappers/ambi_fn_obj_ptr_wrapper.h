@@ -30,7 +30,7 @@ namespace clbl {
         using my_type = ambi_fn_obj_ptr_wrapper<Creator, CvFlags, TPtr>;
         using return_t = ambiguous_return;
         using type = ambiguous_return(ambiguous_args);
-        using underlying_type = no_ref<decltype(*std::declval<TPtr>())>;
+        using underlying_type = clbl::underlying_type<no_ref<decltype(*std::declval<TPtr>())> >;
 
         template<qualify_flags Flags>
         using apply_cv = ambi_fn_obj_ptr_wrapper<Creator, CvFlags | Flags, TPtr>;
@@ -40,21 +40,21 @@ namespace clbl {
 
         invocation_data_type data;
 
-        ambi_fn_obj_ptr_wrapper(std::remove_const_t<TPtr>& o_ptr)
+        inline ambi_fn_obj_ptr_wrapper(std::remove_const_t<TPtr>& o_ptr)
             : data{ o_ptr }
         {}
 
-        ambi_fn_obj_ptr_wrapper(const TPtr& o_ptr)
+        inline ambi_fn_obj_ptr_wrapper(const TPtr& o_ptr)
             : data{ o_ptr }
         {}
 
-        ambi_fn_obj_ptr_wrapper(TPtr&& o_ptr)
+        inline ambi_fn_obj_ptr_wrapper(TPtr&& o_ptr)
             : data{ std::forward<TPtr>(o_ptr) }
         {}
 
-        ambi_fn_obj_ptr_wrapper(my_type& other) = default;
-        ambi_fn_obj_ptr_wrapper(const my_type& other) = default;
-        ambi_fn_obj_ptr_wrapper(my_type&& other) = default;
+        inline ambi_fn_obj_ptr_wrapper(my_type& other) = default;
+        inline ambi_fn_obj_ptr_wrapper(const my_type& other) = default;
+        inline ambi_fn_obj_ptr_wrapper(my_type&& other) = default;
       
         inline ambi_fn_obj_ptr_wrapper(volatile my_type& other)
             : data(other.data)
@@ -77,10 +77,6 @@ namespace clbl {
         inline ambi_fn_obj_ptr_wrapper(const ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
             : data(other.data)
         {}
-
-        inline operator underlying_type&() {
-            return data.ptr;
-        }
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {

@@ -205,12 +205,12 @@ namespace clbl {
         {}
     };
 
-    template<typename TPtr, typename TMemberFnPtr>
+    template<typename TPtr, typename UnderlyingType, typename TMemberFnPtr>
     struct object_pointer_casted_invocation_data {
-        static constexpr auto pmf = static_cast<TMemberFnPtr>(&no_ref<decltype(*std::declval<TPtr>())>::operator());
+        static constexpr auto pmf = static_cast<TMemberFnPtr>(&UnderlyingType::operator());
         TPtr object_ptr;
 
-        using my_type = object_pointer_casted_invocation_data<TPtr, TMemberFnPtr>;
+        using my_type = object_pointer_casted_invocation_data<TPtr, UnderlyingType, TMemberFnPtr>;
 
         inline object_pointer_casted_invocation_data(my_type&) = default;
         inline object_pointer_casted_invocation_data(const my_type&) = default;

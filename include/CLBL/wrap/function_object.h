@@ -53,7 +53,7 @@ namespace clbl {
                 constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
                 using decayed_fn = member_function_decay<TMemberFnPtr>;
                 using wrapper = casted_fn_obj_wrapper<typename function_object::casted,
-                    cv_qualifiers, no_ref<T>, TMemberFnPtr, decayed_fn>;
+                    cv_qualifiers, underlying_type<no_ref<T> >, TMemberFnPtr, decayed_fn>;
                 return wrapper{ std::forward<T>(t) };
             }
 

@@ -55,8 +55,8 @@ namespace clbl {
             static inline constexpr auto
                 wrap(T&& t) {
                 constexpr auto cv_qualifiers = cv<T> | Flags;
-                using object_type = no_ref<decltype(*std::declval<underlying_type<T> >())>;
-                using ptr_type = no_ref<underlying_type<T> >;
+                using object_type = underlying_type<no_ref<decltype(*std::declval<underlying_type<no_ref<T> > >())> >;
+                using ptr_type = underlying_type<no_ref<T> >;
                 using decayed_fn = member_function_decay<TMemberFnPtr>;
                 using wrapper = casted_fn_obj_ptr_wrapper<typename pointer_to_function_object::casted,
                     cv_qualifiers, object_type, ptr_type, TMemberFnPtr, decayed_fn>;
@@ -66,7 +66,7 @@ namespace clbl {
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
                 wrap_data(Invocation&& data) {
-                return wrap<Flags, decltype(no_ref<Invocation>::pmf)>(data.object_ptr);
+                return wrap<Flags, std::remove_cv_t<decltype(no_ref<Invocation>::pmf)> >(data.object_ptr);
             }
         };
     };

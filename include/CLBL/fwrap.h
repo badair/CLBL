@@ -44,20 +44,24 @@ namespace clbl {
         struct sfinae_switch {
         private:
             
+            static constexpr auto can_deref = can_dereference<T>;
+            using dereferenceable = std::conditional_t<can_deref, no_ref<T>, dummy*>;
+
             static constexpr auto is_ref_wrapper = is_reference_wrapper<T>;
             static constexpr auto is_ambiguous = !has_normal_call_operator<T>;
             static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>;
             static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<T> >::value;
             static constexpr auto is_member_function_ptr = std::is_member_function_pointer<T>::value;
-
+            
         public:
-            static constexpr auto is_ptr = can_dereference<no_ref<T>> && !has_normal_call_operator<T>;
+            static constexpr auto is_clbl = clbl::is_clbl<no_ref<T> > || clbl::is_clbl<no_ref<decltype(*std::declval<dereferenceable>())> >;
+            static constexpr auto is_ptr = !is_clbl && can_dereference<no_ref<T>> && !has_normal_call_operator<T>;
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
-            static constexpr auto function_ptr_case = is_function_ptr;
-            static constexpr auto member_function_ptr_case = !is_function_ptr && is_member_function_ptr;
+            static constexpr auto function_ptr_case = !is_clbl && is_function_ptr;
+            static constexpr auto member_function_ptr_case = !is_clbl && !is_function_ptr && is_member_function_ptr;
 
         private:
-            static constexpr auto is_complex_case = !reference_wrapper_case && !function_ptr_case && !member_function_ptr_case;
+            static constexpr auto is_complex_case = !is_clbl && !reference_wrapper_case && !function_ptr_case && !member_function_ptr_case;
 
         public:
             static constexpr auto function_object_case =                is_complex_case && !is_ptr && !is_ambiguous;
@@ -145,7 +149,7 @@ namespace clbl {
     template<typename T, std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
-        return   fwrap(std::addressof(t.get()));
+        return fwrap(std::addressof(t.get()));
     }
 
     /**************************************************
@@ -188,9 +192,30 @@ namespace clbl {
         }
     };
 
+
 #define CLBL_PMFWRAP(pmf_expr, o) (clbl::pmf<clbl::no_ref<decltype(pmf_expr)>, pmf_expr>::fwrap(o))
 
     //todo size tests, reference_wrapper tests, CLBL_PMFWRAP tests
+
+    /*********************************************
+    preempting recursive attempts at CLBL wrappers
+    **********************************************/
+
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::is_clbl && !can_dereference<T>, dummy>* = nullptr>
+    inline constexpr auto
+    fwrap(T&& t) {
+        using callable = no_ref<T>;
+        return callable::creator::template
+            wrap_data<callable::cv_flags | cv<callable> >(t.data);
+    }
+
+    template<typename T, std::enable_if_t<detail::sfinae_switch<T>::is_clbl && can_dereference<T>, dummy>* = nullptr>
+    inline constexpr auto
+        fwrap(T&& t) {
+        using callable = no_ref<decltype(*t)>;
+        return callable::creator::template
+            wrap_data<callable::cv_flags | cv<callable> >(t -> data);
+    }
 }
 
 #endif
