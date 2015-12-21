@@ -1,19 +1,27 @@
 # CLBL
-CLBL is a C++14 header-only library of wrappers and tools for callable types: function pointers, pointer-to-member functions, callable objects (which, of course, includes lambdas). This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
+CLBL is a C++14 header-only library of wrappers and tools for callable types: function pointers, pointer-to-member functions, callable objects (which, of course, includes lambdas), and many forms of indirection thereof. This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
 
-1. Facilitate the creation of callable wrappers for all callable types (a la std::bind, std::invoke) with zero runtime overhead (assuming RVO is performed by the compiler)
-2. Employ a common wrapper creation interface (very similar to std::invoke, but without the required argument binding)
-3. Signature deduction for unambiguous cases
-4. optional, lazy disambiguation for overloaded/templated operator()
-5. Easy conversion to type-erased wrappers such as std::function, while maintaining perfect forwarding and overload selection (see the clbl::forward type)
-6. provide metaprogramming facilities for all things callable
-7. enable the programmer to choose an object lifetime strategy by accepting arguments by-value, by std::reference_wrapper, by pointer, and by smart pointer
+1. Facilitate the creation of callable wrappers for all callable types with zero runtime overhead (assuming RVO is performed by the compiler, which is trivial, since everything is inlined).
+2. Employ a common wrapper creation interface 
+3. Deduce signatures for unambiguous cases, and offer tools for dealing with these types
+4. Create a clean interface for optional, lazy disambiguation of objects with overloaded/templated `operator()`
+5. Allow for easy conversion to type-erased wrappers like `std::function`, while maintaining perfect forwarding and CV overload selection
+6. Provide metaprogramming facilities for all things callable
+
+You may notice that the above list has significant overlap with `std::invoke` and `std::bind`. Although there is significant overlap between CLBL and these libraries, CLBL is most distinguished by the following (at this point in development):
+
+1. `clbl::harden`, a tool that provides a clean interface for manual overload disambiguation.
+2. `clbl::convert_to`, a tool that converts unambiguous/disambiguated callable types to a perfect-forwarding `std::function` (or a similar template). The user need not specify the std::function's function type, except in cases where clbl::harden is a prerequisite.
 
 CLBL is a shortening of the word "callable."
 
 CLBL has no dependencies outside the standard library. However, Clang is currently the only compiler known to work with CLBL, due to reliance on generic lambdas and variable templates. CLBL is being developed using the LLVM-vs2014 toolkit in Visual Studio 2015.
 
-More documentation and features coming soon... For now, here's a partial rundown - I'll improve formatting, etc. as time permits:
+CLBL does not use `<functional>`, except where it provides an interface for `std::reference_wrapper`. The functionality regarding `std::function` is implicit, and should work for similar implementations, such as `boost::function` (currently untested). CLBL only uses `<tuple>` for putting argument types into an std::tuple for the alias "arg_types" in CLBL wrappers. `<type_traits>` and `<utility`> are, of course, used pervasively. No other headers are used.
+
+As of 12/21/2015, all tests are passing. 
+
+More features and documentation coming soon... For now, here's a quick and incomplete rundown:
 
 ```cpp
 
@@ -63,7 +71,8 @@ int main() {
     auto callable = clbl::fwrap(obj);
 
     /*
-    clbl::fwrap also accepts free function pointers and member function pointers. More on those later.
+    clbl::fwrap also accepts free function pointers and member function pointers. Documentation has not yet been written
+    for these features, but there are many test cases for them.
 
     cv_reporter has an overloaded operator(). When we can still call it, overload resolution behaves
     normally.
@@ -208,7 +217,7 @@ int main() {
 
     /*
     A clbl::forward object behaves exactly like the type in its template argument, except 
-    that the underlying value is not copied when marshalling arguments all the way back to 
+    that the underlying value is not copied when marshaling arguments all the way back to 
     the original callable argument to clbl::fwrap. The value arguments are only copied when
     passing from the CLBL wrapper to the original.
     */
