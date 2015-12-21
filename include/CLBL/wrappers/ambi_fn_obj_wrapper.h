@@ -30,7 +30,7 @@ namespace clbl {
         using my_type = ambi_fn_obj_wrapper<Creator, CvFlags, T>;
         using return_t = ambiguous_return;
         using type = ambiguous_return(ambiguous_args);
-        using underlying_type = clbl::underlying_type<T>;
+        using underlying_type = T;
 
         template<qualify_flags Flags>
         using apply_cv = ambi_fn_obj_wrapper<Creator, CvFlags | Flags, T>;

@@ -74,23 +74,6 @@ namespace clbl {
     */
     template<typename T>
     static constexpr auto is_clbl = already_has_cv_flags<T>;
-
-    namespace underlying_type_detail {
-        template<typename T>
-        struct identity {
-            using underlying_type = T;
-        };
-    }
-
-    /*
-    underlying_type is used to extract the underlying object type
-    of recursive CLBL wrappers
-    */
-
-    template<typename T>
-    using underlying_type = typename std::conditional_t<
-                                is_clbl<T>, T, underlying_type_detail::identity<T>
-                            >::underlying_type;
 }
 
 

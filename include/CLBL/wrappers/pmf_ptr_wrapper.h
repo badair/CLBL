@@ -33,7 +33,7 @@ namespace clbl {
         using my_type = pmf_ptr_wrapper<Creator, CvFlags, UnderlyingType, TPtr, TMemberFnPtr, decayed_member_fn_ptr>;
         using return_t = Return;
         using type = Return(Args...);
-        using underlying_type = clbl::underlying_type<UnderlyingType>;
+        using underlying_type = UnderlyingType;
 
         template<qualify_flags Flags>
         using apply_cv = pmf_ptr_wrapper<Creator, CvFlags | Flags, UnderlyingType, TPtr, TMemberFnPtr, decayed_member_fn_ptr>;

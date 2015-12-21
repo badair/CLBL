@@ -16,8 +16,8 @@ namespace clbl {
         static inline constexpr auto
         wrap(T&& t) {
             constexpr auto cv_qualifiers = cv<T> | Flags;
-            using object_type = no_ref<decltype(*std::declval<underlying_type<T> >())>;
-            using ptr_type = no_ref<underlying_type<T> >;
+            using object_type = no_ref<decltype(*std::declval<T>())>;
+            using ptr_type = no_ref<T>;
             using decayed_fn = member_function_decay<TMemberFnPtr>;
             using wrapper = pmf_ptr_wrapper_slim<member_function_with_pointer_to_object_slim, 
                                 cv_qualifiers, object_type, ptr_type, TMemberFnPtr, Pmf, decayed_fn>;
@@ -30,7 +30,6 @@ namespace clbl {
             return wrap<Flags, TMemberFnPtr, Pmf>(data.object_ptr);
         }
     };
-
 }
 
 #endif
