@@ -1,8 +1,8 @@
 #ifndef CLBL_CV_H
 #define CLBL_CV_H
 
-#include "CLBL/qualify_flags.h"
-#include "CLBL/utility.h"
+#include <CLBL/qualify_flags.h>
+#include <CLBL/utility.h>
 
 namespace clbl {
 

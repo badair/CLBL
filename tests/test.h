@@ -6,7 +6,7 @@
 #include <functional>
 #include <cassert>
 
-#include "CLBL/clbl.h"
+#include <CLBL/clbl.h>
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"

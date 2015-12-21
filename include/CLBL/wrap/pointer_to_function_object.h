@@ -1,13 +1,13 @@
 #ifndef CLBL_POINTER_TO_FUNCTION_OBJECT_H
 #define CLBL_POINTER_TO_FUNCTION_OBJECT_H
 
-#include "CLBL/utility.h"
-#include "CLBL/tags.h"
-#include "CLBL/qualify_flags.h"
-#include "CLBL/member_function_decay.h"
-#include "CLBL/wrappers/pmf_ptr_wrapper_slim.h"
-#include "CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h"
-#include "CLBL/wrappers/casted_fn_obj_ptr_wrapper.h"
+#include <CLBL/utility.h>
+#include <CLBL/tags.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/member_function_decay.h>
+#include <CLBL/wrappers/pmf_ptr_wrapper_slim.h>
+#include <CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h>
+#include <CLBL/wrappers/casted_fn_obj_ptr_wrapper.h>
 
 namespace clbl {
 

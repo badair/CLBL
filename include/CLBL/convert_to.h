@@ -1,11 +1,11 @@
 #include<functional>
 #include <type_traits>
 
-#include "CLBL/tags.h"
-#include "CLBL/qualify_flags.h"
-#include "CLBL/forwardable.h"
-#include "CLBL/harden.h"
-#include "CLBL/utility.h"
+#include <CLBL/tags.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/forwardable.h>
+#include <CLBL/harden.h>
+#include <CLBL/utility.h>
 
 namespace clbl {
 

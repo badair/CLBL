@@ -1,9 +1,9 @@
 #ifndef CLBL_UTILITY_H
 #define CLBL_UTILITY_H
 
-#include "CLBL/tags.h"
-#include "CLBL/qualify_flags.h"
-#include "CLBL/is_valid.h"
+#include <CLBL/tags.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/is_valid.h>
 
 #define CLBL_CALL_PTR(cv_ignored, ptr, args) (*ptr)(args)
 #define CLBL_UPCAST_AND_CALL_PTR(qual, ptr, args) harden_cast<cv<qual dummy> | cv_flags>(*ptr)(args)

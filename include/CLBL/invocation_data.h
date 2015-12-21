@@ -1,7 +1,7 @@
 #ifndef CLBL_INVOCATION_DATA_H
 #define CLBL_INVOCATION_DATA_H
 
-#include "CLBL/utility.h"
+#include <CLBL/utility.h>
 
 namespace clbl {
 

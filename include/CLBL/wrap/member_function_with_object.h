@@ -1,11 +1,11 @@
 #ifndef CLBL_MEMBER_FUNCTION_WITH_OBJECT_H
 #define CLBL_MEMBER_FUNCTION_WITH_OBJECT_H
 
-#include "CLBL/utility.h"
-#include "CLBL/tags.h"
-#include "CLBL/qualify_flags.h"
-#include "CLBL/member_function_decay.h"
-#include "CLBL/wrappers/pmf_wrapper.h"
+#include <CLBL/utility.h>
+#include <CLBL/tags.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/member_function_decay.h>
+#include <CLBL/wrappers/pmf_wrapper.h>
 
 namespace clbl {
 

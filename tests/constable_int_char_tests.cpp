@@ -1,5 +1,5 @@
 #include "test.h"
-#include "CLBL/clbl.h"
+#include <CLBL/clbl.h>
 #include "int_definitions.h"
 
 #include <iostream>

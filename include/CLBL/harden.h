@@ -3,12 +3,12 @@
 
 #include <functional>
 
-#include "CLBL/tags.h"
-#include "CLBL/qualify_flags.h"
-#include "CLBL/forwardable.h"
-#include "CLBL/fwrap.h"
-#include "CLBL/utility.h"
-#include "CLBL/harden_cast.h"
+#include <CLBL/tags.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/forwardable.h>
+#include <CLBL/fwrap.h>
+#include <CLBL/utility.h>
+#include <CLBL/harden_cast.h>
 
 namespace clbl {
 

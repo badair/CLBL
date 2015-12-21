@@ -1,7 +1,7 @@
 #ifndef CLBL_TRY_CALL
 #define CLBL_TRY_CALL
 
-#include "CLBL/is_valid.h"
+#include <CLBL/is_valid.h>
 
 namespace clbl {
 

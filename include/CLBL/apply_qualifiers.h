@@ -1,8 +1,8 @@
 #ifndef CLBL_APPLY_QUALIFIERS_H
 #define CLBL_APPLY_QUALIFIERS_H
 
-#include "CLBL/qualify_flags.h"
-#include "CLBL/utility.h"
+#include <CLBL/qualify_flags.h>
+#include <CLBL/utility.h>
 
 namespace clbl {
 
