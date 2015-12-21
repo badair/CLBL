@@ -74,6 +74,57 @@ namespace clbl {
     */
     template<typename T>
     static constexpr auto is_clbl = already_has_cv_flags<T>;
+
+    template<typename Callable>
+    static constexpr auto is_ambiguous_t = no_ref<Callable>::is_ambiguous;
+
+    template<typename Callable, std::enable_if_t<is_clbl<no_ref<Callable> >, dummy>* = nullptr>
+    static inline constexpr auto
+    is_ambiguous(Callable&& c) {
+        return no_ref<Callable>::is_ambiguous;
+    }
+
+    template<typename T, std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+    static inline constexpr auto
+    is_ambiguous(T&& c) {
+        static_assert(sizeof(T) < 0,
+            "You didn't pass a CLBL callable wrapper to clbl::is_ambiguous.");
+        return false;
+    }
+
+    template<typename FunctionType, typename Callable, std::enable_if_t<is_clbl<no_ref<Callable> >, dummy>* = nullptr>
+    static inline constexpr auto
+    emulates(Callable&& c) {
+        return std::is_same<no_ref<Callable>::type, FunctionType>::value;
+    }
+
+    template<typename FunctionType, typename T, std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+    static constexpr auto
+    emulates(T&& c) {
+        static_assert(sizeof(T) < 0, 
+            "You didn't pass a CLBL callable wrapper to clbl::emulates.");
+        return false;
+    }
+
+    template<typename Callable>
+    using forwarding_glue = typename no_ref<Callable>::forwarding_glue;
+
+    template<typename Callable>
+    using result_of = typename no_ref<Callable>::return_type;
+
+    template<typename ReturnType, typename Callable, std::enable_if_t<is_clbl<no_ref<Callable> >, dummy>*  = nullptr>
+    static inline constexpr auto
+    returns(Callable&& c) {
+        return std::is_same<no_ref<Callable>::return_type, ReturnType>::value;
+    }
+
+    template<typename ReturnType, typename T, std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+    static constexpr auto
+    returns(T&& c) {
+        static_assert(sizeof(T) < 0,
+            "You didn't pass a CLBL callable wrapper to clbl::returns.");
+        return false;
+    }
 }
 
 
