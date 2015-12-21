@@ -3,6 +3,12 @@
 
 #include<type_traits>
 
+/*
+we use the member_function_decay metafunction to strip
+qualifiers from PMFs, which allows us to use partial 
+template specializations to break down signatures
+*/
+
 #define __SPECIALIZE_MEMBER_FUNCTION_DECAY(qualifiers) \
     template<typename T, typename Return, typename... Args> \
     struct member_function_decay_t<Return(T::*)(Args...) qualifiers> { using type = Return(T::*)(Args...); }

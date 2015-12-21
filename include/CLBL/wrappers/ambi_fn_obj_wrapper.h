@@ -12,6 +12,13 @@
 
 namespace clbl {
 
+    /*
+    ambi_fn_obj_wrapper wraps a callable object whose operator()
+    is overloaded/templated. You may still call this wrapper 
+    as you would call the original object, but you must disambiguate
+    by calling clbl::harden before using any of the additional features
+    in CLBL.
+    */
     template<typename Creator, qualify_flags CvFlags, typename T>
     struct ambi_fn_obj_wrapper {
 
@@ -58,7 +65,7 @@ namespace clbl {
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {
-            return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, data.object, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_VAL(__CLBL_NO_CV, data.object, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
@@ -78,7 +85,7 @@ namespace clbl {
 
         static inline constexpr auto copy_invocation(my_type& c) {
             return [v = c.data.object](auto&&... args) mutable {
-                return CLBL_UPCAST_AND_CALL_VAL(CLBL_NOTHING, v, args...);
+                return CLBL_UPCAST_AND_CALL_VAL(__CLBL_NO_CV, v, args...);
             };
         }
 

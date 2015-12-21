@@ -7,5 +7,6 @@
 #include "CLBL/fwrap.h"
 #include "CLBL/convert_to.h"
 #include "CLBL/harden.h"
+#include "CLBL/forward.h"
 
 #endif

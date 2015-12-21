@@ -11,7 +11,7 @@ namespace clbl {
     /*
     clbl::forward is an implicitly convertible vessel for pefectly forwarded parameters. This allows
     us to create a "perfect forwarding" std::function object, that still forwards to the original
-    function/object, in the case of nested CLBL callable types
+    function/object, even in the case of nested CLBL callable types
     */
 
     template<typename FwdType>

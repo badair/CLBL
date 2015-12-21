@@ -9,6 +9,17 @@
 
 namespace clbl {
 
+    /*
+    std::function doesn't call cv-qualified overloads of function
+    objects, because it makes a copy. We elimiate overloads except
+    the requested one by copying the desired invocation. This preserves
+    the desired behavior by giving std::function no choice but to
+    call the const-qualified version. We also "glue" the CLBL wrapper to
+    std::function by (ultimately) using clbl::forward to prevent copies
+    while the arguments travel from
+    std::function -> clbl wrapper -> original callable type
+    */
+
     namespace detail {
 
         template<typename, typename BadGlueType>
@@ -23,12 +34,6 @@ namespace clbl {
         };
     }
 
-    /*
-    std::function doesn't call cv-qualified overloads because
-    it takes a copy. We elimiate overloads except the hardened one
-    by copying the desired invocation to achieve the desired behavior
-    of calling the const-qualified version
-    */
     template<typename GlueType, typename Callable>
     constexpr inline auto apply_glue(Callable&& c) {
         using C = no_ref<Callable>;

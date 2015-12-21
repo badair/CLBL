@@ -9,7 +9,6 @@
 
 namespace clbl {
 
-    //todo implement "slim" version of pmf_wrapper that doesn't store a PMF
     struct function_object {
 
         template<qualify_flags Flags, typename T>

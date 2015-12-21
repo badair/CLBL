@@ -7,6 +7,10 @@
 
 namespace clbl {
 
+    /*
+    clbl::harden_cast is used internally to force desired qualify_flags on a reference
+    */
+
     template<qualify_flags CvFlags, typename Object>
     inline constexpr auto 
         harden_cast(Object&& o) 

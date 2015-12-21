@@ -3,13 +3,20 @@
 
 #include <type_traits>
 
-//for blank macro arguments - useful for cv/ref qualifier spam
-#define CLBL_NOTHING_ARGS(x)
-#define CLBL_NOTHING CLBL_NOTHING_ARGS(x)
+/*
+__CLBL_NO_CV represents an empty macro argument,
+which is really useful for spamming qualifier
+permutations with the preprocessor
+*/
+
+#define _______CLBL_NOTHING_ARGS(x)
+#define __CLBL_NO_CV _______CLBL_NOTHING_ARGS(x)
 
 namespace clbl {
 
-    //dummy is used whenever we need a type, but don't care what it is
+    /*
+    dummy is used whenever we need a type, but don't care what it is
+    */
     struct dummy {
         using underlying_type = dummy;
     };

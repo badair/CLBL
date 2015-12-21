@@ -5,6 +5,16 @@
 
 namespace clbl {
 
+    /*
+    the types in this file are the types that make up the "data" member variable in
+    clbl wrappers. They contain different arrangements of 1 or 2 of the following:
+
+         - objects
+         - pointers to objects
+         - function pointers
+         - member function pointers
+    */
+
     template<typename TPtr>
     struct ptr_invocation_data {
         TPtr ptr;

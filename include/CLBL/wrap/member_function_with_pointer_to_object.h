@@ -9,7 +9,6 @@
 
 namespace clbl {
 
-    //todo make "slim" version that takes the member_fn as a template argument
     struct member_function_with_pointer_to_object {
 
         template<qualify_flags Flags = qflags::default_, typename T, typename TMemberFnPtr>

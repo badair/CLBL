@@ -9,7 +9,7 @@
 
 namespace clbl {
 
-    //todo make "slim" version that takes the member_fn as a template argument
+    //"slim" means it takes the PMF as a template argument
     struct member_function_with_pointer_to_object_slim {
 
         template<qualify_flags Flags = qflags::default_, typename TMemberFnPtr, TMemberFnPtr Pmf, typename T>

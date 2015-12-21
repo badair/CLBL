@@ -4,6 +4,10 @@
 #include <type_traits>
 #include <utility>
 
+/*
+Boost.Hana is amazing, which is where this snippet originates
+*/
+
 namespace clbl {
 
     // Written with <3 by Louis Dionne

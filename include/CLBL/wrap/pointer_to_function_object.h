@@ -11,7 +11,6 @@
 
 namespace clbl {
 
-    //todo make "slim" version of pmf_ptr_wrapper that takes the member_fn as a template argument
     struct pointer_to_function_object {
 
         template<qualify_flags Flags, typename TPtr>

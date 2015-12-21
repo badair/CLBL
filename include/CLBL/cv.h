@@ -6,6 +6,11 @@
 
 namespace clbl {
 
+    /*
+    clbl::cv is a variable template (at the bottom of this file)
+    that determines the appropriate qualify_flags for a type.
+    */
+
     namespace detail {
 
         namespace cv_flags_detail {

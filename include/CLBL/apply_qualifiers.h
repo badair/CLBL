@@ -5,6 +5,13 @@
 #include "CLBL/utility.h"
 
 namespace clbl {
+
+    /*
+    apply_qualifiers is a template alias (defined at the bottom of this 
+    file) that takes qualify_flags and a type, and qualifies the type with
+    the flags accordingly.
+    */
+
     template<qualify_flags CvFlags>
     struct qualifiers {
         static_assert(CvFlags < 0, "Unknown cv-ness");
@@ -78,8 +85,6 @@ namespace clbl {
         template<typename U, qualify_flags Flags>
         struct apply_qualifiers_t {
             using T = no_ref<U>;
-            //using clbl_type = std::conditional_t<is_clbl<T>, T, dummy_clbl_type>;
-            //using type = std::conditional_t<is_clbl<T>, typename clbl_type::apply_cv<Flags>, typename qualifiers<Flags>::apply<T> >;
             using type = typename qualifiers<Flags>::template apply<T>;
         };
     }

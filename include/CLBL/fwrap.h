@@ -23,6 +23,12 @@
 #include "CLBL/is_valid.h"
 
 namespace clbl {
+
+    /*
+    clbl::fwrap is a heavily overloaded function that can be used to create CLBL 
+    wrappers for anything that is callable.
+    */
+
     namespace detail {
 
         auto has_normal_call_operator_impl = is_valid([](auto&& arg)->decltype(&no_ref<decltype(arg)>::operator()) {});
@@ -152,17 +158,14 @@ namespace clbl {
         return   fwrap(std::addressof(t.get()), ptr);
     }
 
-    /* todo - shorter creator aliases for use with fast_wrap
-    template<typename Creator, typename... Args>
-    inline constexpr auto
-        fast_wrap(Args&&... args) {
-        return Creator::template wrap<qflags::default_>(std::forward<Args>(args)...);
-    }*/
+    /*************************************************************************************
+    pmf accepts a PMF as a compile-time template argument (can't be a cast result, though)
+    **************************************************************************************/
 
     template <typename TMemberFnPtr, TMemberFnPtr Pmf>
     struct pmf
     {
-        template<typename T, std::enable_if_t<!detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
+        template<typename T, std::enable_if_t<!detail::sfinae_switch<T>::is_ptr && !detail::sfinae_switch<T>::is_ref_wrapper, dummy>* = nullptr>
         static constexpr auto 
         fwrap(T&& t) {
             return member_function_with_object_slim::template wrap<
@@ -170,17 +173,24 @@ namespace clbl {
             >(std::forward<T>(t));
         }
 
-        template<typename TPtr, std::enable_if_t<detail::sfinae_switch<TPtr>::is_ptr, dummy>* = nullptr>
+        template<typename TPtr, std::enable_if_t<detail::sfinae_switch<TPtr>::is_ptr && !detail::sfinae_switch<TPtr>::is_ref_wrapper, dummy>* = nullptr>
         static constexpr auto
             fwrap(TPtr&& object_ptr) {
             return member_function_with_pointer_to_object_slim::template wrap<
                 qflags::default_, TMemberFnPtr, Pmf
             >(std::forward<TPtr>(object_ptr));
         }
+
+        template<typename T, std::enable_if_t<detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+        inline constexpr auto
+            fwrap(T&& t) {
+            return   fwrap(std::addressof(t.get()));
+        }
     };
 
 #define CLBL_PMFWRAP(pmf_expr, o) (clbl::pmf<clbl::no_ref<decltype(pmf_expr)>, pmf_expr>::fwrap(o))
 
+    //todo size tests, reference_wrapper tests, CLBL_PMFWRAP tests
 }
 
 #endif

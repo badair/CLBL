@@ -13,11 +13,11 @@
 namespace clbl {
 
     /*
-    "ambiguous function object pointer wrapper" - wraps a pointer to a 
-    callable object whose operator() is overloaded and/or templated.
-    You may still call this wrapper as you would call the original
-    object, but you must disambiguate by calling clbl::harden before
-    using any of the additional features in CLBL
+    ambi_fn_obj_ptr_wrapper wraps a pointer to a callable object whose 
+    operator() is overloaded/templated. You may still call this
+    wrapper as you would call the original object, but you must 
+    disambiguate by calling clbl::harden before using any of the 
+    additional features in CLBL.
     */
     template<typename Creator, qualify_flags CvFlags, typename TPtr>
     struct ambi_fn_obj_ptr_wrapper {
@@ -84,7 +84,7 @@ namespace clbl {
 
         template<typename... Fargs>
         inline auto operator()(Fargs&&... a) {
-            return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, data.ptr, std::forward<Fargs>(a)...);
+            return CLBL_UPCAST_AND_CALL_PTR(__CLBL_NO_CV, data.ptr, std::forward<Fargs>(a)...);
         }
 
         template<typename... Fargs>
@@ -103,19 +103,27 @@ namespace clbl {
         }
 
         static inline constexpr auto copy_invocation(my_type& c) {
-            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(CLBL_NOTHING, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_PTR(__CLBL_NO_CV, v, args...);
+            };
         }
 
         static inline constexpr auto copy_invocation(const my_type& c) {
-            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_PTR(const, v, args...);
+            };
         }
 
         static inline constexpr auto copy_invocation(volatile my_type& c) {
-            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(volatile, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_PTR(volatile, v, args...);
+            };
         }
 
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
-            return[v = c.data.ptr](auto&&... args){ return CLBL_UPCAST_AND_CALL_PTR(const volatile, v, args...);};
+            return[v = c.data.ptr](auto&&... args){ 
+                return CLBL_UPCAST_AND_CALL_PTR(const volatile, v, args...);
+            };
         }
     };
 }

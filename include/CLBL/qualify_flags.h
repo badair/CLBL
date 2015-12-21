@@ -3,6 +3,12 @@
 
 namespace clbl {
 
+    /*
+    qualify_flags are bitflags used to stack cv-qualifiers
+    on top of each other (ref-qualifiers are scarcely used
+    right now)
+    */
+
     using qualify_flags = short;
 
     namespace qflags {

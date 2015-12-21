@@ -1,5 +1,3 @@
-//welcome to the party
-
 #ifndef CLBL_HARDEN_H
 #define CLBL_HARDEN_H
 
@@ -12,8 +10,11 @@
 #include "CLBL/utility.h"
 #include "CLBL/harden_cast.h"
 
-
 namespace clbl {
+
+    /*
+    clbl::harden is used to disambiguate overloads of operator() in a CLBL wrapper.
+    */
 
     namespace detail {
 
@@ -22,8 +23,7 @@ namespace clbl {
         resulting wrappers already handle CV disambiguation, thanks to 
         CV flags
 
-        TODO - disallow invalid function signatures for CV-only disambiguation,
-        also supply CV-flags overload
+        TODO - disallow invalid function signatures for CV-only disambiguation
         */
 
         template<typename, typename, typename Creator>
@@ -83,7 +83,10 @@ namespace clbl {
             static_assert(sizeof(Bad) < 0, "Not a valid function type.");
         };
 
-        //Macro-spamming permutations of const/volatile
+        /*
+        Chainsawing the Gordian knot by spamming CV permutations with the preprocessor
+        */
+
 #define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
         template<typename Callable> \
         inline constexpr auto \
@@ -106,15 +109,15 @@ namespace clbl {
 #define __CLBL_SPECIALIZE_HARDEN_T(cv_requested) \
         template<typename Return, typename... Args> \
             struct harden_t<Return(Args...) cv_requested> { \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, CLBL_NOTHING) \
+            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, __CLBL_NO_CV) \
             __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const) \
             __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, volatile) \
             __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const volatile) \
         }
 
-        //todo ellipses and ref qualifiers... :(
+        //ellipses and ref qualifiers not yet implemented...
 
-        __CLBL_SPECIALIZE_HARDEN_T(CLBL_NOTHING);
+        __CLBL_SPECIALIZE_HARDEN_T(__CLBL_NO_CV);
         __CLBL_SPECIALIZE_HARDEN_T(const);
         __CLBL_SPECIALIZE_HARDEN_T(volatile);
         __CLBL_SPECIALIZE_HARDEN_T(const volatile);

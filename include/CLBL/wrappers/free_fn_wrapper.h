@@ -13,6 +13,9 @@
 
 namespace clbl {
 
+    /*
+    free_fn_wrapper wraps a free function
+    */
     template<typename, typename Failure>
     struct free_fn_wrapper { static_assert(sizeof(Failure) < 0, "Not a function."); };
 
