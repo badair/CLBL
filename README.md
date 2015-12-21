@@ -74,8 +74,8 @@ int main() {
     clbl::fwrap also accepts free function pointers and member function pointers. Documentation has not yet been written
     for these features, but there are many test cases for them.
 
-    cv_reporter has an overloaded operator(). When we can still call it, overload resolution behaves
-    normally.
+    cv_reporter has an overloaded operator(). CV overloads stick with the CV of the 
+    CLBL wrapper object.
     */
 
     assert(callable() == "no cv");
@@ -86,7 +86,7 @@ int main() {
         assert(const_callable() == "const");
 
         /*
-        The potential type recursion is intercepted when trying to nest CLBL wrappers. The 
+        The potential symbol explosion is intercepted when trying to nest CLBL wrappers. The 
         guts of the callable object here are repurposed, while still keeping any newly 
         introduced CV-qualifiers.
         */
