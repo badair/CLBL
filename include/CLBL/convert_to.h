@@ -43,7 +43,7 @@ namespace clbl {
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>
     inline auto convert_to(Callable&& c) {
 
-        static_assert(!std::is_same<typename no_ref<Callable>::return_t, ambiguous_return>::value,
+        static_assert(!std::is_same<typename no_ref<Callable>::return_type, ambiguous_return>::value,
             "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to.");
 
         using glue = typename no_ref<Callable>::forwarding_glue;

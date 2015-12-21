@@ -22,13 +22,13 @@ namespace clbl {
     template<typename Creator, qualify_flags CvFlags, typename T>
     struct ambi_fn_obj_wrapper {
 
-        using args_t = ambiguous_args;
+        using arg_types = ambiguous_args;
         using clbl_tag = ambi_fn_obj_tag;
         using creator = Creator;
         using forwarding_glue = ambiguous_return(ambiguous_args);
         using invocation_data_type = object_invocation_data<T>;
         using my_type = ambi_fn_obj_wrapper<Creator, CvFlags, T>;
-        using return_t = ambiguous_return;
+        using return_type = ambiguous_return;
         using type = ambiguous_return(ambiguous_args);
         using underlying_type = T;
 

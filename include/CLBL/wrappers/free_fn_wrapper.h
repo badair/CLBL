@@ -22,13 +22,13 @@ namespace clbl {
     template<typename Creator, typename Return, typename... Args>
     struct free_fn_wrapper<Creator, Return(Args...)> {
 
-        using args_t = std::tuple<Args...>;
+        using arg_types = std::tuple<Args...>;
         using clbl_tag = free_fn_tag;
         using creator = Creator;
         using forwarding_glue = Return(forward<Args>...);
         using invocation_data_type = ptr_invocation_data<Return(*)(Args...)>;
         using my_type = free_fn_wrapper<Creator, Return(Args...)>;
-        using return_t = Return;
+        using return_type = Return;
         using type = Return(Args...);
         using underlying_type = my_type;
         

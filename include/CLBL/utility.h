@@ -21,11 +21,11 @@ namespace clbl {
     using no_ref = std::remove_reference_t<T>;
 
     /*
-    clbl::args is a metafunction to extract the args_t
+    clbl::args is a metafunction to extract the arg_types
     alias of a CLBL wrapper
     */
     template<typename Callable>
-    using args = typename no_ref<Callable>::args_t;
+    using args = typename no_ref<Callable>::arg_types;
 
     namespace detail {
 

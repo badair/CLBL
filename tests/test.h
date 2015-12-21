@@ -63,13 +63,13 @@ void run_tests(
     TEST(g(args...) == g_result);
     TEST(h(args...) == h_result);
 
-    static_assert(std::is_same<typename F::return_t, typename G::return_t>::value, "std::is_same<F::return_t, G::return_t>::value");
-    static_assert(std::is_same<typename G::return_t, typename H::return_t>::value, "std::is_same<G::return_t, H::return_t>::value");
-    static_assert(std::is_same<typename H::return_t, typename F::return_t>::value, "std::is_same<H::return_t, F::return_t>::value");
+    static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
+    static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
+    static_assert(std::is_same<typename H::return_type, typename F::return_type>::value, "std::is_same<H::return_type, F::return_type>::value");
 
-    static_assert(std::is_same<typename F::args_t, typename G::args_t>::value, "std::is_same<F::args_t, G::args_t>::value");
-    static_assert(std::is_same<typename G::args_t, typename H::args_t>::value, "std::is_same<G::args_t, H::args_t>::value");
-    static_assert(std::is_same<typename H::args_t, typename F::args_t>::value, "std::is_same<H::args_t, F::args_t>::value");
+    static_assert(std::is_same<typename F::arg_types, typename G::arg_types>::value, "std::is_same<F::arg_types, G::arg_types>::value");
+    static_assert(std::is_same<typename G::arg_types, typename H::arg_types>::value, "std::is_same<G::arg_types, H::arg_types>::value");
+    static_assert(std::is_same<typename H::arg_types, typename F::arg_types>::value, "std::is_same<H::arg_types, F::arg_types>::value");
 
     auto f_std_func = convert_to<std::function>(f);
     auto g_std_func = convert_to<std::function>(g);
@@ -90,13 +90,13 @@ void run_tests(
     TEST(g() == g_result);
     TEST(h() == h_result);
 
-    static_assert(std::is_same<typename F::return_t, typename G::return_t>::value, "std::is_same<F::return_t, G::return_t>::value");
-    static_assert(std::is_same<typename G::return_t, typename H::return_t>::value, "std::is_same<G::return_t, H::return_t>::value");
-    static_assert(std::is_same<typename H::return_t, typename F::return_t>::value, "std::is_same<H::return_t, F::return_t>::value");
+    static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
+    static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
+    static_assert(std::is_same<typename H::return_type, typename F::return_type>::value, "std::is_same<H::return_type, F::return_type>::value");
 
-    static_assert(std::is_same<typename F::args_t, typename G::args_t>::value, "std::is_same<F::args_t, G::args_t>::value");
-    static_assert(std::is_same<typename G::args_t, typename H::args_t>::value, "std::is_same<G::args_t, H::args_t>::value");
-    static_assert(std::is_same<typename H::args_t, typename F::args_t>::value, "std::is_same<H::args_t, F::args_t>::value");
+    static_assert(std::is_same<typename F::arg_types, typename G::arg_types>::value, "std::is_same<F::arg_types, G::arg_types>::value");
+    static_assert(std::is_same<typename G::arg_types, typename H::arg_types>::value, "std::is_same<G::arg_types, H::arg_types>::value");
+    static_assert(std::is_same<typename H::arg_types, typename F::arg_types>::value, "std::is_same<H::arg_types, F::arg_types>::value");
 
     auto f_std_func = convert_to<std::function>(f);
     auto g_std_func = convert_to<std::function>(g);

@@ -29,13 +29,13 @@ namespace clbl {
 
         using decayed_member_fn_ptr = Return(std::remove_cv_t<T>::*)(Args...);
 
-        using args_t = std::tuple<Args...>;
+        using arg_types = std::tuple<Args...>;
         using clbl_tag = pmf_tag;
         using creator = Creator;
         using forwarding_glue = Return(forward<Args>...);
         using invocation_data_type = object_casted_invocation_data<apply_qualifiers<T, CvFlags>, TMemberFnPtr>;
         using my_type = casted_fn_obj_wrapper<Creator, CvFlags, T, TMemberFnPtr, decayed_member_fn_ptr>;
-        using return_t = Return;
+        using return_type = Return;
         using type = Return(Args...);
         using underlying_type = apply_qualifiers<T, CvFlags>;
 

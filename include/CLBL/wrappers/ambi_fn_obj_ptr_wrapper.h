@@ -22,13 +22,13 @@ namespace clbl {
     template<typename Creator, qualify_flags CvFlags, typename TPtr>
     struct ambi_fn_obj_ptr_wrapper {
 
-        using args_t = ambiguous_args;
+        using arg_types = ambiguous_args;
         using clbl_tag = ambi_fn_obj_ptr_tag;
         using creator = Creator;
         using forwarding_glue = ambiguous_return(ambiguous_args);
         using invocation_data_type = ptr_invocation_data<TPtr>;
         using my_type = ambi_fn_obj_ptr_wrapper<Creator, CvFlags, TPtr>;
-        using return_t = ambiguous_return;
+        using return_type = ambiguous_return;
         using type = ambiguous_return(ambiguous_args);
         using underlying_type = no_ref<decltype(*std::declval<TPtr>())>;
 
@@ -61,20 +61,6 @@ namespace clbl {
         {}
 
         inline ambi_fn_obj_ptr_wrapper(const volatile my_type& other)
-            : data(other.data)
-        {}
-
-        /*
-        implicit conversion to other cv representations - will fail if it's a downcast. falls
-        back to ctor defaults for self-safe substitution failure
-        */
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
-        inline ambi_fn_obj_ptr_wrapper(ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
-            : data(other.data)
-        {}
-
-        template<qualify_flags Flags, std::enable_if_t<Flags != cv_flags, dummy>* = nullptr>
-        inline ambi_fn_obj_ptr_wrapper(const ambi_fn_obj_ptr_wrapper<Creator, Flags, TPtr>& other)
             : data(other.data)
         {}
 

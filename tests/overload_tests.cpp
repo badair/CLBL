@@ -48,14 +48,14 @@ void overload_tests() {
 
         {
             auto hardened = harden<auto_(int)>(f);
-            static_assert(std::is_same<decltype(hardened)::return_t, int>::value, "");
+            static_assert(std::is_same<decltype(hardened)::return_type, int>::value, "");
             auto stdf = convert_to<std::function>(hardened);
             TEST(stdf(1) == 1);
             
         }
         {
             auto hardened = harden<auto_(int) const>(f);
-            static_assert(std::is_same<decltype(hardened)::return_t, const char*>::value, "");
+            static_assert(std::is_same<decltype(hardened)::return_type, const char*>::value, "");
             auto stdf = convert_to<std::function>(hardened);
             TEST(stdf(1) == "const");
         }
