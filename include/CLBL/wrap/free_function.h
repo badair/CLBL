@@ -19,11 +19,9 @@ namespace clbl {
 
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
-            wrap_data(Invocation data) {
+            wrap_data(Invocation&& data) {
             return wrap<Flags>(data.ptr);
         }
-
-        static constexpr bool has_member_function_pointer = false;
     };
 
 }

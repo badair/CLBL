@@ -13,7 +13,9 @@
 #include "CLBL/wrap/function_object.h"
 #include "CLBL/wrap/pointer_to_function_object.h"
 #include "CLBL/wrap/member_function_with_object.h"
+#include "CLBL/wrap/member_function_with_object_slim.h"
 #include "CLBL/wrap/member_function_with_pointer_to_object.h"
+#include "CLBL/wrap/member_function_with_pointer_to_object_slim.h"
 #include "CLBL/member_function_decay.h"
 #include "CLBL/tags.h"
 #include "CLBL/qualify_flags.h"
@@ -156,6 +158,29 @@ namespace clbl {
         fast_wrap(Args&&... args) {
         return Creator::template wrap<qflags::default_>(std::forward<Args>(args)...);
     }*/
+
+    template <typename TMemberFnPtr, TMemberFnPtr Pmf>
+    struct pmf
+    {
+        template<typename T, std::enable_if_t<!detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
+        static constexpr auto 
+        fwrap(T&& t) {
+            return member_function_with_object_slim::template wrap<
+                qflags::default_, TMemberFnPtr, Pmf
+            >(std::forward<T>(t));
+        }
+
+        template<typename TPtr, std::enable_if_t<detail::sfinae_switch<TPtr>::is_ptr, dummy>* = nullptr>
+        static constexpr auto
+            fwrap(TPtr&& object_ptr) {
+            return member_function_with_pointer_to_object_slim::template wrap<
+                qflags::default_, TMemberFnPtr, Pmf
+            >(std::forward<TPtr>(object_ptr));
+        }
+    };
+
+#define CLBL_PMFWRAP(pmf_expr, o) (clbl::pmf<clbl::no_ref<decltype(pmf_expr)>, pmf_expr>::fwrap(o))
+
 }
 
 #endif

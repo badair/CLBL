@@ -3,7 +3,8 @@
 
 #include "CLBL/member_function_decay.h"
 #include "CLBL/utility.h"
-#include "CLBL/wrap/member_function_with_object.h"
+#include "CLBL/wrappers/pmf_wrapper_slim.h"
+#include "CLBL/wrappers/casted_fn_obj_wrapper.h"
 #include "CLBL/wrappers/ambi_fn_obj_wrapper.h"
 
 namespace clbl {
@@ -14,17 +15,19 @@ namespace clbl {
         template<qualify_flags Flags, typename T>
         static inline constexpr auto 
         wrap(T&& t) {
-            constexpr auto member_fn = &underlying_type<no_ref<T> >::operator();
-            return member_function_with_object::wrap<Flags>(member_fn, std::forward<T>(t));
+            constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
+            using member_fn_type = decltype(&underlying_type<no_ref<T> >::operator());
+            using decayed_fn = member_function_decay<member_fn_type>;
+            using wrapper = pmf_wrapper_slim<function_object,
+                cv_qualifiers, no_ref<T>, member_fn_type, &underlying_type<no_ref<T> >::operator(), decayed_fn>;
+            return wrapper{ std::forward<T>(t)};
         }
 
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
-            wrap_data(Invocation data) {
-            return wrap(data.object);
-
+            wrap_data(Invocation&& data) {
+            return wrap<Flags>(data.object);
         }
-        static constexpr bool has_member_function_pointer = false;
 
         struct ambiguous {
 
@@ -38,11 +41,28 @@ namespace clbl {
 
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-                wrap_data(Invocation data) {
+                wrap_data(Invocation&& data) {
                 return wrap<Flags>(data.object);
             }
+        };
 
-            static constexpr bool has_member_function_pointer = false;
+        struct casted {
+
+            template<qualify_flags Flags, typename TMemberFnPtr, typename T>
+            static inline constexpr auto
+                wrap(T&& t) {
+                constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
+                using decayed_fn = member_function_decay<TMemberFnPtr>;
+                using wrapper = casted_fn_obj_wrapper<typename function_object::casted,
+                    cv_qualifiers, no_ref<T>, TMemberFnPtr, decayed_fn>;
+                return wrapper{ std::forward<T>(t) };
+            }
+
+            template<qualify_flags Flags, typename Invocation>
+            static inline constexpr auto
+                wrap_data(Invocation&& data) {
+                return wrap<Flags, decltype(no_ref<Invocation>::pmf)>(data.object);
+            }
         };
     };
 }

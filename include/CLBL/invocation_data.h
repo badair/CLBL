@@ -1,6 +1,8 @@
 #ifndef CLBL_INVOCATION_DATA_H
 #define CLBL_INVOCATION_DATA_H
 
+#include "CLBL/utility.h"
+
 namespace clbl {
 
     template<typename TPtr>
@@ -30,7 +32,7 @@ namespace clbl {
 
         {}
         inline ptr_invocation_data(TPtr&& p)
-            : ptr{ std::move(p) }
+            : ptr{ std::forward<TPtr>(p) }
         {}
     };
 
@@ -61,7 +63,7 @@ namespace clbl {
         {}
 
         inline object_invocation_data(T&& o)
-            : object{ std::move(o) }
+            : object{ std::forward<T>(o) }
         {}
     };
 
@@ -93,7 +95,39 @@ namespace clbl {
 
         {}
         inline pmf_invocation_data(TMemberFnPtr p, T&& o)
-            : pmf{ p }, object{ std::move(o) }
+            : pmf{ p }, object{ std::forward<T>(o) }
+        {}
+    };
+
+    template<typename T, typename TMemberFnPtr, TMemberFnPtr Pmf>
+    struct pmf_invocation_data_slim {
+        static constexpr auto pmf = Pmf;
+        T object;
+
+        using my_type = pmf_invocation_data_slim<T, TMemberFnPtr, Pmf>;
+
+        inline pmf_invocation_data_slim(my_type&) = default;
+        inline pmf_invocation_data_slim(const my_type&) = default;
+        inline pmf_invocation_data_slim(my_type&&) = default;
+
+        inline pmf_invocation_data_slim(volatile my_type& other)
+            : object{ other.object }
+        {}
+
+        inline pmf_invocation_data_slim(const volatile my_type& other)
+            : object{ other.object }
+        {}
+
+        inline pmf_invocation_data_slim(std::remove_const_t<T>& o)
+            : object{ o }
+        {}
+
+        inline pmf_invocation_data_slim(const T& o)
+            : object{ o }
+
+        {}
+        inline pmf_invocation_data_slim(T&& o)
+            : object{ std::forward<T>(o) }
         {}
     };
 
@@ -125,7 +159,103 @@ namespace clbl {
         {}
 
         inline indirect_pmf_invocation_data(TMemberFnPtr p, TPtr&& o)
-            : pmf{ p }, object_ptr{ std::move(o) }
+            : pmf{ p }, object_ptr{ std::forward<TPtr>(o) }
+        {}
+    };
+
+    template<typename TPtr, typename TMemberFnPtr, TMemberFnPtr Pmf>
+    struct indirect_pmf_invocation_data_slim {
+        static constexpr auto pmf = Pmf;
+        TPtr object_ptr;
+
+        using my_type = indirect_pmf_invocation_data_slim<TPtr, TMemberFnPtr, Pmf>;
+
+        inline indirect_pmf_invocation_data_slim(my_type&) = default;
+        inline indirect_pmf_invocation_data_slim(const my_type&) = default;
+        inline indirect_pmf_invocation_data_slim(my_type&&) = default;
+
+        inline indirect_pmf_invocation_data_slim(volatile my_type& other)
+            : object_ptr{ other.object_ptr }
+        {}
+
+        inline indirect_pmf_invocation_data_slim(const volatile my_type& other)
+            : object_ptr{ other.object_ptr }
+        {}
+
+        inline indirect_pmf_invocation_data_slim(std::remove_const_t<TPtr>& o)
+            : object_ptr{ o }
+        {}
+
+        inline indirect_pmf_invocation_data_slim(const TPtr& o)
+            : object_ptr{ o }
+
+        {}
+        inline indirect_pmf_invocation_data_slim(TPtr&& o)
+            : object_ptr{ std::forward<TPtr>(o) }
+        {}
+    };
+
+    template<typename TPtr, typename TMemberFnPtr>
+    struct object_pointer_casted_invocation_data {
+        static constexpr auto pmf = static_cast<TMemberFnPtr>(&no_ref<decltype(*std::declval<TPtr>())>::operator());
+        TPtr object_ptr;
+
+        using my_type = object_pointer_casted_invocation_data<TPtr, TMemberFnPtr>;
+
+        inline object_pointer_casted_invocation_data(my_type&) = default;
+        inline object_pointer_casted_invocation_data(const my_type&) = default;
+        inline object_pointer_casted_invocation_data(my_type&&) = default;
+
+        inline object_pointer_casted_invocation_data(volatile my_type& other)
+            : object_ptr{ other.object_ptr }
+        {}
+
+        inline object_pointer_casted_invocation_data(const volatile my_type& other)
+            : object_ptr{ other.object_ptr }
+        {}
+
+        inline object_pointer_casted_invocation_data(std::remove_const_t<TPtr>& o)
+            : object_ptr{ o }
+        {}
+
+        inline object_pointer_casted_invocation_data(const TPtr& o)
+            : object_ptr{ o }
+
+        {}
+        inline object_pointer_casted_invocation_data(TPtr&& o)
+            : object_ptr{ std::forward<TPtr>(o) }
+        {}
+    };
+
+    template<typename T, typename TMemberFnPtr>
+    struct object_casted_invocation_data {
+        static constexpr auto pmf = static_cast<TMemberFnPtr>(&no_ref<T>::operator());
+        T object;
+
+        using my_type = object_casted_invocation_data<T, TMemberFnPtr>;
+
+        inline object_casted_invocation_data(my_type&) = default;
+        inline object_casted_invocation_data(const my_type&) = default;
+        inline object_casted_invocation_data(my_type&&) = default;
+
+        inline object_casted_invocation_data(volatile my_type& other)
+            : object{ other.object }
+        {}
+
+        inline object_casted_invocation_data(const volatile my_type& other)
+            : object{ other.object }
+        {}
+
+        inline object_casted_invocation_data(std::remove_const_t<T>& o)
+            : object{ o }
+        {}
+
+        inline object_casted_invocation_data(const T& o)
+            : object{ o }
+
+        {}
+        inline object_casted_invocation_data(T&& o)
+            : object{ std::forward<T>(o) }
         {}
     };
 }

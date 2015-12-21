@@ -26,9 +26,7 @@ namespace clbl { namespace tests {
 #define CLBL_CV_TESTS
 #define CLBL_SHARED_PTR_TESTS
 #define CLBL_UNIQUE_PTR_TESTS
-
 #define CLBL_OVERLOAD_TESTS
-
 #define CLBL_INT_CHAR_TESTS
 #define CLBL_INT_TESTS
 #define CLBL_VOID_TESTS

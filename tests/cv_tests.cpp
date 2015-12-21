@@ -101,6 +101,18 @@ void conversion_tests() {
         TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
         TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+
+        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+
+        auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
+        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+
+        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+
+        auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
+        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
     #endif
 #ifdef CLBL_CV_TESTS_3

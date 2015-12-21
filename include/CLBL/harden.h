@@ -9,25 +9,52 @@
 #include "CLBL/qualify_flags.h"
 #include "CLBL/forwardable.h"
 #include "CLBL/fwrap.h"
-#include "CLBL/wrappers/pmf_ptr_wrapper.h"
 #include "CLBL/utility.h"
 #include "CLBL/harden_cast.h"
+
 
 namespace clbl {
 
     namespace detail {
 
+        /*
+        disambiguate defaults to original creator's wrap_data function - the 
+        resulting wrappers already handle CV disambiguation, thanks to 
+        CV flags
+
+        TODO - disallow invalid function signatures for CV-only disambiguation,
+        also supply CV-flags overload
+        */
+
         template<typename, typename, typename Creator>
         struct disambiguate : Creator {};
 
+        /*
+        These specializations "override" the *::ambiguous and *::casted creators'
+        wrap_data functions and pass the requested disambiguation, which results
+        in a static_cast on operator() - unfortunately, the current C++ standard 
+        forbids casting non-type function pointer template arguments, so we just 
+        pass the requested type all the way down to the invocation data, where 
+        the cast is performed into a static constexpr member (see casted_* structs 
+        defined in CLBL/invocation_data.h)
+        */
         template<typename TMemberFnPtr, typename C>
         struct disambiguate<TMemberFnPtr, C, typename pointer_to_function_object::ambiguous> {
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-            wrap_data(Invocation data) {
-                using object_type = no_ref<decltype(*data.ptr)>;
-                constexpr auto member_fn = static_cast<TMemberFnPtr>(&object_type::operator());
-                return member_function_with_pointer_to_object::template wrap<Flags>(member_fn, data.ptr);
+            wrap_data(Invocation&& data) {
+                return pointer_to_function_object::casted::template 
+                    wrap<Flags, TMemberFnPtr>(data.ptr);
+            }
+        };
+
+        template<typename TMemberFnPtr, typename C>
+        struct disambiguate<TMemberFnPtr, C, typename pointer_to_function_object::casted> {
+            template<qualify_flags Flags, typename Invocation>
+            static inline constexpr auto
+                wrap_data(Invocation&& data) {
+                return pointer_to_function_object::casted::template 
+                    wrap<Flags, TMemberFnPtr>(data.object_ptr);
             }
         };
 
@@ -35,28 +62,28 @@ namespace clbl {
         struct disambiguate<TMemberFnPtr, C, typename function_object::ambiguous> {
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-            wrap_data(Invocation data) {
-                using object_type = decltype(data.object);
-                constexpr auto member_fn = static_cast<TMemberFnPtr>(&no_ref<object_type>::operator());
-                return member_function_with_object::template wrap<Flags>(member_fn, data.object);
+                wrap_data(Invocation&& data) {
+                return function_object::casted::template 
+                    wrap<Flags, TMemberFnPtr>(data.object);
             }
         };
 
-        /*
         template<typename TMemberFnPtr, typename C>
-        struct disambiguate<TMemberFnPtr, C, std::enable_if_t<C::creator::has_member_function_pointer, typename C::creator> > {
-            template<qualify_flags Flags, typename T, typename TExistingMemberFnPtr>
+        struct disambiguate<TMemberFnPtr, C, typename function_object::casted> {
+            template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
-            wrap_data(Invocation data) {
-                return C::creator::template wrap<Flags>(member_fn, std::forward<T>(t));
+                wrap_data(Invocation&& data) {
+                return function_object::casted::template 
+                    wrap<Flags, TMemberFnPtr>(data.object);
             }
-        };*/
+        };
 
         template<typename Bad>
         struct harden_t {
             static_assert(sizeof(Bad) < 0, "Not a valid function type.");
         };
 
+        //Macro-spamming permutations of const/volatile
 #define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
         template<typename Callable> \
         inline constexpr auto \
@@ -66,11 +93,11 @@ namespace clbl {
             using C = no_ref<Callable>; \
             using underlying_type = typename C::underlying_type; \
             using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
-                                                    decltype(harden_cast<(requested | present)>(c)(std::declval<Args>()...)), \
-                                                    Return>; \
+                                decltype(harden_cast<(requested | present)>(c)(std::declval<Args>()...)), \
+                                Return>; \
             using abominable_fn_type = std::conditional_t<is_clbl<underlying_type>, \
-                                                            return_type(forwardable<Args>...) cv_requested, \
-                                                            return_type(Args...) cv_requested>; \
+                                        return_type(forwardable<Args>...) cv_requested, \
+                                        return_type(Args...) cv_requested>; \
             using requested_pmf_type = abominable_fn_type underlying_type::*; \
             using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
             return disambiguator::template wrap_data<requested | present>(c.data); \
