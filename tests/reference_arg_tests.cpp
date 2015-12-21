@@ -123,9 +123,8 @@ void reference_arg_tests() {
         static_assert(std::is_same<decltype(stdfunction_lambda_wrapper), 
                                    std::function<int(forward<int&&>)> >::value, "");
         
-        int i = 0;
-
-        //both of these should cause compiler errors
+        //these should cause compiler errors
+        //int i = 0;
         //lambda_wrapper(i);
         //stdfunction_lambda_wrapper(i);
 

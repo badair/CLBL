@@ -13,7 +13,7 @@
 namespace clbl {
 
     /*
-    pmf_ptr_wrapper_slim wraps a PMF and a pointer to an object with
+    pmf_ptr_wrapper wraps a PMF and a pointer to an object with
     which to call it.
     */
 

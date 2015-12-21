@@ -16,19 +16,11 @@ namespace clbl {
 
     template<typename FwdType>
     struct forward {
-        using T = std::conditional_t <
-            std::is_lvalue_reference<FwdType>::value || std::is_rvalue_reference<FwdType>::value,
-            forwardable<FwdType>,
-            std::add_lvalue_reference_t<forwardable<FwdType> >
-        >;
 
-        T value;
-
-        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
-        inline forward(forwardable<FwdType> t) : value(static_cast<FwdType&&>(t)) {}
-
-        template<typename U = FwdType, std::enable_if_t<!std::is_rvalue_reference<U>::value, dummy>* = nullptr>
-        inline forward(forwardable<FwdType> t) : value(t) {}
+        std::conditional_t<std::is_rvalue_reference<FwdType>::value, 
+            const no_ref<FwdType>&, 
+            forwardable<FwdType> 
+        > value;
 
         inline forward() = default;
         inline forward(forward<FwdType>&) = default;
@@ -37,8 +29,53 @@ namespace clbl {
         inline forward(volatile forward<FwdType>& other) : value(other.value) {}
         inline forward(const volatile forward<FwdType>& other) : value(other.value) {}
 
-        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref<T>, T>() const { return value; }
-        inline operator std::conditional_t<std::is_rvalue_reference<T>::value, no_ref<T>, T>() const volatile { return value; }
+        //construction from rvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline forward(U t) : value(static_cast<U>(t)) {}
+
+        //construction from lvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline forward(const no_ref<U>& t) : value(t) {}
+
+        //construction from lvalue
+        template<typename U = FwdType, std::enable_if_t<!std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline forward(forwardable<FwdType> t) : value(t) {}
+
+        //implicit conversion to xvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator U() const { 
+            return static_cast<U>(value);
+        }
+
+        //implicit conversion to xvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator U() const volatile {
+            return static_cast<U>(value);
+        }
+
+        //implicit conversion to prvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator no_ref<U>() const {
+            return value;
+        }
+
+        //implicit conversion to prvalue
+        template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator no_ref<U>() const volatile {
+            return value;
+        }
+
+        //implicit conversion to lvalue reference
+        template<typename U = FwdType, std::enable_if_t<!std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator forwardable<FwdType>() const {
+            return value; 
+        }
+
+        //implicit conversion to lvalue reference
+        template<typename U = FwdType, std::enable_if_t<!std::is_rvalue_reference<U>::value, dummy>* = nullptr>
+        inline operator forwardable<FwdType>() const volatile {
+            return value;
+        }
     };
 }
 
