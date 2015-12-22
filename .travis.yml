@@ -181,15 +181,9 @@ script:
   ############################################################################
   - |
     if [[ "${UNIT_TESTS}" == "true" ]]; then
-      touch Jamroot
-      echo "using clang : : ${COMPILER} ;" > project-config.jam
-      if [[ "${LDFLAGS}" == "" ]]; then
-        (cd tests && b2 toolset=clang cxxflags="-std=c++1y ${CXXFLAGS}" )
-      else
-        (cd tests && b2 toolset=clang cxxflags="-std=c++1y ${CXXFLAGS}" linkflags="${LDFLAGS}" )
-      fi
+      export CTEST_PARALLEL_LEVEL=2 # Run unit tests on two cores
+      (cd build && make check -j2 -k)
     fi
-
 
 notifications:
   webhooks:
