@@ -9,6 +9,13 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef TEST_H
 #define TEST_H
 
+/*
+currently, successful compilation of the test cases
+depends on the existence of the asserts, because otherwise
+the parameter packs are not expanded
+*/
+#undef NDEBUG
+
 #include <string>
 #include <cstring>
 #include <functional>
