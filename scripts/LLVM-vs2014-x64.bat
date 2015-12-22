@@ -26,6 +26,10 @@ if exist "CLBL.sln" (
 )
 
 "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe" CLBL.sln /p:Configuration=Debug /p:Platform=x64 /v:m /m /nologo
-"C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe" CLBL.sln /p:Configuration=Debug /p:Platform=x64 /v:m /m /nologo
 "C:\Program Files (x86)\MSBuild\14.0\Bin\MSBuild.exe" RUN_TESTS.vcxproj /p:Configuration=Debug /p:Platform=x64
+
 pause
+
+@echo off
+cd ..
+cd scripts
