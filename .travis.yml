@@ -45,7 +45,7 @@ matrix:
         apt:
           packages: ["clang-3.6", "valgrind"]
           sources: &sources
-		    - ubuntu-toolchain-r-test
+            - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
             - llvm-toolchain-precise-3.6
             - llvm-toolchain-precise-3.7
