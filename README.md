@@ -1,4 +1,6 @@
 # CLBL
+![Build Status](https://travis-ci.org/badair/CLBL.svg?branch=master)
+
 CLBL is a C++14 header-only library of wrappers and tools for callable types: function pointers, pointer-to-member functions, callable objects (which, of course, includes lambdas), and many forms of indirection thereof. This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
 
 1. Facilitate the creation of callable wrappers for all callable types with zero runtime overhead (assuming RVO is performed by the compiler, which is trivial, since everything is inlined).
@@ -8,10 +10,9 @@ CLBL is a C++14 header-only library of wrappers and tools for callable types: fu
 5. Allow for easy conversion to type-erased wrappers like `std::function`, while maintaining perfect forwarding and CV overload selection
 6. Provide metaprogramming facilities for all things callable
 
-You may notice that the above list has significant overlap with `std::invoke` and `std::bind`. Although there is significant overlap between CLBL and these libraries, CLBL is most distinguished by the following (at this point in development):
-
+Currently, these are the most interesting members of the CLBL library:
 1. `clbl::harden`, a tool that provides a clean interface for manual overload disambiguation.
-2. `clbl::convert_to`, a tool that converts unambiguous/disambiguated callable types to a perfect-forwarding `std::function` (or a similar template). The user need not specify the std::function's function type, except in cases where clbl::harden is a prerequisite.
+2. `clbl::convert_to` in conjunction with `clbl::forward`, which are used to convert an unambiguous/disambiguated callable wrapper to `std::function` (or a similar template). The user need not specify the std::function's function type, except in cases where clbl::harden is a prerequisite for disambiguation.
 
 CLBL is a shortening of the word "callable."
 
@@ -21,7 +22,7 @@ CLBL does not use `<functional>`, except where it provides an interface for `std
 
 The code is currently unlicensed because I have not yet decided on one, but it will ultimately be FOSS in some form. If anyone wants me to go ahead and choose a license, please let me know. Regardless of licensing, CLBL is not yet stable, and should not be used in production. As of 12/21/2015, all tests are passing. Many more tests need to be written, and the test cases need to be refactored into separate builds. Cmake integration is planned for the test cases, as well as Appveyor. I'm currently developing on the master branch, as I am working alone. If anyone would like me to implement features on a branch-by-branch basis, please let me know.
 
-More features and documentation coming soon... For now, here's a quick and incomplete rundown:
+More features and documentation coming soon... For now, here's a quick and sorely incomplete rundown:
 
 ```cpp
 
