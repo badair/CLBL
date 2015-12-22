@@ -1,5 +1,7 @@
 # CLBL
 
+![Build Status](https://travis-ci.org/badair/CLBL.svg?branch=master)
+
 [![Join the chat at https://gitter.im/badair/CLBL](https://badges.gitter.im/badair/CLBL.svg)](https://gitter.im/badair/CLBL?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 CLBL is a C++14 header-only library of wrappers and tools for callable types: function pointers, pointer-to-member functions, callable objects (which, of course, includes lambdas), and many forms of indirection thereof. This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
