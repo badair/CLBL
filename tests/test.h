@@ -25,6 +25,8 @@ namespace clbl { namespace tests {
         extern inline void some_function(some_type) {}
 }}
 
+using namespace clbl;
+
 #define CLBL_REFERENCE_ARG_TESTS
 #define CLBL_VALUE_TESTS
 #define CLBL_FORWARDING_TESTS
