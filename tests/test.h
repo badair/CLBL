@@ -120,9 +120,9 @@ void run_tests(
     static_assert(std::is_same<std::function<const char*(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
     static_assert(std::is_same<std::function<const char*(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
 
-    assert(f_std_func(test_args...) == f_result);
-    assert(g_std_func(test_args...) == g_result);
-    assert(h_std_func(test_args...) == h_result);
+    assert(f_std_func() == f_result);
+    assert(g_std_func() == g_result);
+    assert(h_std_func() == h_result);
 }
 
 #endif
