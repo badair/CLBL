@@ -34,23 +34,23 @@ namespace clbl {
         inline ptr_invocation_data(my_type&&) = default;
 
         inline ptr_invocation_data(volatile my_type& other)
-            : ptr{ other.ptr }
+            : ptr( other.ptr )
         {}
 
         inline ptr_invocation_data(const volatile my_type& other)
-            : ptr{ other.ptr }
+            : ptr( other.ptr )
         {}
 
         inline ptr_invocation_data(std::remove_const_t<TPtr>& p)
-            : ptr{ p }
+            : ptr( p )
         {}
 
         inline ptr_invocation_data(const TPtr& p)
-            : ptr{ p }
+            : ptr( p )
 
         {}
         inline ptr_invocation_data(TPtr&& p)
-            : ptr{ std::forward<TPtr>(p) }
+            : ptr( std::forward<TPtr>(p) )
         {}
     };
 
@@ -65,23 +65,23 @@ namespace clbl {
         inline object_invocation_data(my_type&&) = default;
 
         inline object_invocation_data(volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline object_invocation_data(const volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline object_invocation_data(std::remove_const_t<T>& o)
-            : object{ o }
+            : object( o )
         {}
 
         inline object_invocation_data(const T& o)
-            : object{ o }
+            : object( o )
         {}
 
         inline object_invocation_data(T&& o)
-            : object{ std::forward<T>(o) }
+            : object( std::forward<T>(o) )
         {}
     };
 
@@ -97,23 +97,23 @@ namespace clbl {
         inline pmf_invocation_data(my_type&&) = default;
 
         inline pmf_invocation_data(volatile my_type& other)
-            : pmf{ other.pmf }, object{ other.object }
+            : pmf( other.pmf ), object( other.object )
         {}
 
         inline pmf_invocation_data(const volatile my_type& other)
-            : pmf{ other.pmf }, object{ other.object }
+            : pmf( other.pmf ), object( other.object )
         {}
 
         inline pmf_invocation_data(TMemberFnPtr p, std::remove_const_t<T>& o)
-            : pmf{ p }, object{ o }
+            : pmf( p ), object( o )
         {}
 
         inline pmf_invocation_data(TMemberFnPtr p, const T& o)
-            : pmf{ p }, object{ o }
+            : pmf( p ), object( o )
 
         {}
         inline pmf_invocation_data(TMemberFnPtr p, T&& o)
-            : pmf{ p }, object{ std::forward<T>(o) }
+            : pmf( p ), object( std::forward<T>(o) )
         {}
     };
 
@@ -129,23 +129,23 @@ namespace clbl {
         inline pmf_invocation_data_slim(my_type&&) = default;
 
         inline pmf_invocation_data_slim(volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline pmf_invocation_data_slim(const volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline pmf_invocation_data_slim(std::remove_const_t<T>& o)
-            : object{ o }
+            : object( o )
         {}
 
         inline pmf_invocation_data_slim(const T& o)
-            : object{ o }
+            : object( o )
 
         {}
         inline pmf_invocation_data_slim(T&& o)
-            : object{ std::forward<T>(o) }
+            : object( std::forward<T>(o) )
         {}
     };
 
@@ -161,23 +161,23 @@ namespace clbl {
         inline indirect_pmf_invocation_data(my_type&&) = default;
 
         inline indirect_pmf_invocation_data(volatile my_type& other)
-            : pmf{ other.pmf }, object_ptr{ other.object_ptr }
+            : pmf( other.pmf ), object_ptr( other.object_ptr )
         {}
 
         inline indirect_pmf_invocation_data(const volatile my_type& other)
-            : pmf{ other.pmf }, object_ptr{ other.object_ptr }
+            : pmf( other.pmf ), object_ptr( other.object_ptr )
         {}
 
         inline indirect_pmf_invocation_data(TMemberFnPtr p, std::remove_const_t<TPtr>& o)
-            : pmf{ p }, object_ptr{ o }
+            : pmf( p ), object_ptr( o )
         {}
 
         inline indirect_pmf_invocation_data(TMemberFnPtr p, const TPtr& o)
-            : pmf{ p }, object_ptr{ o }
+            : pmf( p ), object_ptr( o )
         {}
 
         inline indirect_pmf_invocation_data(TMemberFnPtr p, TPtr&& o)
-            : pmf{ p }, object_ptr{ std::forward<TPtr>(o) }
+            : pmf( p ), object_ptr( std::forward<TPtr>(o) )
         {}
     };
 
@@ -193,23 +193,23 @@ namespace clbl {
         inline indirect_pmf_invocation_data_slim(my_type&&) = default;
 
         inline indirect_pmf_invocation_data_slim(volatile my_type& other)
-            : object_ptr{ other.object_ptr }
+            : object_ptr( other.object_ptr )
         {}
 
         inline indirect_pmf_invocation_data_slim(const volatile my_type& other)
-            : object_ptr{ other.object_ptr }
+            : object_ptr( other.object_ptr )
         {}
 
         inline indirect_pmf_invocation_data_slim(std::remove_const_t<TPtr>& o)
-            : object_ptr{ o }
+            : object_ptr( o )
         {}
 
         inline indirect_pmf_invocation_data_slim(const TPtr& o)
-            : object_ptr{ o }
+            : object_ptr( o )
 
         {}
         inline indirect_pmf_invocation_data_slim(TPtr&& o)
-            : object_ptr{ std::forward<TPtr>(o) }
+            : object_ptr( std::forward<TPtr>(o) )
         {}
     };
 
@@ -225,23 +225,23 @@ namespace clbl {
         inline object_pointer_casted_invocation_data(my_type&&) = default;
 
         inline object_pointer_casted_invocation_data(volatile my_type& other)
-            : object_ptr{ other.object_ptr }
+            : object_ptr( other.object_ptr )
         {}
 
         inline object_pointer_casted_invocation_data(const volatile my_type& other)
-            : object_ptr{ other.object_ptr }
+            : object_ptr( other.object_ptr )
         {}
 
         inline object_pointer_casted_invocation_data(std::remove_const_t<TPtr>& o)
-            : object_ptr{ o }
+            : object_ptr( o )
         {}
 
         inline object_pointer_casted_invocation_data(const TPtr& o)
-            : object_ptr{ o }
+            : object_ptr( o )
 
         {}
         inline object_pointer_casted_invocation_data(TPtr&& o)
-            : object_ptr{ std::forward<TPtr>(o) }
+            : object_ptr( std::forward<TPtr>(o) )
         {}
     };
 
@@ -257,23 +257,23 @@ namespace clbl {
         inline object_casted_invocation_data(my_type&&) = default;
 
         inline object_casted_invocation_data(volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline object_casted_invocation_data(const volatile my_type& other)
-            : object{ other.object }
+            : object( other.object )
         {}
 
         inline object_casted_invocation_data(std::remove_const_t<T>& o)
-            : object{ o }
+            : object( o )
         {}
 
         inline object_casted_invocation_data(const T& o)
-            : object{ o }
+            : object( o )
 
         {}
         inline object_casted_invocation_data(T&& o)
-            : object{ std::forward<T>(o) }
+            : object( std::forward<T>(o) )
         {}
     };
 }

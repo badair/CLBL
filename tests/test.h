@@ -64,11 +64,11 @@ void run_tests(
     F& f, const char* f_result,
     G& g, const char* g_result,
     H& h, const char* h_result,
-    Args... args) {
+    Args... test_args) {
 
-    assert(f(args...) == f_result);
-    assert(g(args...) == g_result);
-    assert(h(args...) == h_result);
+    assert(f(test_args...) == f_result);
+    assert(g(test_args...) == g_result);
+    assert(h(test_args...) == h_result);
 
     static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
     static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
@@ -82,9 +82,9 @@ void run_tests(
     auto g_std_func = convert_to<std::function>(g);
     auto h_std_func = convert_to<std::function>(h);
 
-    assert(f_std_func(args...) == f_result);
-    assert(g_std_func(args...) == g_result);
-    assert(h_std_func(args...) == h_result);
+    assert(f_std_func(test_args...) == f_result);
+    assert(g_std_func(test_args...) == g_result);
+    assert(h_std_func(test_args...) == h_result);
 }
 
 template<typename F, typename G, typename H>
@@ -113,9 +113,9 @@ void run_tests(
     static_assert(std::is_same<std::function<const char*(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
     static_assert(std::is_same<std::function<const char*(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
 
-    assert(f_std_func(args...) == f_result);
-    assert(g_std_func(args...) == g_result);
-    assert(h_std_func(args...) == h_result);
+    assert(f_std_func(test_args...) == f_result);
+    assert(g_std_func(test_args...) == g_result);
+    assert(h_std_func(test_args...) == h_result);
 }
 
 #endif
