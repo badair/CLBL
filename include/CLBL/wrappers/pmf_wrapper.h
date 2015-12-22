@@ -98,39 +98,39 @@ namespace clbl {
                 data.object, data.pmf, std::forward<Fargs>(a)...);
         }
 
-        template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto
-        copy_invocation(T& c) {
+        copy_invocation(U& c) {
             return no_ref<decltype(c.data.object)>::copy_invocation(
                 harden_cast<cv_flags>(c.data.object)
             );
         }
 
-        template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto
-        copy_invocation(const T& c) {
+        copy_invocation(const U& c) {
             return no_ref<decltype(c.data.object)>::copy_invocation(
                 harden_cast<qflags::const_ | cv_flags>(c.data.object)
             );
         }
 
-        template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto
-        copy_invocation(volatile T& c) {
+        copy_invocation(volatile U& c) {
             return no_ref<decltype(c.data.object)>::copy_invocation(
                 harden_cast<qflags::volatile_ | cv_flags>(c.data.object)
             );
         }
 
-        template<typename T = underlying_type, std::enable_if_t<is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto
-        copy_invocation(const volatile T& c) {
+        copy_invocation(const volatile U& c) {
             return no_ref<decltype(data.object)>::copy_invocation(
                 harden_cast<qflags::const_ | qflags::volatile_ | cv_flags>(c.data.object)
             );
         }
 
-        template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<!is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto
         copy_invocation(my_type& c) {
             return[d = c.data](auto&&... args) mutable {
@@ -139,7 +139,7 @@ namespace clbl {
             };
         }
 
-        template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<!is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const my_type& c) {
             return[d = c.data](auto&&... args){
                 return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const,
@@ -147,7 +147,7 @@ namespace clbl {
             };
         }
 
-        template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<!is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(volatile my_type& c) {
             return[d = c.data](auto&&... args) mutable {
                 return CLBL_UPCAST_AND_CALL_MEMBER_VAL(volatile,
@@ -155,7 +155,7 @@ namespace clbl {
             };
         }
 
-        template<typename T = underlying_type, std::enable_if_t<!is_clbl<T>, dummy>* = nullptr>
+        template<typename U = underlying_type, std::enable_if_t<!is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const volatile my_type& c) {
             return[d = c.data](auto&&... args){
                 return CLBL_UPCAST_AND_CALL_MEMBER_VAL(const volatile,
