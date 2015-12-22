@@ -3,26 +3,33 @@
 
 CLBL is a C++14 header-only library of wrappers and tools for callable types: function pointers, pointer-to-member functions, callable objects (which, of course, includes lambdas), and many forms of indirection thereof. This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
 
-1. Facilitate the creation of callable wrappers for all callable types with zero runtime overhead (assuming RVO is performed by the compiler, which is trivial, since everything is inlined).
-2. Employ a common wrapper creation interface 
-3. Deduce signatures for unambiguous cases, and offer tools for dealing with these types
-4. Create a clean interface for optional, lazy disambiguation of objects with overloaded/templated `operator()`
-5. Allow for easy conversion to type-erased wrappers like `std::function`, while maintaining perfect forwarding and CV overload selection
-6. Provide metaprogramming facilities for all things callable
+1. Facilitate the creation of callable wrappers at compile-time for any callable type, with no runtime overhead. "No runtime overhead" does rely on the compiler to perform RVO. Because everything is inlined and most things are `constexpr`, RVO is relatively trivial for compilers.
 
-Currently, these are the most interesting members of the CLBL library:
-1. `clbl::harden`, a tool that provides a clean interface for manual overload disambiguation.
-2. `clbl::convert_to` in conjunction with `clbl::forward`, which are used to convert an unambiguous/disambiguated callable wrapper to `std::function` (or a similar template). The user need not specify the std::function's function type, except in cases where clbl::harden is a prerequisite for disambiguation.
+2. Employ a common wrapper creation interface - `clbl::fwrap` is a heavily overloaded function thataccepts function pointers, function object lvalues/rvalues, std::reference_wrapper, and PMFs (pointer-to-member functions). This is similar in design to `std::invoke`
+
+3. Deduce signatures for unambiguous callable types, and provide metaprogramming tools to manipulate them
+
+4. Provide an intuitive interface for lazy disambiguation of objects with overloaded/templated `operator()` - this is done by `clbl::harden`
+
+5. Allow for easy conversion to type-erased wrappers like `std::function` via `clbl::convert_to`, while maintaining perfect forwarding and CV overload selection determined with `clbl::harden`, without requiring the user to explicitly specify the function type (for unambiguous cases)
 
 CLBL is a shortening of the word "callable."
 
 CLBL has no dependencies outside the standard library. However, Clang is currently the only compiler known to work with CLBL, due to reliance on generic lambdas and variable templates. CLBL is being developed using the LLVM-vs2014 toolkit in Visual Studio 2015.
 
-CLBL does not use `<functional>`, except where it provides an interface for `std::reference_wrapper`. The functionality regarding `std::function` is implicit, and should work for similar implementations, such as `boost::function` (currently untested). CLBL only uses `<tuple>` for putting argument types into an std::tuple for the alias "arg_types" in CLBL wrappers. `<type_traits>` and `<utility`> are, of course, used pervasively. No other headers are used.
+CLBL only uses 4 standard library headers:
 
-The code is currently unlicensed because I have not yet decided on one, but it will ultimately be FOSS in some form. If anyone wants me to go ahead and choose a license, please let me know. Regardless of licensing, CLBL is not yet stable, and should not be used in production. As of 12/21/2015, all tests are passing. Many more tests need to be written, and the test cases need to be refactored into separate builds. Cmake integration is planned for the test cases, as well as Appveyor. I'm currently developing on the master branch, as I am working alone. If anyone would like me to implement features on a branch-by-branch basis, please let me know.
+1. <functional> - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts it as a template template parameter
 
-More features and documentation coming soon... For now, here's a quick and sorely incomplete rundown:
+2. <tuple> - only used to make argument types easily accessible for metaprogrammers
+
+3. <type_traits> - used pervasively for type-level compile-time computations
+
+4. <utility> - for std::forward
+
+CLBL is not yet stable, and should not yet be used in production code.
+
+More features and documentation coming soon... For now, here's a quick, sorely incomplete rundown:
 
 ```cpp
 
@@ -151,10 +158,9 @@ int main() {
 
     Attentive readers probably noticed that one of cv_reporter's operator() overloads returns
     an std::string, while the others return const char*. Trying to remember return types is
-    annoying, and sometimes impossible - Do you know the return type of std::bind? clbl:::fwrap?
-    Functions like these might as well return Egyptian hieroglyphs - thankfully, C++ has the
-    auto keyword. In the same vein, CLBL provides the clbl::auto_ tag type, which can be used
-    as a placeholder for clbl::harden return types:
+    annoying, and sometimes impossible - this is why we have C++11 auto. In the same vein, 
+    CLBL provides the clbl::auto_ tag type, which can be used as a placeholder for 
+    clbl::harden return types:
     */
 
     using auto_ = clbl::auto_;
