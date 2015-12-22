@@ -223,8 +223,8 @@ namespace clbl {
     {
         template<typename T, std::enable_if_t<
             !detail::sfinae_switch<T>::is_ptr
-            && !detail::sfinae_switch<T>::is_ref_wrapper, dummy>* = nullptr>
-        static constexpr auto 
+            && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+        static inline constexpr auto 
         fwrap(T&& t) {
             return member_function_with_object_slim::template
                 wrap<qflags::default_, TMemberFnPtr, Pmf>(std::forward<T>(t));
@@ -232,8 +232,8 @@ namespace clbl {
 
         template<typename TPtr, std::enable_if_t<
             detail::sfinae_switch<TPtr>::is_ptr
-            && !detail::sfinae_switch<TPtr>::is_ref_wrapper, dummy>* = nullptr>
-        static constexpr auto
+            && !detail::sfinae_switch<TPtr>::reference_wrapper_case, dummy>* = nullptr>
+        static inline constexpr auto
         fwrap(TPtr&& object_ptr) {
             return member_function_with_pointer_to_object_slim::template
                 wrap<qflags::default_, TMemberFnPtr, Pmf>(std::forward<TPtr>(object_ptr));
@@ -241,7 +241,7 @@ namespace clbl {
 
         template<typename T, std::enable_if_t<
             detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-        inline constexpr auto
+        static inline constexpr auto
         fwrap(T&& t) {
             return fwrap(std::addressof(t.get()));
         }
