@@ -10,11 +10,11 @@
 # provides friendly hints to the user.
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "3.5.0")
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "3.6.2")
         message(WARNING "
     ### You appear to be using Clang ${CMAKE_CXX_COMPILER_VERSION}, which is known
     ### to be unable to compile CLBL. Consider switching to
-    ### Clang >= 3.5.0. If it is already installed on your
+    ### Clang >= 3.6.2. If it is already installed on your
     ### system, you can tell CMake about it with
     ###
     ###     cmake .. -DCMAKE_CXX_COMPILER=/path/to/clang
@@ -54,11 +54,9 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
     if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "6.1.0")
         message(WARNING "
     ### You appear to be using Apple's Clang ${CMAKE_CXX_COMPILER_VERSION}, which is
-    ### shipped with Xcode < 6.3. Unfortunately, only Apple's Clang
-    ### >= 6.1.0 (shipped with Xcode >= 6.3) is supported by CLBL.
-    ### You should consider updating to Xcode >= 6.3 (requires Yosemite)
-    ### or using a non-Apple Clang >= 3.5.0, which can be installed via
-    ### Homebrew with
+    ### shipped with Xcode < 6.3. You should consider using a 
+	### non-Apple Clang >= 3.6.2, which can be installed via 
+	### Homebrew with
     ###
     ###     brew install llvm --with-clang
     ###
@@ -72,7 +70,7 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
     ### You appear to be using GCC ${CMAKE_CXX_COMPILER_VERSION}, which is known
     ### to be unable to compile CLBL. Support for GCC is on
     ### its way, but it's not there yet. Consider switching
-    ### to Clang >= 3.5.0. If Clang is already installed on
+    ### to Clang >= 3.6.2. If Clang is already installed on
     ### your system, you can tell CMake about it with
     ###
     ###     cmake .. -DCMAKE_CXX_COMPILER=/path/to/clang

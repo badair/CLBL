@@ -44,7 +44,12 @@ matrix:
       addons: &clang36
         apt:
           packages: ["clang-3.6", "valgrind"]
-          sources: *sources
+          sources: &sources
+		    - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.5
+            - llvm-toolchain-precise-3.6
+            - llvm-toolchain-precise-3.7
+            - llvm-toolchain-precise
 
     # Clang 3.7
     - env: UNIT_TESTS=true COMPILER=clang++-3.7 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
@@ -95,7 +100,6 @@ matrix:
     - env: UNIT_TESTS=true COMPILER=clang++-3.8
     - osx_image: xcode7.2b1
 
-
 install:
   ############################################################################
   # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/
@@ -120,7 +124,7 @@ install:
   ############################################################################
   - |
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${STDLIB}" != "libstdc++" ]]; then
-      if [[ "${COMPILER}" == "clang++-3.6" ]]; then LLVM_VERSION="3.6.2";
+      if   [[ "${COMPILER}" == "clang++-3.6" ]]; then LLVM_VERSION="3.6.2";
       elif [[ "${COMPILER}" == "clang++-3.7" ]]; then LLVM_VERSION="3.7.0";
       else                                            LLVM_VERSION="trunk"; fi
 
