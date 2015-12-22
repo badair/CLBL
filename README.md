@@ -19,13 +19,13 @@ CLBL has no dependencies outside the standard library. However, Clang is current
 
 CLBL only uses 4 standard library headers:
 
-1. <functional> - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts it as a template template parameter
+1. `<functional>` - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts it as a template template parameter
 
-2. <tuple> - only used to make argument types easily accessible for metaprogrammers
+2. `<tuple>` - only used to make argument types easily accessible for metaprogrammers
 
-3. <type_traits> - used pervasively for type-level compile-time computations
+3. `<type_traits>` - used pervasively for type-level compile-time computations
 
-4. <utility> - for std::forward
+4. `<utility>` - for std::forward
 
 CLBL is not yet stable, and should not yet be used in production code.
 
