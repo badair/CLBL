@@ -1,5 +1,12 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #include "test.h"
-#include <CLBL/clbl.h>
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"
@@ -8,27 +15,26 @@
 #include <memory>
 #include <iostream>
 
+#include <CLBL/clbl.h>
+
 using namespace clbl::tests;
 using namespace clbl;
 
-namespace shared_tests {
-    static constexpr auto destroyed_message = "destroyed";
+static constexpr auto destroyed_message = "destroyed";
 
-    struct scope_test {
-        std::stringstream& ss;
+struct scope_test {
+    std::stringstream& ss;
 
-        scope_test(std::stringstream& s) : ss(s) {}
+    scope_test(std::stringstream& s) : ss(s) {}
 
-        void fwrap(int i) { ss << i; }
+    void fwrap(int i) { ss << i; }
 
-        ~scope_test() {
-            ss << destroyed_message;
-        }
-    };
-}
+    ~scope_test() {
+        ss << destroyed_message;
+    }
+};
 
-void shared_ptr_tests() {
-    using namespace shared_tests;
+int main() {
 
 #ifdef CLBL_SHARED_PTR_TESTS
     std::cout << "running CLBL_SHARED_PTR_TESTS" << std::endl;
@@ -45,11 +51,13 @@ void shared_ptr_tests() {
             f(1);
         }
 
-        TEST(ss.str() == "1");
+        assert(ss.str() == "1");
         ss.str("");
     }
 
-    TEST(ss.str() == destroyed_message);
+    assert(ss.str() == destroyed_message);
 
 #endif
+
+    return 0;
 }

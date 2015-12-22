@@ -1,5 +1,12 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #include "test.h"
-#include <CLBL/clbl.h>
 #include "void_definitions.h"
 #include "int_definitions.h"
 #include "int_char_definitions.h"
@@ -8,29 +15,26 @@
 #include <memory>
 #include <iostream>
 #include <string>
+#include <CLBL/clbl.h>
 
 using namespace clbl::tests;
 using namespace clbl;
 
-namespace unique_tests {
-    static constexpr auto destroyed_message = "destroyed";
+static constexpr auto destroyed_message = "destroyed";
 
-    struct scope_test {
-        std::stringstream& ss;
+struct scope_test {
+    std::stringstream& ss;
 
-        scope_test(std::stringstream& s) : ss(s) {}
+    scope_test(std::stringstream& s) : ss(s) {}
 
-        void func(int i) { ss << i; }
+    void func(int i) { ss << i; }
 
-        ~scope_test() {
-            ss << destroyed_message;
-        }
-    };
-}
+    ~scope_test() {
+        ss << destroyed_message;
+    }
+};
 
-void unique_ptr_tests() {
-
-    using namespace unique_tests;
+int main() {
 
 #ifdef CLBL_UNIQUE_PTR_TESTS
     std::cout << "running CLBL_UNIQUE_PTR_TESTS" << std::endl;
@@ -45,8 +49,10 @@ void unique_ptr_tests() {
         }
 
         auto expected_result = std::string{ "1" } +std::string{ destroyed_message };
-        TEST(ss.str() == expected_result);
+        assert(ss.str() == expected_result);
     }
 
 #endif
+
+    return 0;
 }

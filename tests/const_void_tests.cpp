@@ -1,13 +1,21 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #include "test.h"
-#include <CLBL/clbl.h>
 #include "void_definitions.h"
 
 #include <iostream>
+#include <CLBL/clbl.h>
 
 using namespace clbl::tests;
 using namespace clbl;
 
-void const_void_tests() {
+int main() {
 
 #ifdef CLBL_CONST_VOID_TESTS
     std::cout << "running CLBL_CONST_VOID_TESTS" << std::endl;
@@ -26,4 +34,5 @@ void const_void_tests() {
 
 #endif
 
+    return 0;
 }

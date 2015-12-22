@@ -1,13 +1,21 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #include "test.h"
-#include <CLBL/clbl.h>
 #include "int_char_definitions.h"
 
 #include <iostream>
+#include <CLBL/clbl.h>
 
 using namespace clbl::tests;
 using namespace clbl;
 
-void const_volatile_int_char_tests() {
+int main() {
 
 #ifdef CLBL_CONST_VOLATILE_INT_CHAR_TESTS
     std::cout << "running CLBL_CONST_VOLATILE_INT_CHAR_TESTS" << std::endl;
@@ -40,4 +48,6 @@ void const_volatile_int_char_tests() {
     }
 
 #endif
+
+    return 0;
 }

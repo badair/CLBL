@@ -1,3 +1,11 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #ifndef TEST_H
 #define TEST_H
 
@@ -16,9 +24,6 @@ namespace clbl { namespace tests {
         auto some_callable_object = [](some_type) {};
         extern inline void some_function(some_type) {}
 }}
-
-#define STATIC_TEST(expr) static_assert(expr, "")
-#define TEST(expr) assert(expr)
 
 #define CLBL_REFERENCE_ARG_TESTS
 #define CLBL_VALUE_TESTS
@@ -59,9 +64,9 @@ void run_tests(
     H& h, const char* h_result,
     Args... args) {
 
-    TEST(f(args...) == f_result);
-    TEST(g(args...) == g_result);
-    TEST(h(args...) == h_result);
+    assert(f(args...) == f_result);
+    assert(g(args...) == g_result);
+    assert(h(args...) == h_result);
 
     static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
     static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
@@ -75,9 +80,9 @@ void run_tests(
     auto g_std_func = convert_to<std::function>(g);
     auto h_std_func = convert_to<std::function>(h);
 
-    TEST(f_std_func(args...) == f_result);
-    TEST(g_std_func(args...) == g_result);
-    TEST(h_std_func(args...) == h_result);
+    assert(f_std_func(args...) == f_result);
+    assert(g_std_func(args...) == g_result);
+    assert(h_std_func(args...) == h_result);
 }
 
 template<typename F, typename G, typename H>
@@ -86,9 +91,9 @@ void run_tests(
     G& g, std::string g_result,
     H& h, std::string h_result) {
 
-    TEST(f() == f_result);
-    TEST(g() == g_result);
-    TEST(h() == h_result);
+    assert(f() == f_result);
+    assert(g() == g_result);
+    assert(h() == h_result);
 
     static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
     static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
@@ -106,9 +111,9 @@ void run_tests(
     static_assert(std::is_same<std::function<const char*(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
     static_assert(std::is_same<std::function<const char*(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
 
-    TEST(f_std_func(args...) == f_result);
-    TEST(g_std_func(args...) == g_result);
-    TEST(h_std_func(args...) == h_result);
+    assert(f_std_func(args...) == f_result);
+    assert(g_std_func(args...) == g_result);
+    assert(h_std_func(args...) == h_result);
 }
 
 #endif

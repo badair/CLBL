@@ -1,11 +1,19 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #include "test.h"
-#include <CLBL/clbl.h>
 #include "int_char_definitions.h"
 
 #include<functional>
 #include<iostream>
-
 #include<iostream>
+
+#include <CLBL/clbl.h>
 
 using namespace clbl::tests;
 using namespace clbl;
@@ -24,7 +32,7 @@ struct mutable_struct {
 
     mutable_struct(int i) : value(i) {}
 
-    void increment(int i) {
+    void increment(int) {
         ++value;
     }
 
@@ -35,21 +43,9 @@ struct mutable_struct {
 
 int mutable_struct::copy_count = 0;
 
-void conversion_tests() {
+int main() {
 
 #ifdef CLBL_CV_TESTS
-
-#define CLBL_CV_TESTS_1
-#define CLBL_CV_TESTS_2
-#define CLBL_CV_TESTS_3
-#define CLBL_CV_TESTS_4
-#define CLBL_CV_TESTS_5
-#define CLBL_CV_TESTS_6
-#define CLBL_CV_TESTS_7
-#define CLBL_CV_TESTS_8
-#define CLBL_CV_TESTS_9
-#define CLBL_CV_TESTS_10
-#define CLBL_CV_TESTS_11
 
     std::cout << "running CLBL_CV_TESTS" << std::endl;
 
@@ -64,10 +60,10 @@ void conversion_tests() {
         stdf(0);
         call_std_function(stdf);
 
-        TEST(mutable_object.value == 3);
+        assert(mutable_object.value == 3);
     }
     #endif
-    #ifdef CLBL_CV_TESTS_2
+    #if CLBL_TEST_PART == 2
     {
         //testing cv-correctness of clbl callables converted to std::function
         auto overloaded_object = overloaded_int_char_struct{};
@@ -82,40 +78,40 @@ void conversion_tests() {
         auto hv = harden<const char*(int, char) volatile>(v);
         auto hcv = harden<const char*(int, char) const volatile>(cv);
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
     #endif
-#ifdef CLBL_CV_TESTS_3
+#if CLBL_TEST_PART == 3
     {
         auto overloaded_object = overloaded_int_char_struct{};
 
@@ -139,10 +135,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(nested_v);
         CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-        TEST(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
         auto hnormal = harden<auto_(int, char)>(nested_normal);
         auto hc = harden<auto_(int, char) const>(nested_c);
@@ -154,10 +150,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(hv);
         CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -169,27 +165,27 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(stdv);
         CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
     {
         auto overloaded_object = overloaded_int_char_struct{};
@@ -219,10 +215,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(nested_v);
         CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-        TEST(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
         auto hnormal = harden<auto_(int, char)>(nested_normal);
         auto hc = harden<auto_(int, char) const>(nested_c);
@@ -234,10 +230,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(hv);
         CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -249,30 +245,30 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(stdv);
         CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_4
+#if CLBL_TEST_PART == 4
     {
         auto overloaded_object = overloaded_int_char_struct{};
 
@@ -296,30 +292,30 @@ void conversion_tests() {
             std::function<const char* (forward<int>, forward<char>) > 
         >::value, "");
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_5
+#if CLBL_TEST_PART == 5
     {
         const auto overloaded_object = overloaded_int_char_struct{};
 
@@ -336,14 +332,14 @@ void conversion_tests() {
         auto stdc = convert_to<std::function>(hc);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_6
+#if CLBL_TEST_PART == 6
     {
         volatile auto overloaded_object = overloaded_int_char_struct{};
 
@@ -360,14 +356,14 @@ void conversion_tests() {
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_7
+#if CLBL_TEST_PART == 7
     {
         //testing cv-correctness of clbl callables converted to std::function
         auto overloaded_object = overloaded_int_char_struct{};
@@ -382,40 +378,40 @@ void conversion_tests() {
         auto hv = harden<const char*(int, char) volatile>(v);
         auto hcv = harden<const char*(int, char) const volatile>(cv);
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_8
+#if CLBL_TEST_PART == 8
     {
         auto overloaded_object = overloaded_int_char_struct{};
 
@@ -439,10 +435,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(nested_v);
         CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-        TEST(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
         auto hnormal = harden<const char*(int, char)>(nested_normal);
         auto hc = harden<const char*(int, char) const>(nested_c);
@@ -454,10 +450,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(hv);
         CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -469,27 +465,27 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(stdv);
         CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
     {
         auto overloaded_object = overloaded_int_char_struct{};
@@ -519,10 +515,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(nested_v);
         CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-        TEST(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_normal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_c(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
         auto hnormal = harden<const char*(int, char)>(nested_normal);
         auto hc = harden<const char*(int, char) const>(nested_c);
@@ -534,10 +530,10 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(hv);
         CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-        TEST(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(hv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(hcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -549,30 +545,30 @@ void conversion_tests() {
         CLBL_PRINT_NAME_AND_TYPE(stdv);
         CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_9
+#if CLBL_TEST_PART == 9
     {
         auto overloaded_object = overloaded_int_char_struct{};
 
@@ -596,30 +592,30 @@ void conversion_tests() {
             std::function<const char* (forward<int>, forward<char>) >
         >::value, "");
 
-        TEST(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdn) == test_id::overloaded_int_char_struct_op);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened = harden<const char*(int, char) const>(hnormal);
-        TEST(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-        TEST(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
         auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
-        TEST(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-        TEST(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(rehardened_again_v(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_10
+#if CLBL_TEST_PART == 10
     {
         const auto overloaded_object = overloaded_int_char_struct{};
 
@@ -636,14 +632,14 @@ void conversion_tests() {
         auto stdc = convert_to<std::function>(hc);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdc) == test_id::overloaded_int_char_struct_op_c);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
-#ifdef CLBL_CV_TESTS_11
+#if CLBL_TEST_PART == 11
     {
         volatile auto overloaded_object = overloaded_int_char_struct{};
 
@@ -660,12 +656,14 @@ void conversion_tests() {
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
 
-        TEST(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
-        TEST(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
+        assert(stdv(1, 'c') == test_id::overloaded_int_char_struct_op_v);
+        assert(stdcv(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        TEST(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
-        TEST(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
+        assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
+        assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
 #endif
 #endif
+
+    return 0;
 }

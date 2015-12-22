@@ -1,3 +1,11 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
+
 #ifndef CLBL_FREE_FN_WRAPPER_H
 #define CLBL_FREE_FN_WRAPPER_H
 
@@ -40,7 +48,7 @@ namespace clbl {
 
         invocation_data_type data;
 
-        free_fn_wrapper(Return(*f_ptr)(Args...), dummy d = dummy{})
+        free_fn_wrapper(Return(*f_ptr)(Args...))
             : data{ f_ptr }
         {}
 

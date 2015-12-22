@@ -1,3 +1,10 @@
+/*
+
+Copyright Barrett Adair 2015
+Distributed under the Boost Software License, Version 1.0.
+(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
+*/
 #include "test.h"
 #include <CLBL/clbl.h>
 #include "int_definitions.h"
@@ -8,7 +15,7 @@
 using namespace clbl::tests;
 using namespace clbl;
 
-void int_tests() {
+int main() {
 
 #ifdef CLBL_INT_TESTS
     std::cout << "running CLBL_INT_TESTS" << std::endl;
@@ -114,4 +121,6 @@ void int_tests() {
         1
         );
 #endif
+
+    return 0;
 }
