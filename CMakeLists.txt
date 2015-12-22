@@ -45,8 +45,8 @@ endif()
 #endif()
 
 # Other compiler flags
-#clbl_append_flag(CLBL_HAS_FTEMPLATE_BACKTRACE_LIMIT  -ftemplate-backtrace-limit=0)
-#clbl_append_flag(CLBL_HAS_PEDANTIC                   -pedantic)
+clbl_append_flag(CLBL_HAS_FTEMPLATE_BACKTRACE_LIMIT  -ftemplate-backtrace-limit=0)
+clbl_append_flag(CLBL_HAS_PEDANTIC                   -pedantic)
 clbl_append_flag(CLBL_HAS_STDCXX1Y                   -std=c++1y)
 clbl_append_flag(CLBL_HAS_QUNUSED_ARGUMENTS          -Qunused-arguments)
 clbl_append_flag(CLBL_HAS_W                          -W)
