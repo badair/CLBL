@@ -38,17 +38,6 @@ matrix:
     # Note that we only use the memory checker on the main configuration to
     # speed up Travis builds.
     ##########################################################################
-    # Clang 3.5
-    - env: UNIT_TESTS=true COMPILER=clang++-3.5 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
-      addons: &clang35
-        apt:
-          packages: ["clang-3.5", "valgrind"]
-          sources: &sources
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.5
-            - llvm-toolchain-precise-3.6
-            - llvm-toolchain-precise-3.7
-            - llvm-toolchain-precise
 
     # Clang 3.6
     - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
