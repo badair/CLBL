@@ -95,7 +95,7 @@ matrix:
       env: UNIT_TESTS=true COMPILER=g++-6
       addons:
         apt:
-          packages: ["g++-6"]
+          packages: ["gcc-6"]
           sources: *sources
 
     # Xcode 7.2 beta 1
@@ -137,7 +137,8 @@ install:
     if [[ "${TRAVIS_OS_NAME}" == "linux" && "${STDLIB}" != "libstdc++" ]]; then
       if   [[ "${COMPILER}" == "clang++-3.6" ]]; then LLVM_VERSION="3.6.2";
       elif [[ "${COMPILER}" == "clang++-3.7" ]]; then LLVM_VERSION="3.7.0";
-      else                                            LLVM_VERSION="trunk"; fi
+      else                                            LLVM_VERSION="trunk";
+      fi
 
       if [[ "${LLVM_VERSION}" != "trunk" ]]; then
         LLVM_URL="http://llvm.org/releases/${LLVM_VERSION}/llvm-${LLVM_VERSION}.src.tar.xz"
