@@ -9,6 +9,8 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_HARDEN_CAST_H
 #define CLBL_HARDEN_CAST_H
 
+#include <utility>
+
 #include <CLBL/apply_qualifiers.h>
 #include <CLBL/cv.h>
 #include <CLBL/qualify_flags.h>

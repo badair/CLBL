@@ -9,8 +9,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_MEMBER_FUNCTION_WITH_OBJECT_SLIM_H
 #define CLBL_MEMBER_FUNCTION_WITH_OBJECT_SLIM_H
 
-#include <CLBL/utility.h>
+#include <utility>
+
 #include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/cv.h>
 #include <CLBL/qualify_flags.h>
 #include <CLBL/member_function_decay.h>
 #include <CLBL/wrappers/pmf_wrapper_slim.h>

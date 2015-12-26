@@ -25,15 +25,13 @@ namespace clbl {
     /*
     dummy is used whenever we need a type, but don't care what it is
     */
-    struct dummy {
-        using underlying_type = dummy;
-    };
+    struct dummy {};
     
     struct auto_ {};
     struct ambiguous_return {};
     struct ambiguous_args {};
+    using ambiguous_type = ambiguous_return(ambiguous_args);
 
-    struct unknown_tag {};
     struct free_fn_tag {};
     struct pmf_tag {};
     struct pmf_ptr_tag {};

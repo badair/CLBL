@@ -9,8 +9,9 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FREE_FUNCTION_H
 #define CLBL_FREE_FUNCTION_H
 
-#include <CLBL/member_function_decay.h>
-#include <CLBL/utility.h>
+#include <type_traits>
+
+#include <CLBL/no_ref.h>
 #include <CLBL/wrappers/free_fn_wrapper.h>
 
 namespace clbl {

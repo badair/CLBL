@@ -9,8 +9,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FUNCTION_OBJECT_H
 #define CLBL_FUNCTION_OBJECT_H
 
+#include <utility>
+
+#include <CLBL/no_ref.h>
 #include <CLBL/member_function_decay.h>
-#include <CLBL/utility.h>
+
 #include <CLBL/wrappers/pmf_wrapper_slim.h>
 #include <CLBL/wrappers/casted_fn_obj_wrapper.h>
 #include <CLBL/wrappers/ambi_fn_obj_wrapper.h>

@@ -9,6 +9,8 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_TRY_CALL
 #define CLBL_TRY_CALL
 
+#include <utility>
+
 #include <CLBL/is_valid.h>
 
 namespace clbl {

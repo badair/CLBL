@@ -165,6 +165,11 @@ install:
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${DEPS_DIR}/llvm/install/lib"
     fi
 
+  - |
+    if [ "$CXX" = "g++" ]; then
+      export CXX="g++-6" CC="gcc-6";
+    fi
+
 before_script:
   ############################################################################
   # Set the git identity (for pushing the documentation and the benchmarks)

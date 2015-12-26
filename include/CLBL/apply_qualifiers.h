@@ -10,7 +10,8 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_APPLY_QUALIFIERS_H
 
 #include <CLBL/qualify_flags.h>
-#include <CLBL/utility.h>
+#include <CLBL/tags.h>
+#include <CLBL/tags.h>
 
 namespace clbl {
 
@@ -84,12 +85,6 @@ namespace clbl {
     using const_volatile_ref_q = qualifiers<qflags::volatile_ | qflags::lvalue_reference_>;
 
     namespace apply_qualifiers_detail {
-
-        struct dummy_clbl_type {
-            template<qualify_flags Flags>
-            using apply_cv = std::nullptr_t;
-        };
-
         template<typename U, qualify_flags Flags>
         struct apply_qualifiers_t {
             using T = no_ref<U>;

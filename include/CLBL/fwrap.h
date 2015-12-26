@@ -11,12 +11,17 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 #include <functional>
+#include <utility>
 
-#include <CLBL/wrappers/free_fn_wrapper.h>
-#include <CLBL/wrappers/pmf_wrapper.h>
-#include <CLBL/wrappers/pmf_ptr_wrapper.h>
-#include <CLBL/wrappers/ambi_fn_obj_wrapper.h>
-#include <CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h>
+#include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/is_clbl.h>
+#include <CLBL/is_valid.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/can_dereference.h>
+#include <CLBL/is_reference_wrapper.h>
+#include <CLBL/member_function_decay.h>
+
 #include <CLBL/wrap/free_function.h>
 #include <CLBL/wrap/function_object.h>
 #include <CLBL/wrap/pointer_to_function_object.h>
@@ -24,11 +29,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/wrap/member_function_with_object_slim.h>
 #include <CLBL/wrap/member_function_with_pointer_to_object.h>
 #include <CLBL/wrap/member_function_with_pointer_to_object_slim.h>
-#include <CLBL/member_function_decay.h>
-#include <CLBL/tags.h>
-#include <CLBL/qualify_flags.h>
-#include <CLBL/utility.h>
-#include <CLBL/is_valid.h>
 
 namespace clbl {
 

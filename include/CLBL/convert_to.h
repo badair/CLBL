@@ -6,17 +6,19 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#include<functional>
+#include <functional>
 #include <type_traits>
+#include <utility>
 
 #include <CLBL/tags.h>
-#include <CLBL/qualify_flags.h>
-#include <CLBL/forwardable.h>
+#include <CLBL/no_ref.h>
 #include <CLBL/harden.h>
-#include <CLBL/utility.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/invocation_copy.h>
+#include <CLBL/forwarding_glue.h>
+
 
 namespace clbl {
-
     /*
     std::function doesn't call cv-qualified overloads of function
     objects, because it makes a copy. We elimiate overloads except
