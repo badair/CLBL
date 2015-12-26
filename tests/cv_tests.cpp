@@ -18,7 +18,7 @@ Distributed under the Boost Software License, Version 1.0.
 using namespace clbl::tests;
 using namespace clbl;
 
-auto int_char_std_function_result(std::function<const char*(int, char)> f) {
+auto int_char_std_function_result(std::function<std::string(int, char)> f) {
     return f(1, 'c');
 }
 
@@ -73,10 +73,10 @@ int main() {
         auto v = fwrap(&overloaded_object);
         auto cv = fwrap(&overloaded_object);
 
-        auto hnormal = harden<const char*(int, char)>(normal);
-        auto hc = harden<const char*(int, char) const>(c);
-        auto hv = harden<const char*(int, char) volatile>(v);
-        auto hcv = harden<const char*(int, char) const volatile>(cv);
+        auto hnormal = harden<std::string(int, char)>(normal);
+        auto hc = harden<std::string(int, char) const>(c);
+        auto hv = harden<std::string(int, char) volatile>(v);
+        auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
         assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
@@ -98,13 +98,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -175,13 +175,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -255,13 +255,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -277,10 +277,10 @@ int main() {
         volatile auto v = fwrap(&overloaded_object);
         const volatile auto cv = fwrap(&overloaded_object);
 
-        auto hnormal = harden<const char*(int, char)>(normal);
-        auto hc = harden<const char*(int, char) const>(c);
-        auto hv = harden<const char*(int, char) volatile>(v);
-        auto hcv = harden<const char*(int, char) const volatile>(cv);
+        auto hnormal = harden<std::string(int, char)>(normal);
+        auto hc = harden<std::string(int, char) const>(c);
+        auto hv = harden<std::string(int, char) volatile>(v);
+        auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -289,7 +289,7 @@ int main() {
 
         static_assert(std::is_same<
             decltype(stdn), 
-            std::function<const char* (forward<int>, forward<char>) > 
+            std::function<std::string (forward<int>, forward<char>) > 
         >::value, "");
 
         assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
@@ -302,13 +302,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -324,9 +324,9 @@ int main() {
         //volatile auto v = fwrap(&overloaded_object);
         const volatile auto cv = fwrap(&overloaded_object);
 
-        //should cause compile error if called: auto hnormal = harden<const char*(int, char)>(normal);
+        //should cause compile error if called: auto hnormal = harden<std::string(int, char)>(normal);
         const auto hc = harden<auto_(int, char) const>(c);
-        //should cause compile error if called: volatile auto hv = harden<const char*(int, char) volatile>(v);
+        //should cause compile error if called: volatile auto hv = harden<std::string(int, char) volatile>(v);
         const volatile auto hcv = harden<auto_(int, char) const volatile>(cv);
 
         auto stdc = convert_to<std::function>(hc);
@@ -348,10 +348,10 @@ int main() {
         volatile auto v = fwrap(&overloaded_object);
         const volatile auto cv = fwrap(&overloaded_object);
 
-        //should cause compile error if called: auto hnormal = harden<const char*(int, char)>(normal);
-        //should cause compile error if called: const auto hc = harden<const char*(int, char) const>(c);
-        volatile auto hv = harden<const char*(int, char) volatile>(v);
-        const volatile auto hcv = harden<const char*(int, char) const volatile>(cv);
+        //should cause compile error if called: auto hnormal = harden<std::string(int, char)>(normal);
+        //should cause compile error if called: const auto hc = harden<std::string(int, char) const>(c);
+        volatile auto hv = harden<std::string(int, char) volatile>(v);
+        const volatile auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);
@@ -373,10 +373,10 @@ int main() {
         auto v = fwrap(overloaded_object);
         auto cv = fwrap(overloaded_object);
 
-        auto hnormal = harden<const char*(int, char)>(normal);
-        auto hc = harden<const char*(int, char) const>(c);
-        auto hv = harden<const char*(int, char) volatile>(v);
-        auto hcv = harden<const char*(int, char) const volatile>(cv);
+        auto hnormal = harden<std::string(int, char)>(normal);
+        auto hc = harden<std::string(int, char) const>(c);
+        auto hv = harden<std::string(int, char) volatile>(v);
+        auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         assert(hnormal(1, 'c') == test_id::overloaded_int_char_struct_op);
         assert(hc(1, 'c') == test_id::overloaded_int_char_struct_op_c);
@@ -398,13 +398,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -440,10 +440,10 @@ int main() {
         assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
         assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-        auto hnormal = harden<const char*(int, char)>(nested_normal);
-        auto hc = harden<const char*(int, char) const>(nested_c);
-        auto hv = harden<const char*(int, char) volatile>(nested_v);
-        auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
+        auto hnormal = harden<std::string(int, char)>(nested_normal);
+        auto hc = harden<std::string(int, char) const>(nested_c);
+        auto hv = harden<std::string(int, char) volatile>(nested_v);
+        auto hcv = harden<std::string(int, char) const volatile>(nested_cv);
 
         /*CLBL_PRINT_NAME_AND_TYPE(hnormal);
         CLBL_PRINT_NAME_AND_TYPE(hc);
@@ -475,13 +475,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -520,10 +520,10 @@ int main() {
         assert(nested_v(1, 'c') == test_id::overloaded_int_char_struct_op);
         assert(nested_cv(1, 'c') == test_id::overloaded_int_char_struct_op);
 
-        auto hnormal = harden<const char*(int, char)>(nested_normal);
-        auto hc = harden<const char*(int, char) const>(nested_c);
-        auto hv = harden<const char*(int, char) volatile>(nested_v);
-        auto hcv = harden<const char*(int, char) const volatile>(nested_cv);
+        auto hnormal = harden<std::string(int, char)>(nested_normal);
+        auto hc = harden<std::string(int, char) const>(nested_c);
+        auto hv = harden<std::string(int, char) volatile>(nested_v);
+        auto hcv = harden<std::string(int, char) const volatile>(nested_cv);
 
         /*CLBL_PRINT_NAME_AND_TYPE(hnormal);
         CLBL_PRINT_NAME_AND_TYPE(hc);
@@ -555,13 +555,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -577,10 +577,10 @@ int main() {
         volatile auto v = fwrap(overloaded_object);
         const volatile auto cv = fwrap(overloaded_object);
 
-        auto hnormal = harden<const char*(int, char)>(normal);
-        auto hc = harden<const char*(int, char) const>(c);
-        auto hv = harden<const char*(int, char) volatile>(v);
-        auto hcv = harden<const char*(int, char) const volatile>(cv);
+        auto hnormal = harden<std::string(int, char)>(normal);
+        auto hc = harden<std::string(int, char) const>(c);
+        auto hv = harden<std::string(int, char) volatile>(v);
+        auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         auto stdn = convert_to<std::function>(hnormal);
         auto stdc = convert_to<std::function>(hc);
@@ -589,7 +589,7 @@ int main() {
 
         static_assert(std::is_same<
             decltype(stdn),
-            std::function<const char* (forward<int>, forward<char>) >
+            std::function<std::string (forward<int>, forward<char>) >
         >::value, "");
 
         assert(stdn(1, 'c') == test_id::overloaded_int_char_struct_op);
@@ -602,13 +602,13 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened = harden<const char*(int, char) const>(hnormal);
+        auto rehardened = harden<std::string(int, char) const>(hnormal);
         assert(rehardened(1, 'c') == test_id::overloaded_int_char_struct_op_c);
 
         auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
         assert(rehardened_again(1, 'c') == test_id::overloaded_int_char_struct_op_cv);
 
-        auto rehardened_v = harden<const char*(int, char) volatile>(hnormal);
+        auto rehardened_v = harden<std::string(int, char) volatile>(hnormal);
         assert(rehardened_v(1, 'c') == test_id::overloaded_int_char_struct_op_v);
 
         auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
@@ -624,10 +624,10 @@ int main() {
         //volatile auto v = fwrap(overloaded_object);
         const volatile auto cv = fwrap(overloaded_object);
 
-        //should cause compile error if called: auto hnormal = harden<const char*(int, char)>(normal);
-        const auto hc = harden<const char*(int, char) const>(c);
-        //should cause compile error if called: volatile auto hv = harden<const char*(int, char) volatile>(v);
-        const volatile auto hcv = harden<const char*(int, char) const volatile>(cv);
+        //should cause compile error if called: auto hnormal = harden<std::string(int, char)>(normal);
+        const auto hc = harden<std::string(int, char) const>(c);
+        //should cause compile error if called: volatile auto hv = harden<std::string(int, char) volatile>(v);
+        const volatile auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         auto stdc = convert_to<std::function>(hc);
         auto stdcv = convert_to<std::function>(hcv);
@@ -648,10 +648,10 @@ int main() {
         volatile auto v = fwrap(overloaded_object);
         const volatile auto cv = fwrap(overloaded_object);
 
-        //should cause compile error if called: auto hnormal = harden<const char*(int, char)>(normal);
-        //should cause compile error if called: const auto hc = harden<const char*(int, char) const>(c);
-        volatile auto hv = harden<const char*(int, char) volatile>(v);
-        const volatile auto hcv = harden<const char*(int, char) const volatile>(cv);
+        //should cause compile error if called: auto hnormal = harden<std::string(int, char)>(normal);
+        //should cause compile error if called: const auto hc = harden<std::string(int, char) const>(c);
+        volatile auto hv = harden<std::string(int, char) volatile>(v);
+        const volatile auto hcv = harden<std::string(int, char) const volatile>(cv);
 
         auto stdv = convert_to<std::function>(hv);
         auto stdcv = convert_to<std::function>(hcv);

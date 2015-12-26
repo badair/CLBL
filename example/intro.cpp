@@ -13,7 +13,7 @@ Ref-qualifiers are not officically supported by CLBL.
 struct cv_reporter {
 
     auto operator()() {
-        return "no cv";
+        return std::string{"no cv"};
     }
 
     auto operator()(std::string additional_message) {
@@ -21,15 +21,15 @@ struct cv_reporter {
     }
 
     auto operator()() const {
-        return "const";
+        return std::string{"const"};
     }
 
     auto operator()() volatile {
-        return "volatile";
+        return std::string{"volatile"};
     }
 
     auto operator()() const volatile {
-        return "const volatile";
+        return std::string{"const volatile"};
     }
 };
 
@@ -98,11 +98,11 @@ int main() {
     */
 
     {
-        auto elevated_callable = clbl::harden<const char*(void) const>(callable);
+        auto elevated_callable = clbl::harden<std::string(void) const>(callable);
         assert(elevated_callable() == "const");
 
         //we can always check the emulated function type with clbl::emulates
-        static_assert(clbl::emulates<const char*(void)>(elevated_callable), "");
+        static_assert(clbl::emulates<std::string(void)>(elevated_callable), "");
     }
 
     /*
@@ -121,11 +121,9 @@ int main() {
     2. CV of the CLBL callable wrapper itself
     3. CV specified by clbl::harden
 
-    Attentive readers probably noticed that one of cv_reporter's operator() overloads returns
-    an std::string, while the others return const char*. Trying to remember return types is
-    annoying, and sometimes impossible - this is why we have C++11 auto. In the same vein, 
-    CLBL provides the clbl::auto_ tag type, which can be used as a placeholder for 
-    clbl::harden return types:
+    Trying to remember return types is annoying, and sometimes impossible - this is why
+    we have C++11 auto. In the same vein, CLBL provides the clbl::auto_ tag type, which
+    can be used as a placeholder for clbl::harden return types:
     */
 
     using auto_ = clbl::auto_;
@@ -136,10 +134,10 @@ int main() {
 
         //getting the return type with clbl::result_of
         using return_type = clbl::result_of<decltype(elevated_callable)>;
-        static_assert(std::is_same<const char*, return_type>::value, "");
+        static_assert(std::is_same<std::string, return_type>::value, "");
 
         //a cleaner way to perform the above check:
-        static_assert(clbl::returns<const char*>(elevated_callable), "");
+        static_assert(clbl::returns<std::string>(elevated_callable), "");
     }
 
     /*
