@@ -90,14 +90,6 @@ matrix:
           packages: ["clang-3.8"]
           sources: *sources
 
-    #g++6
-    - compiler: g++
-      env: UNIT_TESTS=true COMPILER=g++-6
-      addons:
-        apt:
-          packages: ["gcc-6"]
-          sources: *sources
-
     # Xcode 7.2 beta 1
     - os: osx
       env: UNIT_TESTS=true COMPILER=clang++
@@ -163,11 +155,6 @@ install:
       export CXXFLAGS="-I ${DEPS_DIR}/llvm/install/include/c++/v1"
       export LDFLAGS="-L ${DEPS_DIR}/llvm/install/lib -l c++ -l c++abi"
       export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${DEPS_DIR}/llvm/install/lib"
-    fi
-
-  - |
-    if [ "$CXX" = "g++" ]; then
-      export CXX="g++-6" CC="gcc-6";
     fi
 
 before_script:

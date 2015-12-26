@@ -21,7 +21,7 @@ Ref-qualified overloads are not officically supported by CLBL.
 struct foo {
 
     auto operator()() {
-        return std::string{"foo::operator()()"};
+        return std::string{ "foo::operator()()" };
     }
 
     auto operator()(int, char = 'a') {
@@ -33,19 +33,19 @@ struct foo {
     }
 
     auto operator()() const {
-        return std::string{"foo::operator()() const"};
+        return std::string{ "foo::operator()() const" };
     }
 
     auto operator()(int, char) const {
-        return std::string{"foo::operator()(int, char) const"};
+        return std::string{ "foo::operator()(int, char) const" };
     }
 
     auto operator()() volatile {
-        return std::string{"foo::operator()() volatile"};
+        return std::string{ "foo::operator()() volatile" };
     }
 
     auto operator()() const volatile {
-        return std::string{"foo::operator()() const volatile"};
+        return std::string{ "foo::operator()() const volatile" };
     }
 };
 
@@ -63,7 +63,7 @@ int main() {
     clbl::fwrap also accepts free function pointers and member function pointers. Documentation has not yet been written
     for these features, but there are many test cases for them.
 
-    foo has an overloaded operator(). CV overloads stick with the CV of the 
+    foo has an overloaded operator(). CV overloads stick with the CV of the
     CLBL wrapper object.
     */
 
@@ -83,8 +83,8 @@ int main() {
         //assert(const_callable(nullptr) == "operator()(std::nullptr_t)");
 
         /*
-        The potential symbol explosion is intercepted when trying to nest CLBL wrappers. The 
-        guts of the callable object here are repurposed, while still keeping any newly 
+        The potential symbol explosion is intercepted when trying to nest CLBL wrappers. The
+        guts of the callable object here are repurposed, while still keeping any newly
         introduced CV-qualifiers.
         */
         auto nested_const_callable = clbl::fwrap(const_callable);
@@ -95,13 +95,9 @@ int main() {
         assert(cv_callable() == "foo::operator()() const volatile");
         //compiler error: overload not volatile-qualified:
         //assert(cv_callable(1) == "operator()(int) const");
-
     }
 
     /*
-    The std::string overload isn't const-qualified. Trying to call it with our const-ified CLBL
-    wrappers will fail to compile.
-
     So far, we haven't seen anything you can't do with a good old-fashioned lambda. This is
     where things start getting interesting (I hope).
 
@@ -121,8 +117,8 @@ int main() {
     static_assert(clbl::is_ambiguous(callable), "");
 
     //clbl::ambiguous_type is a function type: clbl::ambiguous_return(clbl::ambiguous_args)
-    static_assert(std::is_same<clbl::ambiguous_type, 
-                                clbl::ambiguous_return(clbl::ambiguous_args)>::value, "");
+    static_assert(std::is_same<clbl::ambiguous_type,
+        clbl::ambiguous_return(clbl::ambiguous_args)>::value, "");
 
     /*
     There is a little-known (and generally useless) valid C++ type called an "abominable
@@ -141,9 +137,9 @@ int main() {
         //we can always check the emulated function type with clbl::emulates
         static_assert(clbl::emulates<std::string(void)>(hardened_callable), "");
 
-        //compiler error - can't call foo::operator()(int) const because
+        //compiler error - can't call foo::operator()(int, char) const because
         //we selected the std::string(void) const overload
-        //assert(elevated_callable() == "foo::operator()() const");
+        //assert(hardened_callable(1, 'a') == "foo::operator()(int, char) const");
     }
 
     /*
@@ -222,7 +218,7 @@ int main() {
 
         /*
         "forwarding_glue" is used to trick std::function into perfect forwarding for us.
-        forwarding_glue is simply the emulated function type, except each argument 
+        forwarding_glue is simply the emulated function type, except each argument
         type is wrapped in clbl::forward.
         */
 
@@ -230,8 +226,8 @@ int main() {
         static_assert(std::is_same<forwarding_glue, expanded_forwarding_glue>::value, "");
 
         /*
-        A clbl::forward object behaves exactly like the type in its template argument, except 
-        that the underlying value is not copied when marshaling arguments all the way back to 
+        A clbl::forward object behaves exactly like the type in its template argument, except
+        that the underlying value is not copied when marshaling arguments all the way back to
         the original callable argument to clbl::fwrap. The value arguments are only copied when
         passing from the CLBL wrapper to the original.
         */
