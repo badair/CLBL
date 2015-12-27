@@ -1,7 +1,9 @@
-  /*
+/*
+
 @copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+
 */
 
 #include <functional>
@@ -26,6 +28,17 @@ int main() {
     auto c4 = clbl::fwrap(std::make_unique<foo>(), &foo::add_ten);
 	auto c5 = clbl::fwrap(std::make_shared<foo>(), &foo::add_ten);
 
+	/*
+	CLBL_PMFWRAP yields a wrapper with a smaller memory footprint 
+	by passing the PMF as a template argument, since it is known at
+	compile time
+	*/
+    auto f1 = CLBL_PMFWRAP(std::ref(my_foo), &foo::add_ten);
+    auto f2 = CLBL_PMFWRAP(my_foo, &foo::add_ten);
+    auto f3 = CLBL_PMFWRAP(&my_foo, &foo::add_ten);
+    auto f4 = CLBL_PMFWRAP(std::make_unique<foo>(), &foo::add_ten);
+	auto f5 = CLBL_PMFWRAP(std::make_shared<foo>(), &foo::add_ten);
+
 	auto i = 0;
 
 	c1(i);
@@ -34,7 +47,13 @@ int main() {
 	c4(i);
 	c5(i);
 
-	assert(i == 10 * 5);
+	f1(i);
+	f2(i);
+	f3(i);
+	f4(i);
+	f5(i);
+
+	assert(i == 10 * 10);
 
     return 0;
 }

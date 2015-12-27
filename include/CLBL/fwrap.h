@@ -96,12 +96,14 @@ namespace clbl {
     *********************/
 
     #ifdef CLBL_DOCUMENTATION_BUILD
-    //! wrap a free function pointer
-    //!
+    //! @addtogroup ffwrapping Wrapping free functions
+    //! clbl::fwrap lets you wrap free functions. See also @ref fwrap.h
     //! Example
     //! -------
     //! @include example/fwrap_free_function_pointer.cpp
-    inline constexpr auto fwrap(free-function-pointer f);
+
+    //! wrap a free function pointer.
+    inline constexpr auto fwrap(free_function_pointer f);
     #else
 
     template<typename T, std::enable_if_t<
@@ -120,13 +122,17 @@ namespace clbl {
     ************************************************/
 
     #ifdef CLBL_DOCUMENTATION_BUILD
-    //! wrap a pointer-to-member-function, binding an object via raw 
-    //! pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
-    //!
+    //! @addtogroup mfwrapping Wrapping member functions
+    //! clbl::fwrap lets you wrap a pointer-to-member-function bound 
+    //! to an object. The following example shows all the ways you can
+    //! do this in CLBL. See also @ref fwrap.h
     //! Example
     //! -------
     //! @include example/fwrap_member_function_pointer.cpp
-    inline constexpr auto fwrap(object o, pointer-to-member-function p);
+
+    //! Wrap a pointer-to-member-function, binding an object via raw 
+    //! pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
+    inline constexpr auto fwrap(object o, pointer_to_member_function p);
     #else
 
     template<typename T, typename TMemberFnPtr, std::enable_if_t<
@@ -161,11 +167,16 @@ namespace clbl {
     *********************************/
 
     #ifdef CLBL_DOCUMENTATION_BUILD
-    //! wrap a callable object via raw pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
-    //!
+    //! @addtogroup fowrapping Wrapping callable objects
+    //! clbl::fwrap lets you wrap a callable object via raw pointer, 
+    //! smart pointer, copy, rvalue reference, or ref-wrapper.
+    //! See also @ref fwrap.h
     //! Example
     //! -------
     //! @include example/fwrap_function_object.cpp
+
+    //! Wrap a callable object via raw pointer, smart pointer, copy, 
+    //! rvalue reference, or ref-wrapper.
     inline constexpr auto fwrap(object o);
     #else
 
@@ -274,15 +285,13 @@ namespace clbl {
 
     #ifdef CLBL_DOCUMENTATION_BUILD
     //! @def CLBL_PMFWRAP
-    //! wrap a non-overloaded member function pointer at compile-time, 
-    //! binding an object at runtime via copy/pointer/ref-wrapper/rvalue.
-    //! This removes the storage bloat of keeping a pointer-to-member-function
-    //! for each wrapper instance. Note: the pointer-to-member-function cannot
-    //! be the result of a cast, per the C++ standard. If you need to wrap
-    //! a pointer-to-member-function cast, use clbl::fwrap instead of this macro.
-    //!
-    //! Example
-    //! -------
+    //! CLBL_PMFWRAP Wraps a non-overloaded member function pointer at compile-time, 
+    //! binding an object at the runtime call site via copy/pointer/ref-wrapper/rvalue.
+    //! This removes the storage bloat from calling clbl::fwrap, the result of which
+    //! keeps a pointer-to-member-function for each wrapper instance. Note: the 
+    //! pointer-to-member-function cannot be the result of a cast, per the C++ standard.
+    //! If you need to wrap a pointer-to-member-function cast, use clbl::fwrap instead 
+    //! of this macro.
     //! @include example/clbl_pmfwrap.cpp
     #define CLBL_PMFWRAP(object, pointer_to_member_function)
     #else

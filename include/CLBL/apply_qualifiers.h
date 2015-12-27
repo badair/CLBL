@@ -93,15 +93,12 @@ namespace clbl {
     //! clbl::apply_qualifiers is a template alias that takes a type `T` and 
     //! a `qualify_flags` value. The qualifiers represented by the `qualify_flags`
     //! are added to `T`.
-    //!
     //! Example
     //! -------
-    //! @include example/apply_qualifiers.cpp
+    //! @include apply_qualifiers.cpp
     #ifdef CLBL_DOCUMENTATION_BUILD
-
     template<typename T, qualify_flags Flags>
     using apply_qualifiers = ...;
-
     #else
 
     template<typename T, qualify_flags Flags>
