@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::apply_qualifiers`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -14,12 +16,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/tags.h>
 
 namespace clbl {
-
-    /*
-    apply_qualifiers is a template alias (defined at the bottom of this 
-    file) that takes qualify_flags and a type, and qualifies the type with
-    the flags accordingly.
-    */
 
     template<qualify_flags CvFlags>
     struct qualifiers {
@@ -92,8 +88,26 @@ namespace clbl {
         };
     }
 
+
+    //! @typedef clbl::apply_qualifiers
+    //! clbl::apply_qualifiers is a template alias that takes a type `T` and 
+    //! a `qualify_flags` value. The qualifiers represented by the `qualify_flags`
+    //! are added to `T`.
+    //!
+    //! Example
+    //! -------
+    //! @include example/apply_qualifiers.cpp
+    #ifdef CLBL_DOCUMENTATION_BUILD
+
+    template<typename T, qualify_flags Flags>
+    using apply_qualifiers = ...;
+
+    #else
+
     template<typename T, qualify_flags Flags>
     using apply_qualifiers = typename apply_qualifiers_detail::apply_qualifiers_t<T, Flags>::type;
+
+    #endif
 }
 
 #endif
