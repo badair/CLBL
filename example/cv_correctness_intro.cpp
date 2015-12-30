@@ -21,9 +21,9 @@ struct foo {};
 enum class overload { mutable_, const_, volatile_, const_volatile_ };
 
 struct bar {
-    overload operator()()                { return overload::mutable_;        }
-    overload operator()() const          { return overload::const_;          }
-    overload operator()() volatile       { return overload::volatile_;       }
+    overload operator()() { return overload::mutable_; }
+    overload operator()() const { return overload::const_; }
+    overload operator()() volatile { return overload::volatile_; }
     overload operator()() const volatile { return overload::const_volatile_; }
 
     // C++ has no implicit/default volatile constructor,
@@ -58,9 +58,9 @@ int main() {
     assert_volatile(vbar); //passes
 
     using std_func = std::function<overload()>;
-    
+
     //Ready?
-    
+
     {
         /*
         Passing a callable object to an std::function by REFERENCE
@@ -77,7 +77,7 @@ int main() {
         assert_volatile(volatile_f); //passes
     }
 
-    
+
     /*
     Initializing an std::function with a callable object by
     VALUE does not preserve the cv-ness of the original object.
@@ -100,10 +100,10 @@ int main() {
     /*
     Just a little bit? I mean, of course it's unwise to write
     conceptually divergent CV overloads of member functions, especially
-    to the extent where the above scenario comes back to haunt you. 
+    to the extent where the above scenario comes back to haunt you.
     However, consider the following parable (or don't, if you don't like parables):
 
-    Suppose you naively assumed that an std::function intialized by-value from a 
+    Suppose you naively assumed that an std::function intialized by-value from a
     const object returned a const_iterator, when you actually received a non-const
     iterator. (This scenario isn't too far-fetched, considering that's how the STL's
     begin() and end() overloads are designed.) Since you treated the return value
@@ -133,7 +133,7 @@ int main() {
 
     /*
     The CV-ness of a CLBL wrapper's underlying object is embedded
-    in the wrapper's type - this is referred to as "deep CV" in 
+    in the wrapper's type - this is referred to as "deep CV" in
     CLBL. The CV-ness of the wrapper's own 'this' pointer is
     referred to as "shallow CV", which stacks on top of deep CV.
     */
@@ -179,8 +179,7 @@ int main() {
         //shallow volatile lost in copy, deep const remains
         std_func still_const = clbl_const_volatile;
         assert_const(still_const);
-    }
-    {
+
         /*
         clbl::harden locks in the constness for ambiguous callables
         when no type arguments are specified
@@ -189,4 +188,3 @@ int main() {
         assert_const_volatile(still_const_volatile);
     }
 }
-
