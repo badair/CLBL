@@ -61,6 +61,7 @@ namespace clbl {
         {}
 
         inline ambi_fn_obj_wrapper(my_type& other) = default;
+
         inline ambi_fn_obj_wrapper(const my_type& other) = default;
 
         inline ambi_fn_obj_wrapper(volatile my_type& other)

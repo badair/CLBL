@@ -8,6 +8,8 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <memory>
 #include <cassert>
+#include <cassert>
+
 #include <CLBL/clbl.h>
 
 struct foo {

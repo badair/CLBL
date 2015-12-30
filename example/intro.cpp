@@ -25,11 +25,11 @@ struct foo {
     }
 
     auto operator()(int, char = 'a') {
-        return "foo::operator()(int, char)";
+        return std::string{ "foo::operator()(int, char)" };
     }
 
     auto operator()(std::nullptr_t) {
-        return "foo::operator()(std::nullptr_t)";
+        return std::string{ "foo::operator()(std::nullptr_t)" };
     }
 
     auto operator()() const {
@@ -63,13 +63,14 @@ int main() {
     clbl::fwrap also accepts free function pointers and member function pointers. Documentation has not yet been written
     for these features, but there are many test cases for them.
 
-    foo has an overloaded operator(). CV overloads stick with the CV of the
+    foo has an overloaded operator(). CV overloads "stick" to the CV-ness of the
     CLBL wrapper object.
     */
 
     assert(callable() == "foo::operator()()");
 
-    //can still use arguments when calling
+    //one nice thing about ambiguous callables is that you
+    //can still make use of default arguments
     assert(callable(1) == "foo::operator()(int, char)");
 
     assert(callable(nullptr) == "foo::operator()(std::nullptr_t)");
@@ -121,13 +122,15 @@ int main() {
         clbl::ambiguous_return(clbl::ambiguous_args)>::value, "");
 
     /*
-    There is a little-known (and generally useless) valid C++ type called an "abominable
-    function type", which is a mutt type that looks like a normal function type (e.g.
-    void(int, char) ) except that it is also cv-qualified and/or ref-qualified, like a
-    member function.
+    There is a little-known (and generally useless) valid C++ function type called an 
+    "abominable function type", which looks looks like a normal function
+    type (e.g. void(int, char) ) except that it is also cv-qualified and/or 
+    ref-qualified, like a member function. An abominable function type cannot be
+    instantiated, but CLBL makes use of the information you can store in these
+    types. Specifically, CLBL lets you disambiguate operator() by passing an
+    abominable function type to clbl::harden.
 
-    clbl::harden provides an interface to help you safely disambiguate operator() overloads
-    by leveraging the information you can store in these strange types:
+    Here, we use clbl::harden to choose the const-qualified overload over the non-const one:
     */
 
     {
@@ -147,16 +150,17 @@ int main() {
     If you think clbl::harden is a good use case for these types, let the commitee know,
     because otherwise the type might end up on C++17's chopping block.)
 
-    We just used clbl::harden to choose the const-qualified overload over the non-const one.
-    clbl::harden creates a new callable type for a single overload. You can elevate CV with
-    clbl::harden, but you cannot revoke CV. CLBL goes to great lengths to preserve CV-correctness
-    while still allowing these upcasts with clbl::harden.
+    clbl::harden creates a new callable type for a single overload. You can elevate CV
+    with clbl::harden, but you cannot revoke CV. CLBL goes to great lengths to preserve
+    CV-correctness while still allowing these upcasts with clbl::harden.
 
-    CV is determined by one of three things in CLBL:
+    CV in CLBL is determined by a combination of the following:
 
     1. CV of the original, underlying object
-    2. CV of the CLBL callable wrapper itself
-    3. CV specified by clbl::harden
+    2. CV of the CLBL callable wrapper itself (i.e. the CV on the 'this' pointer)
+    3. CV qualifiers requested in a template argument to clbl::harden
+
+    ...
 
     Trying to remember return types is annoying, and sometimes impossible - this is why
     we have C++11 auto. In the same vein, CLBL provides the clbl::auto_ tag type, which
@@ -181,10 +185,14 @@ int main() {
     }
 
     /*
-    clbl::harden is only useful for ambiguous cases of operator(). This will be increasingly useful
-    in the wild as generic lambdas make their way into C++ codebases. To disambiguate free functions
-    and member functions, you still need to static_cast before creating the CLBL wrapper, as has
-    always been the case.
+
+    As you might have guessed, clbl::auto_ simply triggers a decltype to determine
+    the return instead of what you would normally pass.
+
+    clbl::harden is only useful for ambiguous cases of operator(). This will be
+    increasingly useful in the wild as generic lambdas make their way into C++
+    codebases. To disambiguate free functions and member functions, you still need
+    to static_cast before creating the CLBL wrapper, as has always been the case.
 
     ...
 
