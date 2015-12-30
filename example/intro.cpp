@@ -238,6 +238,25 @@ int main() {
         that the underlying value is not copied when marshaling arguments all the way back to
         the original callable argument to clbl::fwrap. The value arguments are only copied when
         passing from the CLBL wrapper to the original.
+
+        Thankfully, you generally don't need to use clbl::forward directly, thanks to its
+        implicit conversions. You can do this:
+        */
+
+        std::function<void(int, int, int&)> pretty_calculator = std_func_calculator;
+        pretty_calculator(3, 6, sum_result);
+        assert(sum_result == 9);
+
+        /*
+        There is, however, one "gotcha" with by-value parameters when not explicitly
+        using clbl::forward in an std::function template argument: 
+        std::function<void(int, int, int&)> causes the first 2 arguments to be copied
+        twice. To avoid this, you must either use "clbl::forward<Arg>" OR "const Arg&".
+
+        If you want to investigate the correctness of clbl::forward for reference types,
+        I encourage you to visit refrence_transparency_tests.cpp file, which has performs
+        extensive coverage of overload resolution test cases for clbl::forward-wrapped
+        reference arguments.
         */
     }
 

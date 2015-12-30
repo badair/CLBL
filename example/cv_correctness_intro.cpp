@@ -64,7 +64,8 @@ int main() {
     {
         /*
         Passing a callable object to an std::function by REFERENCE
-        preserves the cv-ness of the original object, like this:
+        preserves cv overload resoultion, because it's using a reference
+        to the original object.
         */
 
         std_func mutable_f = std::ref(mbar);
@@ -81,10 +82,10 @@ int main() {
     /*
     Initializing an std::function with a callable object by
     VALUE does not preserve the cv-ness of the original object.
-    Of course it doesn't - that's normal behavior in C++. Constness
-    isn't determined until after object construction [citation needed].
+    Of course, that's normal behavior in C++. Constness
+    isn't determined until after object construction.
 
-    But isn't the following scenario just a little bit sad?
+    However, isn't the following scenario a bit disappointing?
     */
 
     {
@@ -118,15 +119,19 @@ int main() {
     That's a potential problem that CLBL attempts to address:
     */
     {
+        //these are all copies
         auto clbl_mutable = clbl::fwrap(mbar);
+        assert_mutable(clbl_mutable); //passes
         std_func mutable_f = clbl_mutable;
         assert_mutable(mutable_f); //passes
 
         auto clbl_const = clbl::fwrap(cbar);
+        assert_const(clbl_const); //passes
         std_func const_f = clbl_const;
         assert_const(const_f); //passes
 
         auto clbl_volatile = clbl::fwrap(vbar);
+        assert_volatile(clbl_volatile); //passes
         std_func volatile_f = clbl_volatile;
         assert_volatile(volatile_f); //passes
     }
