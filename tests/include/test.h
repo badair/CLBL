@@ -56,7 +56,7 @@ using namespace clbl;
 
 template<typename T>
 struct start_of_type_name {
-    static const char* end_of_type_name() {
+    static std::string end_of_type_name() {
         return __PRETTY_FUNCTION__;
     }
 };
@@ -68,9 +68,9 @@ std::endl << std::endl
 
 template<typename F, typename G, typename H, typename... Args>
 void run_tests(
-    F& f, const char* f_result,
-    G& g, const char* g_result,
-    H& h, const char* h_result,
+    F& f, std::string f_result,
+    G& g, std::string g_result,
+    H& h, std::string h_result,
     Args... test_args) {
 
     assert(f(test_args...) == f_result);
@@ -116,9 +116,9 @@ void run_tests(
     auto g_std_func = convert_to<std::function>(g);
     auto h_std_func = convert_to<std::function>(h);
 
-    static_assert(std::is_same<std::function<const char*(void)>, decltype(f_std_func)>::value, "convert_to<std::function>(f)");
-    static_assert(std::is_same<std::function<const char*(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
-    static_assert(std::is_same<std::function<const char*(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
+    static_assert(std::is_same<std::function<std::string(void)>, decltype(f_std_func)>::value, "convert_to<std::function>(f)");
+    static_assert(std::is_same<std::function<std::string(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
+    static_assert(std::is_same<std::function<std::string(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
 
     assert(f_std_func() == f_result);
     assert(g_std_func() == g_result);

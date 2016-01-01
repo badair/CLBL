@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::apply_qualifiers`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -10,15 +12,10 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_APPLY_QUALIFIERS_H
 
 #include <CLBL/qualify_flags.h>
-#include <CLBL/utility.h>
+#include <CLBL/tags.h>
+#include <CLBL/tags.h>
 
 namespace clbl {
-
-    /*
-    apply_qualifiers is a template alias (defined at the bottom of this 
-    file) that takes qualify_flags and a type, and qualifies the type with
-    the flags accordingly.
-    */
 
     template<qualify_flags CvFlags>
     struct qualifiers {
@@ -84,12 +81,6 @@ namespace clbl {
     using const_volatile_ref_q = qualifiers<qflags::volatile_ | qflags::lvalue_reference_>;
 
     namespace apply_qualifiers_detail {
-
-        struct dummy_clbl_type {
-            template<qualify_flags Flags>
-            using apply_cv = std::nullptr_t;
-        };
-
         template<typename U, qualify_flags Flags>
         struct apply_qualifiers_t {
             using T = no_ref<U>;
@@ -97,8 +88,23 @@ namespace clbl {
         };
     }
 
+
+    //! @typedef clbl::apply_qualifiers
+    //! clbl::apply_qualifiers is a template alias that takes a type `T` and 
+    //! a `qualify_flags` value. The qualifiers represented by the `qualify_flags`
+    //! are added to `T`.
+    //! Example
+    //! -------
+    //! @include apply_qualifiers.cpp
+    #ifdef CLBL_DOCUMENTATION_BUILD
+    template<typename T, qualify_flags Flags>
+    using apply_qualifiers = ...;
+    #else
+
     template<typename T, qualify_flags Flags>
     using apply_qualifiers = typename apply_qualifiers_detail::apply_qualifiers_t<T, Flags>::type;
+
+    #endif
 }
 
 #endif

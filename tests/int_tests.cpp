@@ -25,9 +25,9 @@ int main() {
     auto f = fwrap(&int_object);
     auto g = fwrap(&int_func);
     auto h = fwrap(&int_object, &int_struct::func);
-    auto hardened_f = harden<const char*(int)>(f);
-    auto hardened_g = harden<const char*(int)>(g);
-    auto hardened_h = harden<const char*(int)>(h);
+    auto hardened_f = harden<std::string(int)>(f);
+    auto hardened_g = harden<std::string(int)>(g);
+    auto hardened_h = harden<std::string(int)>(h);
     auto default_hardened_f = harden(f);
     auto default_hardened_g = harden(g);
     auto default_hardened_h = harden(h);
@@ -36,7 +36,7 @@ int main() {
     static_assert(can_call(f, 1), "");
     static_assert(!can_call(f, "illegal argument"), "");*/
 
-    static_assert(std::is_same<decltype(f)::type, const char*(int)>::value, "std::is_same<decltype(f)::type, const char*(int)>::value");
+    static_assert(std::is_same<decltype(f)::type, std::string(int)>::value, "std::is_same<decltype(f)::type, std::string(int)>::value");
 
     run_tests(
         f, test_id::int_struct_op,
@@ -62,9 +62,9 @@ int main() {
     auto j = fwrap(int_object);
     auto k = fwrap(&int_func);
     auto l = fwrap(int_object, &int_struct::func);
-    auto hardened_j = harden<const char*(int)>(j);
-    auto hardened_k = harden<const char*(int)>(k);
-    auto hardened_l = harden<const char*(int)>(l);
+    auto hardened_j = harden<std::string(int)>(j);
+    auto hardened_k = harden<std::string(int)>(k);
+    auto hardened_l = harden<std::string(int)>(l);
     auto default_hardened_j = harden(j);
     auto default_hardened_k = harden(k);
     auto default_hardened_l = harden(l);
@@ -93,9 +93,9 @@ int main() {
     auto m = fwrap(std::ref(int_object));
     auto n = fwrap(&int_func);
     auto o = fwrap(std::ref(int_object), &int_struct::func);
-    auto hardened_m = harden<const char*(int)>(m);
-    auto hardened_n = harden<const char*(int)>(n);
-    auto hardened_o = harden<const char*(int)>(o);
+    auto hardened_m = harden<std::string(int)>(m);
+    auto hardened_n = harden<std::string(int)>(n);
+    auto hardened_o = harden<std::string(int)>(o);
     auto default_hardened_m = harden(m);
     auto default_hardened_n = harden(n);
     auto default_hardened_o = harden(o);

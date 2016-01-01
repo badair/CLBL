@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines tag structs used throughout CLBL.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -25,15 +27,13 @@ namespace clbl {
     /*
     dummy is used whenever we need a type, but don't care what it is
     */
-    struct dummy {
-        using underlying_type = dummy;
-    };
+    struct dummy {};
     
     struct auto_ {};
     struct ambiguous_return {};
     struct ambiguous_args {};
+    using ambiguous_type = ambiguous_return(ambiguous_args);
 
-    struct unknown_tag {};
     struct free_fn_tag {};
     struct pmf_tag {};
     struct pmf_ptr_tag {};

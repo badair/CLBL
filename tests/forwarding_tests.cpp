@@ -6,6 +6,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
+/*
+The tests in this file are mostly inferior to
+the ones in reference_transparency_tests.cpp
+*/
+
 #include "test.h"
 #include "int_char_definitions.h"
 
@@ -25,7 +30,6 @@ struct copy_counter {
 
     copy_counter() = default;
     copy_counter(const copy_counter&) { ++value; }
-    copy_counter(copy_counter&) { ++value; }
     copy_counter(copy_counter&&) = default;
 };
 
@@ -205,6 +209,8 @@ int main() {
     }
 
 #endif
+
+
 
     return 0;
 }

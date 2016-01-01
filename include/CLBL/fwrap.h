@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines all overloads of `clbl::fwrap`, as well as the CLBL_PMFWRAP macro.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -11,12 +13,18 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 #include <functional>
+#include <utility>
 
-#include <CLBL/wrappers/free_fn_wrapper.h>
-#include <CLBL/wrappers/pmf_wrapper.h>
-#include <CLBL/wrappers/pmf_ptr_wrapper.h>
-#include <CLBL/wrappers/ambi_fn_obj_wrapper.h>
-#include <CLBL/wrappers/ambi_fn_obj_ptr_wrapper.h>
+#include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/is_clbl.h>
+#include <CLBL/is_valid.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/can_dereference.h>
+#include <CLBL/is_reference_wrapper.h>
+#include <CLBL/member_function_decay.h>
+#include <CLBL/has_normal_call_operator.h>
+
 #include <CLBL/wrap/free_function.h>
 #include <CLBL/wrap/function_object.h>
 #include <CLBL/wrap/pointer_to_function_object.h>
@@ -24,11 +32,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/wrap/member_function_with_object_slim.h>
 #include <CLBL/wrap/member_function_with_pointer_to_object.h>
 #include <CLBL/wrap/member_function_with_pointer_to_object_slim.h>
-#include <CLBL/member_function_decay.h>
-#include <CLBL/tags.h>
-#include <CLBL/qualify_flags.h>
-#include <CLBL/utility.h>
-#include <CLBL/is_valid.h>
 
 namespace clbl {
 
@@ -38,22 +41,6 @@ namespace clbl {
     */
 
     namespace detail {
-
-        auto has_normal_call_operator_impl = is_valid(
-            [](auto&& arg)->decltype(&no_ref<decltype(arg)>::operator()) {}
-        );
-
-        auto ptr_has_normal_call_operator_impl = is_valid(
-            [](auto&& arg)->decltype(&no_ref<decltype(*arg)>::operator()) {}
-        );
-
-        template<typename T>
-        constexpr bool has_normal_call_operator = 
-            decltype(has_normal_call_operator_impl(std::declval<T>()))::value;
-
-        template<typename T>
-        constexpr bool ptr_has_normal_call_operator =
-            decltype(ptr_has_normal_call_operator_impl(std::declval<T>()))::value;
 
         template<typename T> 
         struct sfinae_switch {
@@ -108,6 +95,17 @@ namespace clbl {
     free function pointer
     *********************/
 
+    #ifdef CLBL_DOCUMENTATION_BUILD
+    //! @addtogroup ffwrapping Wrapping free functions
+    //! clbl::fwrap lets you wrap free functions. See also @ref fwrap.h
+    //! Example
+    //! -------
+    //! @include example/fwrap_free_function_pointer.cpp
+
+    //! wrap a free function pointer.
+    inline constexpr auto fwrap(free_function_pointer f);
+    #else
+
     template<typename T, std::enable_if_t<
         detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
     inline constexpr auto 
@@ -116,9 +114,26 @@ namespace clbl {
             wrap<qflags::default_>(std::forward<T>(t));
     }
 
+    #endif
+
+
     /***********************************************
     Pointer to object with a member function pointer
     ************************************************/
+
+    #ifdef CLBL_DOCUMENTATION_BUILD
+    //! @addtogroup mfwrapping Wrapping member functions
+    //! clbl::fwrap lets you wrap a pointer-to-member-function bound 
+    //! to an object. The following example shows all the ways you can
+    //! do this in CLBL. See also @ref fwrap.h
+    //! Example
+    //! -------
+    //! @include example/fwrap_member_function_pointer.cpp
+
+    //! Wrap a pointer-to-member-function, binding an object via raw 
+    //! pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
+    inline constexpr auto fwrap(object o, pointer_to_member_function p);
+    #else
 
     template<typename T, typename TMemberFnPtr, std::enable_if_t<
         detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
@@ -128,6 +143,7 @@ namespace clbl {
         return member_function_with_pointer_to_object::template
             wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
     }
+
 
     /**********************************
     Object with member function pointer
@@ -143,9 +159,26 @@ namespace clbl {
             wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
     }
 
+    #endif
+
+
     /********************************
     Pointer to object with operator()
     *********************************/
+
+    #ifdef CLBL_DOCUMENTATION_BUILD
+    //! @addtogroup fowrapping Wrapping callable objects
+    //! clbl::fwrap lets you wrap a callable object via raw pointer, 
+    //! smart pointer, copy, rvalue reference, or ref-wrapper.
+    //! See also @ref fwrap.h
+    //! Example
+    //! -------
+    //! @include example/fwrap_function_object.cpp
+
+    //! Wrap a callable object via raw pointer, smart pointer, copy, 
+    //! rvalue reference, or ref-wrapper.
+    inline constexpr auto fwrap(object o);
+    #else
 
     template<typename T, std::enable_if_t<
         detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
@@ -190,6 +223,8 @@ namespace clbl {
         return function_object::ambiguous::template 
             wrap<qflags::default_>(std::forward<T>(t));
     }
+
+    #endif
 
     /*********************
     std::reference_wrapper
@@ -243,12 +278,28 @@ namespace clbl {
             detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
         static inline constexpr auto
         fwrap(T&& t) {
-            return fwrap(std::addressof(t.get()));
+            return member_function_with_pointer_to_object_slim::template
+                wrap<qflags::default_, TMemberFnPtr, Pmf>(&t.get());
         }
     };
 
-#define CLBL_PMFWRAP(pmf_expr, o) \
-(clbl::pmf<clbl::no_ref<decltype(pmf_expr)>, pmf_expr>::fwrap(o))
+    #ifdef CLBL_DOCUMENTATION_BUILD
+    //! @def CLBL_PMFWRAP
+    //! CLBL_PMFWRAP Wraps a non-overloaded member function pointer at compile-time, 
+    //! binding an object at the runtime call site via copy/pointer/ref-wrapper/rvalue.
+    //! This removes the storage bloat from calling clbl::fwrap, the result of which
+    //! keeps a pointer-to-member-function for each wrapper instance. Note: the 
+    //! pointer-to-member-function cannot be the result of a cast, per the C++ standard.
+    //! If you need to wrap a pointer-to-member-function cast, use clbl::fwrap instead 
+    //! of this macro.
+    //! @include example/clbl_pmfwrap.cpp
+    #define CLBL_PMFWRAP(object, pointer_to_member_function)
+    #else
+
+    #define CLBL_PMFWRAP(o, pmf_expr) \
+    clbl::pmf<decltype(pmf_expr), pmf_expr>::fwrap(o)
+
+    #endif
 
     //todo size tests, reference_wrapper tests, CLBL_PMFWRAP tests
 

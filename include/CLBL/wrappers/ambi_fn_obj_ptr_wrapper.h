@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::ambi_fn_obj_ptr_wrapper`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -10,10 +12,12 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_AMBI_FN_OBJ_PTR_WRAPPER_H
 
 #include <type_traits>
+#include <utility>
 
 #include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/cv.h>
 #include <CLBL/qualify_flags.h>
-#include <CLBL/utility.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/invocation_macros.h>
 #include <CLBL/invocation_data.h>

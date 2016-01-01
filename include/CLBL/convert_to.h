@@ -1,22 +1,26 @@
-/*
+/*!
+@file
+Defines `clbl::convert_to`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
 */
 
-#include<functional>
+#include <functional>
 #include <type_traits>
+#include <utility>
 
 #include <CLBL/tags.h>
-#include <CLBL/qualify_flags.h>
-#include <CLBL/forwardable.h>
+#include <CLBL/no_ref.h>
 #include <CLBL/harden.h>
-#include <CLBL/utility.h>
+#include <CLBL/qualify_flags.h>
+#include <CLBL/invocation_copy.h>
+#include <CLBL/forwarding_glue.h>
+
 
 namespace clbl {
-
     /*
     std::function doesn't call cv-qualified overloads of function
     objects, because it makes a copy. We elimiate overloads except

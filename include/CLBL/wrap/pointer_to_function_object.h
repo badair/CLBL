@@ -1,4 +1,6 @@
 /*
+@file
+Defines `clbl::pointer_to_function_object`.
 
 Copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
@@ -9,8 +11,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_POINTER_TO_FUNCTION_OBJECT_H
 #define CLBL_POINTER_TO_FUNCTION_OBJECT_H
 
-#include <CLBL/utility.h>
+#include <utility>
+
 #include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/cv.h>
 #include <CLBL/qualify_flags.h>
 #include <CLBL/member_function_decay.h>
 #include <CLBL/wrappers/pmf_ptr_wrapper_slim.h>

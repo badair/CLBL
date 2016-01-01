@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::casted_fn_obj_wrapper`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -11,11 +13,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 #include <tuple>
+#include <utility>
 
 #include <CLBL/cv.h>
-#include <CLBL/utility.h>
+#include <CLBL/tags.h>
 #include <CLBL/forward.h>
-#include <CLBL/forwardable.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/invocation_macros.h>
 #include <CLBL/invocation_data.h>

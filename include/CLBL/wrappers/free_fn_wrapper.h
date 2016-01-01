@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::free_fn_wrapper`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -10,9 +12,11 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_FREE_FN_WRAPPER_H
 
 #include <tuple>
+#include <utility>
 
-#include <CLBL/utility.h>
 #include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
+#include <CLBL/cv.h>
 #include <CLBL/qualify_flags.h>
 #include <CLBL/forward.h>
 #include <CLBL/harden_cast.h>

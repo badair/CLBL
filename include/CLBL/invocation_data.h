@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -9,7 +11,10 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_INVOCATION_DATA_H
 #define CLBL_INVOCATION_DATA_H
 
-#include <CLBL/utility.h>
+#include <utility>
+
+#include <CLBL/tags.h>
+#include <CLBL/no_ref.h>
 
 namespace clbl {
 

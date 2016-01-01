@@ -1,6 +1,8 @@
-/*
+/*!
+@file
+Defines `clbl::harden`.
 
-Copyright Barrett Adair 2015
+@copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
@@ -10,20 +12,14 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_HARDEN_H
 
 #include <functional>
+#include <utility>
 
 #include <CLBL/tags.h>
 #include <CLBL/qualify_flags.h>
-#include <CLBL/forwardable.h>
 #include <CLBL/fwrap.h>
-#include <CLBL/utility.h>
 #include <CLBL/harden_cast.h>
 
 namespace clbl {
-
-    /*
-    clbl::harden is used to disambiguate overloads of operator() in a CLBL wrapper.
-    */
-
     namespace detail {
 
         /*
@@ -132,14 +128,29 @@ namespace clbl {
         constexpr harden_t<T> harden_v{};
     }
 
-    template<typename Callable>
+    template<typename Callable, std::enable_if_t<!no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
     inline constexpr auto harden(Callable&& c) {
         return detail::harden_v<typename no_ref<Callable>::type>(std::forward<Callable>(c));
     }
 
-    template<typename FunctionType, typename Callable>
+    template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> CvFlags = qflags::default_>
     inline constexpr auto harden(Callable&& c) {
-        return detail::harden_v<FunctionType>(std::forward<Callable>(c));
+        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
+    }
+
+    //! @addtogroup harden Disambiguating operator()
+    //! `clbl::harden` lets you explicitly select a single overload of
+    //! an object's `operator()`, while hiding all other overloads. 
+    //! Example
+    //! -------
+    //! @include example/harden.cpp
+
+    //! clbl::harden allows you to explicitly disambiguate overloads
+    //! of `operator()` by passing an abominable function type as a template
+    //! argument.
+    template<typename AbominableFunctionType, typename Callable>
+    inline constexpr auto harden(Callable&& c) {
+        return detail::harden_v<AbominableFunctionType>(std::forward<Callable>(c));
     }
 }
 

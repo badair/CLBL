@@ -63,10 +63,10 @@ clbl_append_flag(CLBL_HAS_WWRITE_STRINGS             -Wwrite-strings)
 # point where the package is required.
 ##############################################################################
 #find_package(Boost)
-#find_package(Doxygen)
+find_package(Doxygen)
 #find_package(Meta)
 #find_package(MPL11)
-#find_package(PythonInterp 2.7)
+find_package(PythonInterp 2.7)
 #find_package(Ruby 2.1)
 
 if (CLBL_ENABLE_MEMCHECK)
@@ -131,8 +131,8 @@ add_custom_target(check
 # Setup subdirectories
 ##############################################################################
 #add_subdirectory(benchmark)
-#add_subdirectory(doc)
-#add_subdirectory(example)
+add_subdirectory(doc)
+add_subdirectory(example)
 #add_subdirectory(experimental)
 add_subdirectory(tests)
 
