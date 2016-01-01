@@ -11,7 +11,10 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_HARDEN_H
 #define CLBL_HARDEN_H
 
+#ifndef CLBL_EXCLUDE_FUNCTIONAL
 #include <functional>
+#endif
+
 #include <utility>
 
 #include <CLBL/tags.h>
@@ -131,6 +134,11 @@ namespace clbl {
     template<typename Callable, std::enable_if_t<!no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
     inline constexpr auto harden(Callable&& c) {
         return detail::harden_v<typename no_ref<Callable>::type>(std::forward<Callable>(c));
+    }
+
+    template<qualify_flags CvFlags, typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
+    inline constexpr auto harden(Callable&& c) {
+        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
     }
 
     template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> CvFlags = qflags::default_>

@@ -11,10 +11,12 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FWRAP_H
 #define CLBL_FWRAP_H
 
-#include <type_traits>
+#ifndef CLBL_EXCLUDE_FUNCTIONAL
 #include <functional>
-#include <utility>
+#endif
 
+#include <type_traits>
+#include <utility>
 #include <CLBL/tags.h>
 #include <CLBL/no_ref.h>
 #include <CLBL/is_clbl.h>
@@ -49,7 +51,12 @@ namespace clbl {
             static constexpr auto can_deref = can_dereference<T>;
             using dereferenceable = std::conditional_t<can_deref, no_ref<T>, dummy*>;
 
+            #ifndef CLBL_EXCLUDE_FUNCTIONAL
             static constexpr auto is_ref_wrapper = is_reference_wrapper<T>;
+            #else
+            static constexpr auto is_ref_wrapper = false;
+            #endif
+
             static constexpr auto is_ambiguous = !has_normal_call_operator<T>;
             static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>;
             static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<T> >::value;
@@ -230,12 +237,14 @@ namespace clbl {
     std::reference_wrapper
     **********************/
 
+    #ifndef CLBL_EXCLUDE_FUNCTIONAL
     template<typename T, std::enable_if_t<
         detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
     inline constexpr auto 
     fwrap(T&& t) {
         return fwrap(std::addressof(t.get()));
     }
+    #endif
 
     /**************************************************
     std::reference_wrapper with member function pointer

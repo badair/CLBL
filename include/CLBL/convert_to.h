@@ -8,7 +8,10 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
+#ifndef CLBL_EXCLUDE_FUNCTIONAL
 #include <functional>
+#endif
+
 #include <type_traits>
 #include <utility>
 
