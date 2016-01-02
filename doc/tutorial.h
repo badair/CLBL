@@ -6,9 +6,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 @mainpage User Manual
 
-Note: this site is currently under construction. Many pages and sections are incomplete or missing.
-
 @tableofcontents
+
+@Section Note
+
+This site is currently under construction. Many pages and sections are incomplete or missing.
 
 @section tutorial-installation Installation
 
@@ -79,14 +81,13 @@ Making `f` in the above code `const` doesn't change things, either.
 One might object, "Why would any sane programmer write logically divergent
 CV overloads, where the above scenario actually causes a problem?"
 
-I don't really know the answer to that question. But we do
-have to deal with the fact that STL containers' `begin()` and `end()` member
-functions are const-overloaded - `const_vector_instance.begin()` returns a
-`const_iterator`, while `mutable_vector_instance.begin()` returns a mutable
-`iterator`. With that in mind, consider the following parable (or don't, if
-you don't like parables):
+I don't really know the answer to that question. But we do have to deal with
+the fact that STL containers' `begin()` and `end()` member functions are
+const-overloaded - `const_vector_instance.begin()` returns a `const_iterator`,
+while `mutable_vector_instance.begin()` returns a mutable `iterator`. With that
+in mind, consider the following parable (or don't, if you don't like parables):
 
-Suppose, one day at work, you naively assumed that an `std::function`
+One day at work, you naively assumed that an `std::function`
 intialized with a const object copy returned a `const_iterator` when called,
 when it actually returned an `iterator`.  Since you treated the
 return value like a `const_iterator`, everything worked just fine. The product
@@ -94,9 +95,9 @@ shipped, no eyebrows were raised, and donuts were had the following morning.
 Months later, a new hire (we'll call him Jimmy) starts poking around the
 program's state to fix a latent bug. Jimmy delights in his discovery of a
 pristine trove of mutable `iterator`s, minding their own business, blissfully
-unaware of their impending demise at Jimmy's imperative tendencies... Jimmy
-is why we have `const` in the first place (compiler optimizations
-notwithstanding).
+unaware of their impending demise at the behest of Jimmy's imperative
+tendencies... Jimmy is why we have `const` in the first place (compiler
+optimizations notwithstanding).
 
 Instead of blindly forwarding to `operator()`, CLBL wrappers bake the original
 object's CV-ness into their type, so that even copies will resolve to the same
@@ -230,5 +231,6 @@ TODO
 [POD]: http://en.cppreference.com/w/cpp/concept/PODType
 [SO.sfinae]: http://stackoverflow.com/a/257382/627587
 [Sprout]: https://github.com/bolero-MURAKAMI/Sprout
+
 
 */
