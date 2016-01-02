@@ -1,14 +1,15 @@
+//!@copyright Barrett Adair 2015
+//Distributed under the Boost Software License, Version 1.0.
+//(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
+//
+
 /*!
 
-@copyright Barrett Adair 2015
-Distributed under the Boost Software License, Version 1.0.
-(See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
-
-@mainpage User Manual
+@mainpage CLBL User Manual
 
 @tableofcontents
 
-@Section Note
+@section tutorial-note Note
 
 This site is currently under construction. Many pages and sections are incomplete or missing.
 
@@ -16,15 +17,14 @@ This site is currently under construction. Many pages and sections are incomplet
 
 TODO - write this section 
 
-Temporary:
-To use CLBL, add CLBL/include to your include path and #include<CLBL/clbl.h>. To run the test cases and examples, Windows users can install a recent version of VS2015 and run one of the batch scripts in CLBL/scripts. Others will need to refer to the cmake commands in the .travis.yml for now.
+Temporary documentation:
+To use CLBL, add [CLBL/include][CLBL.Include] to your include path and `#include<CLBL/clbl.h>`. 
 
-@section tutorial-terminology Terminology
+To build and run the test cases and examples, Windows users can install a recent version of [VS2015][VS] and run one of the top-level batch scripts in [CLBL/scripts][CLBL.Scripts]. 
 
-1. CV - [const/volatile-qualified][C++.CV]
-2. ambiguous case - In the context of CLBL, this refers to a member/function template or 
-overload whose address cannot be resolved by name alone
-3. "Matryoshka madness" - Excessive type recursion resembling the [traditional Russian toy][Doll]
+Others will need to refer to the cmake commands in the [.travis.yml][CLBL.Travis] for now.
+
+[Clang][Clang] 3.6 (and later) is currently the only compiler that supports all features used in CLBL.
 
 @section tutorial-cv-correctness CV Correctness
 
@@ -96,7 +96,7 @@ Months later, a new hire (we'll call him Jimmy) starts poking around the
 program's state to fix a latent bug. Jimmy delights in his discovery of a
 pristine trove of mutable `iterator`s, minding their own business, blissfully
 unaware of their impending demise at the behest of Jimmy's imperative
-tendencies... Jimmy is why we have `const` in the first place (compiler
+tendencies... Jimmy is why we have `const` in the first place (...compiler
 optimizations notwithstanding).
 
 Instead of blindly forwarding to `operator()`, CLBL wrappers bake the original
@@ -163,9 +163,9 @@ auto still_const_volatile = clbl::harden(clbl_const_volatile);
 assert_const_volatile(still_const_volatile);
 @endcode
          
-The implementation of `clbl::harden` does not "Matryoshka madness", which
-in turn helps keep your compiler and debugger happy. Other uses of `clbl::harden`
-will be discussed later.
+The implementation of `clbl::harden` does not induce "[Matryoshka][Doll] madness"
+with types, which in turn helps keep your compiler and debugger happy. A detailed
+example about the other uses of `clbl::harden` can be seen at @ref harden.
 
 In a similar fashion, `clbl::fwrap` can be used to lock in the CV-ness of a CLBL
 wrapper. 
@@ -211,6 +211,11 @@ TODO
 
 
 <!-- Links -->
+[VS]: https://www.visualstudio.com/downloads/download-visual-studio-vs
+[CLBL.Include]: https://github.com/badair/CLBL/tree/master/include
+[CLBL.Scripts]: https://github.com/badair/CLBL/tree/master/scripts
+[CLBL.Travis]: https://raw.githubusercontent.com/badair/CLBL/master/.travis.yml
+[Clang]: http://clang.llvm.org/
 [C++.CV]: http://en.cppreference.com/w/cpp/language/cv
 [Doll]: https://en.wikipedia.org/wiki/Matryoshka_doll
 [C++14.auto_rt]: http://en.wikipedia.org/wiki/C%2B%2B14#Function_return_type_deduction
