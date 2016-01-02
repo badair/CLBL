@@ -6,7 +6,16 @@ Distributed under the Boost Software License, Version 1.0.
 
 @mainpage User Manual
 
+Note: this site is currently under construction. Many pages and sections are incomplete or missing.
+
 @tableofcontents
+
+@section tutorial-installation Installation
+
+TODO - write this section 
+
+Temporary:
+To use CLBL, add CLBL/include to your include path and #include<CLBL/clbl.h>. To run the test cases and examples, Windows users can install a recent version of VS2015 and run one of the batch scripts in CLBL/scripts. Others will need to refer to the cmake commands in the .travis.yml for now.
 
 @section tutorial-terminology Terminology
 
@@ -190,13 +199,6 @@ Shallow volatile lost in copy, deep const remains - the const overload is called
 std::function<overload()> still_const = clbl_const_volatile;
 assert_const(still_const);
 @endcode
-
-
-------------------------------------------------------------------------------
-
-TODO - description
-
-@section tutorial-installation Installation
 
 ------------------------------------------------------------------------------
 
