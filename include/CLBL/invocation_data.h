@@ -12,7 +12,7 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_INVOCATION_DATA_H
 
 #include <utility>
-
+#include <type_traits>
 #include <CLBL/tags.h>
 #include <CLBL/no_ref.h>
 
@@ -60,7 +60,30 @@ namespace clbl {
     };
 
     template<typename T>
+    struct reference_invocation_data {
+     
+        T ref;
+
+        static_assert(std::is_reference<T>::value, "CLBL internal logic error: not a reference type.");
+
+        using my_type = reference_invocation_data<T>;
+
+        inline reference_invocation_data(my_type&) = default;
+        inline reference_invocation_data(const my_type&) = default;
+        inline reference_invocation_data(my_type&&) = default;
+
+        inline reference_invocation_data(const volatile my_type& other)
+            : ref( other.ref )
+        {}
+
+        inline reference_invocation_data(const T r)
+            : ref( r )
+        {}
+    };
+
+    template<typename T>
     struct object_invocation_data {
+        
         T object;
 
         using my_type = object_invocation_data<T>;

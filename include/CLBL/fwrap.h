@@ -58,8 +58,15 @@ namespace clbl {
             #endif
 
             static constexpr auto is_ambiguous = !has_normal_call_operator<T>;
+
             static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>;
-            static constexpr auto is_function_ptr = std::is_function<std::remove_pointer_t<T> >::value;
+
+            static constexpr auto is_function_ptr = !std::is_function<no_ref<T> >::value 
+                                                    && std::is_function<std::remove_pointer_t<T> >::value;
+
+            static constexpr auto is_function_ref = std::is_function<no_ref<T> >::value
+                                                    && !std::is_class<no_ref<T> >::value;
+            
             static constexpr auto is_member_function_ptr = std::is_member_function_pointer<T>::value;
             
         public:
@@ -70,7 +77,13 @@ namespace clbl {
                                             && !has_normal_call_operator<T>;
 
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
+
             static constexpr auto function_ptr_case = !is_clbl && is_function_ptr;
+
+            static constexpr auto function_ref_case = !is_clbl
+                                                      && is_function_ref 
+                                                      && !has_normal_call_operator<T>;
+
             static constexpr auto member_function_ptr_case = !is_clbl && !is_function_ptr 
                                                                 && is_member_function_ptr;
 
@@ -78,7 +91,9 @@ namespace clbl {
             static constexpr auto is_complex_case = !is_clbl
                                                     && !reference_wrapper_case 
                                                     && !function_ptr_case 
-                                                    && !member_function_ptr_case;
+                                                    && !function_ref_case
+                                                    && !member_function_ptr_case
+                                                    && std::is_class<std::remove_pointer<no_ref<T> > >::value;
         public:
             static constexpr auto function_object_case = is_complex_case 
                                                         && !is_ptr 
@@ -121,6 +136,14 @@ namespace clbl {
             wrap<default_>(std::forward<T>(t));
     }
 
+    template<typename T, std::enable_if_t<
+    detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
+    inline constexpr auto 
+    fwrap(T&& t) {
+        return free_function_reference::template
+            wrap<default_>(std::forward<T>(t));
+    }
+    
     #endif
 
 

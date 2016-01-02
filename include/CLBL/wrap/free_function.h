@@ -35,6 +35,22 @@ namespace clbl {
         }
     };
 
+    struct free_function_reference {
+
+        template<qualify_flags Flags, typename T>
+        static inline constexpr auto
+        wrap(T&& t) {
+            using function_type = no_ref<T>;
+            using wrapper = free_fn_ref_wrapper<free_function_reference, function_type>;
+            return wrapper{ std::forward<T>(t) };
+        }
+
+        template<qualify_flags Flags, typename Invocation>
+        static inline constexpr auto
+            wrap_data(Invocation&& data) {
+            return wrap<Flags>(data.ptr);
+        }
+    };
 }
 
 #endif

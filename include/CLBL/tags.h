@@ -35,6 +35,7 @@ namespace clbl {
     using ambiguous_type = ambiguous_return(ambiguous_args);
 
     struct free_fn_tag {};
+    struct free_fn_ref_tag{};
     struct pmf_tag {};
     struct pmf_ptr_tag {};
     struct fn_obj_tag {};
