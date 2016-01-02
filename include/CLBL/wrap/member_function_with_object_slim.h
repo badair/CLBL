@@ -25,7 +25,7 @@ namespace clbl {
     //"slim" means it takes the PMF as a template argument
     struct member_function_with_object_slim {
 
-        template<qualify_flags Flags = qflags::default_, typename TMemberFnPtr, TMemberFnPtr Pmf, typename T>
+        template<qualify_flags Flags = default_, typename TMemberFnPtr, TMemberFnPtr Pmf, typename T>
         static inline constexpr auto
             wrap(T&& t) {
             constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;

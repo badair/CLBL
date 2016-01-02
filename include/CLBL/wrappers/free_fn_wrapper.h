@@ -47,7 +47,7 @@ namespace clbl {
         template<qualify_flags>
         using apply_cv = my_type;
 
-        static constexpr auto cv_flags = qflags::default_;
+        static constexpr auto cv_flags = default_;
         static constexpr auto is_ambiguous = false;
 
         invocation_data_type data;

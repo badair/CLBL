@@ -25,7 +25,7 @@ namespace clbl {
     //"slim" means it takes the PMF as a template argument
     struct member_function_with_pointer_to_object_slim {
 
-        template<qualify_flags Flags = qflags::default_, typename TMemberFnPtr, TMemberFnPtr Pmf, typename T>
+        template<qualify_flags Flags = default_, typename TMemberFnPtr, TMemberFnPtr Pmf, typename T>
         static inline constexpr auto
         wrap(T&& t) {
             constexpr auto cv_qualifiers = cv<T> | Flags;
@@ -37,7 +37,7 @@ namespace clbl {
             return wrapper{ std::forward<T>(t) };
         }
 
-        template<qualify_flags Flags = qflags::default_, typename Invocation, typename TMemberFnPtr = decltype(Invocation::pmf), TMemberFnPtr Pmf = Invocation::pmf>
+        template<qualify_flags Flags = default_, typename Invocation, typename TMemberFnPtr = decltype(Invocation::pmf), TMemberFnPtr Pmf = Invocation::pmf>
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return wrap<Flags, TMemberFnPtr, Pmf>(data.object_ptr);

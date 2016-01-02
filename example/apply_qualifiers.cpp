@@ -10,7 +10,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/clbl.h>
 
 int main(){
-	using cv_int = clbl::apply_qualifiers<int, clbl::qflags::const_ | clbl::qflags::volatile_>;
+	using cv_int = clbl::apply_qualifiers<int, clbl::const_ | clbl::volatile_>;
 	static_assert(std::is_same<cv_int, const volatile int>::value, "");
 	return 0;
 }

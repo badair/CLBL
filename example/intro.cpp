@@ -254,7 +254,7 @@ int main() {
         twice. To avoid this, you must either use "clbl::forward<Arg>" OR "const Arg&".
 
         If you want to investigate the correctness of clbl::forward for reference types,
-        I encourage you to visit refrence_transparency_tests.cpp file, which has performs
+        I encourage you to visit refrence_transparency_tests.cpp program, which has
         extensive coverage of overload resolution test cases for clbl::forward-wrapped
         reference arguments.
         */

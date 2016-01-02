@@ -32,18 +32,17 @@ namespace clbl {
 
         TODO - disallow invalid function signatures for CV-only disambiguation
         */
-
         template<typename, typename, typename Creator>
         struct disambiguate : Creator {};
 
         /*
         These specializations "override" the *::ambiguous and *::casted creators'
-        wrap_data functions and pass the requested disambiguation, which results
-        in a static_cast on operator() - unfortunately, the current C++ standard 
-        forbids casting non-type function pointer template arguments, so we just 
-        pass the requested type all the way down to the invocation data, where 
-        the cast is performed into a static constexpr member (see casted_* structs 
-        defined in CLBL/invocation_data.h)
+        wrap_data functions and pass the requested disambiguation, which ultimately
+        results in a static_cast on operator() - unfortunately, the current C++
+        standard forbids casting non-type function pointer template arguments, so we
+        just pass the requested type all the way down to the invocation data level,
+        where the cast will be performed while initializing a tatic constexpr member
+        (see casted_* structs defined in CLBL/invocation_data.h)
         */
         template<typename TMemberFnPtr, typename C>
         struct disambiguate<TMemberFnPtr, C, typename pointer_to_function_object::ambiguous> {
@@ -91,7 +90,8 @@ namespace clbl {
         };
 
         /*
-        Chainsawing the Gordian knot by spamming CV permutations with the preprocessor
+        using the preprocessor to spam template specializations of all 
+        CV permutations - there is no other way
         */
 
 #define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
@@ -120,7 +120,7 @@ namespace clbl {
             __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const volatile) \
         }
 
-        //ellipses and ref qualifiers not yet implemented...
+        //ellipses and ref qualifiers not yet implemented... Does anyone care?
 
         __CLBL_SPECIALIZE_HARDEN_T(__CLBL_NO_CV);
         __CLBL_SPECIALIZE_HARDEN_T(const);
@@ -131,21 +131,12 @@ namespace clbl {
         constexpr harden_t<T> harden_v{};
     }
 
-    template<typename Callable, std::enable_if_t<!no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
-    inline constexpr auto harden(Callable&& c) {
-        return detail::harden_v<typename no_ref<Callable>::type>(std::forward<Callable>(c));
-    }
+    //! @addtogroup cv-correctness CV Correctness - full example
+    //! Example
+    //! -------
+    //! @include example/cv_correctness.cpp
 
-    template<qualify_flags CvFlags, typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
-    inline constexpr auto harden(Callable&& c) {
-        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
-    }
-
-    template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> CvFlags = qflags::default_>
-    inline constexpr auto harden(Callable&& c) {
-        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
-    }
-
+    
     //! @addtogroup harden Disambiguating operator()
     //! `clbl::harden` lets you explicitly select a single overload of
     //! an object's `operator()`, while hiding all other overloads. 
@@ -153,12 +144,26 @@ namespace clbl {
     //! -------
     //! @include example/harden.cpp
 
-    //! clbl::harden allows you to explicitly disambiguate overloads
-    //! of `operator()` by passing an abominable function type as a template
-    //! argument.
+    //! clbl::harden lets you explicitly disambiguate overloads of `operator()`
+    //! by passing an abominable function type as a template argument.
     template<typename AbominableFunctionType, typename Callable>
     inline constexpr auto harden(Callable&& c) {
         return detail::harden_v<AbominableFunctionType>(std::forward<Callable>(c));
+    }
+
+    template<typename Callable, std::enable_if_t<!no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
+    inline constexpr auto harden(Callable&& c) {
+        return detail::harden_v<typename no_ref<Callable>::type>(std::forward<Callable>(c));
+    }
+
+    template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> CvFlags = default_>
+    inline constexpr auto harden(Callable&& c) {
+        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
+    }
+
+    template<qualify_flags CvFlags, typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
+    inline constexpr auto harden(Callable&& c) {
+        return no_ref<Callable>::creator::template wrap_data<CvFlags | cv<no_ref<Callable> > >(c.data);
     }
 }
 

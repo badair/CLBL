@@ -107,21 +107,21 @@ namespace clbl {
         template<typename U = UnderlyingType, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const U& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::const_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<const_ | cv_flags>(*c.data.object_ptr)
             );
         }
 
         template<typename U = UnderlyingType, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(volatile U& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::volatile_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<volatile_ | cv_flags>(*c.data.object_ptr)
             );
         }
 
         template<typename U = UnderlyingType, std::enable_if_t<is_clbl<U>, dummy>* = nullptr>
         static inline constexpr auto copy_invocation(const volatile U& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::const_ | qflags::volatile_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<const_ | volatile_ | cv_flags>(*c.data.object_ptr)
             );
         }
 

@@ -3,8 +3,8 @@
 # Distributed under the Boost Software License, Version 1.0.
 # (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
-PROJECT_NAME            = "CLBL"
-PROJECT_BRIEF           = "Unified interface for callable types"
+PROJECT_NAME            = ""
+PROJECT_BRIEF           = ""
 PROJECT_LOGO            = C:/Users/barre/Documents/GitHub/CLBL/doc/Logo.png
 PROJECT_NUMBER          =
 
@@ -109,9 +109,9 @@ HTML_FILE_EXTENSION     = .html
 HTML_HEADER             = C:/Users/barre/Documents/GitHub/CLBL/doc/header.html
 HTML_FOOTER             = C:/Users/barre/Documents/GitHub/CLBL/doc/footer.html
 HTML_EXTRA_STYLESHEET   =
-HTML_COLORSTYLE_HUE     = 194  # 0 - 359
-HTML_COLORSTYLE_SAT     = 120 # 0 - 255
-HTML_COLORSTYLE_GAMMA   = 28
+HTML_COLORSTYLE_HUE     = 195  # 0 - 359
+HTML_COLORSTYLE_SAT     = 96 # 0 - 255
+HTML_COLORSTYLE_GAMMA   = 82
 HTML_TIMESTAMP          = NO
 HTML_DYNAMIC_SECTIONS   = YES
 HTML_INDEX_NUM_ENTRIES  = 0 # Fully expand trees in the Indexes by default

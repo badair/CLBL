@@ -24,7 +24,7 @@ namespace clbl {
 
     struct member_function_with_pointer_to_object {
 
-        template<qualify_flags Flags = qflags::default_, typename T, typename TMemberFnPtr>
+        template<qualify_flags Flags = default_, typename T, typename TMemberFnPtr>
         static inline constexpr auto
         wrap(TMemberFnPtr member_fn_ptr, T&& t) {
             constexpr auto cv_qualifiers = cv<T> | Flags;
@@ -36,7 +36,7 @@ namespace clbl {
             return wrapper{ member_fn_ptr, std::forward<T>(t) };
         }
 
-        template<qualify_flags Flags = qflags::default_, typename Invocation>
+        template<qualify_flags Flags = default_, typename Invocation>
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return wrap<Flags>(data.pmf, data.object_ptr);

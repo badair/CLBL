@@ -19,14 +19,12 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    clbl::harden_cast is used internally to force desired qualify_flags on a reference
-    */
-
+    
+    //! clbl::harden_cast is used internally to force desired qualify_flags on a reference
     template<qualify_flags CvFlags, typename Object>
     inline constexpr auto 
         harden_cast(Object&& o) 
-            -> apply_qualifiers<Object, CvFlags | cv<Object> | qflags::lvalue_reference_> {
+            -> apply_qualifiers<Object, CvFlags | cv<Object> | lvalue_reference_> {
         return std::forward<Object>(o);
     }
 }

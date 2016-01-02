@@ -24,15 +24,18 @@ Distributed under the Boost Software License, Version 1.0.
 
 
 namespace clbl {
+    
     /*
-    std::function doesn't call cv-qualified overloads of function
-    objects, because it makes a copy. We elimiate overloads except
-    the requested one by copying the desired invocation. This preserves
-    the desired behavior by giving std::function no choice but to
-    call the const-qualified version. We also "glue" the CLBL wrapper to
-    std::function by (ultimately) using clbl::forward to prevent copies
-    while the arguments travel from
-    std::function -> clbl wrapper -> original callable type
+    std::function doesn't call CV-qualified overloads of function
+    objects when it is initialized with a copy, because CV doesn't stick
+    to copies. We elimiate overloads except the requested one by copying
+    only the desired invocation, which lives inside a lambda. This preserves
+    the desired behavior by giving std::function no choice but to call the
+    const-qualified version. 
+    
+    We "glue" the CLBL wrapper to std::function by (ultimately) using
+    clbl::forward to prevent copies while the arguments travel from
+    std::function -> invocation lambda -> CLBL wrapper -> original callable
     */
 
     namespace detail {
@@ -58,7 +61,7 @@ namespace clbl {
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>
     inline auto convert_to(Callable&& c) {
 
-        static_assert(!std::is_same<typename no_ref<Callable>::return_type, ambiguous_return>::value,
+        static_assert(!no_ref<Callable>::is_ambiguous,
             "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to.");
 
         using glue = typename no_ref<Callable>::forwarding_glue;

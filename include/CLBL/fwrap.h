@@ -118,7 +118,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t) {
         return free_function::template
-            wrap<qflags::default_>(std::forward<T>(t));
+            wrap<default_>(std::forward<T>(t));
     }
 
     #endif
@@ -148,7 +148,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
         return member_function_with_pointer_to_object::template
-            wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
+            wrap<default_>(member_fn_ptr, std::forward<T>(t));
     }
 
 
@@ -163,7 +163,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
         return member_function_with_object::template
-            wrap<qflags::default_>(member_fn_ptr, std::forward<T>(t));
+            wrap<default_>(member_fn_ptr, std::forward<T>(t));
     }
 
     #endif
@@ -192,7 +192,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t) {
         return pointer_to_function_object::template
-            wrap<qflags::default_>(std::forward<T>(t));
+            wrap<default_>(std::forward<T>(t));
     }
 
     /*****************************************************************
@@ -204,7 +204,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t) {
         return pointer_to_function_object::ambiguous::template
-            wrap<qflags::default_>(std::forward<T>(t));
+            wrap<default_>(std::forward<T>(t));
     }
 
     /**********************
@@ -216,7 +216,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t) {
         return function_object::template
-            wrap<qflags::default_>(std::forward<T>(t));
+            wrap<default_>(std::forward<T>(t));
     }
 
     /******************************************************
@@ -228,7 +228,7 @@ namespace clbl {
     inline constexpr auto 
     fwrap(T&& t) {
         return function_object::ambiguous::template 
-            wrap<qflags::default_>(std::forward<T>(t));
+            wrap<default_>(std::forward<T>(t));
     }
 
     #endif
@@ -271,7 +271,7 @@ namespace clbl {
         static inline constexpr auto 
         fwrap(T&& t) {
             return member_function_with_object_slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(std::forward<T>(t));
+                wrap<default_, TMemberFnPtr, Pmf>(std::forward<T>(t));
         }
 
         template<typename TPtr, std::enable_if_t<
@@ -280,7 +280,7 @@ namespace clbl {
         static inline constexpr auto
         fwrap(TPtr&& object_ptr) {
             return member_function_with_pointer_to_object_slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(std::forward<TPtr>(object_ptr));
+                wrap<default_, TMemberFnPtr, Pmf>(std::forward<TPtr>(object_ptr));
         }
 
         template<typename T, std::enable_if_t<
@@ -288,7 +288,7 @@ namespace clbl {
         static inline constexpr auto
         fwrap(T&& t) {
             return member_function_with_pointer_to_object_slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(&t.get());
+                wrap<default_, TMemberFnPtr, Pmf>(&t.get());
         }
     };
 

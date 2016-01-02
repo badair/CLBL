@@ -23,62 +23,62 @@ namespace clbl {
     };
 
     template<>
-    struct qualifiers<qflags::default_> {
+    struct qualifiers<default_> {
         template<typename T>
         using apply = T;
     };
 
     template<>
-    struct qualifiers<qflags::const_> {
+    struct qualifiers<const_> {
         template<typename T>
         using apply = const T;
     };
 
     template<>
-    struct qualifiers<qflags::volatile_> {
+    struct qualifiers<volatile_> {
         template<typename T>
         using apply = volatile T;
     };
 
     template<>
-    struct qualifiers<qflags::const_ | qflags::volatile_> {
+    struct qualifiers<const_ | volatile_> {
         template<typename T>
         using apply = const volatile T;
     };
 
     template<>
-    struct qualifiers<qflags::lvalue_reference_> {
+    struct qualifiers<lvalue_reference_> {
         template<typename T>
         using apply = T&;
     };
 
     template<>
-    struct qualifiers<qflags::const_ | qflags::lvalue_reference_> {
+    struct qualifiers<const_ | lvalue_reference_> {
         template<typename T>
         using apply = const T&;
     };
 
     template<>
-    struct qualifiers<qflags::volatile_ | qflags::lvalue_reference_> {
+    struct qualifiers<volatile_ | lvalue_reference_> {
         template<typename T>
         using apply = volatile T&;
     };
 
     template<>
-    struct qualifiers<qflags::const_ | qflags::volatile_ | qflags::lvalue_reference_> {
+    struct qualifiers<const_ | volatile_ | lvalue_reference_> {
         template<typename T>
         using apply = const volatile T&;
     };
 
-    using no_q = qualifiers<qflags::default_>;
-    using const_q = qualifiers<qflags::const_>;
-    using volatile_q = qualifiers<qflags::volatile_>;
-    using const_volatile_q = qualifiers<qflags::const_ | qflags::volatile_>;
+    using no_q = qualifiers<default_>;
+    using const_q = qualifiers<const_>;
+    using volatile_q = qualifiers<volatile_>;
+    using const_volatile_q = qualifiers<const_ | volatile_>;
 
-    using ref_q = qualifiers<qflags::default_ | qflags::lvalue_reference_>;
-    using const_ref_q = qualifiers<qflags::const_ | qflags::lvalue_reference_>;
-    using volatile_ref_q = qualifiers<qflags::volatile_ | qflags::lvalue_reference_>;
-    using const_volatile_ref_q = qualifiers<qflags::volatile_ | qflags::lvalue_reference_>;
+    using ref_q = qualifiers<default_ | lvalue_reference_>;
+    using const_ref_q = qualifiers<const_ | lvalue_reference_>;
+    using volatile_ref_q = qualifiers<volatile_ | lvalue_reference_>;
+    using const_volatile_ref_q = qualifiers<volatile_ | lvalue_reference_>;
 
     namespace apply_qualifiers_detail {
         template<typename U, qualify_flags Flags>

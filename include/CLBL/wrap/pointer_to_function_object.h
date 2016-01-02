@@ -65,7 +65,7 @@ namespace clbl {
 
         struct casted {
 
-            template<qualify_flags Flags = qflags::default_, typename TMemberFnPtr, typename T>
+            template<qualify_flags Flags = default_, typename TMemberFnPtr, typename T>
             static inline constexpr auto
                 wrap(T&& t) {
                 constexpr auto cv_qualifiers = cv<T> | Flags;

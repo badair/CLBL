@@ -111,7 +111,7 @@ namespace clbl {
         static inline constexpr auto 
         copy_invocation(const T& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::const_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<const_ | cv_flags>(*c.data.object_ptr)
             );
         }
 
@@ -119,7 +119,7 @@ namespace clbl {
         static inline constexpr auto 
         copy_invocation(volatile T& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::volatile_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<volatile_ | cv_flags>(*c.data.object_ptr)
             );
         }
 
@@ -127,7 +127,7 @@ namespace clbl {
         static inline constexpr auto
         copy_invocation(const volatile T& c) {
             return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-                harden_cast<qflags::const_ | qflags::volatile_ | cv_flags>(*c.data.object_ptr)
+                harden_cast<const_ | volatile_ | cv_flags>(*c.data.object_ptr)
             );
         }
 

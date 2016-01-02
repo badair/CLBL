@@ -31,7 +31,7 @@ namespace clbl {
     namespace detail {
         namespace cv_flags_detail {
             struct dummy_clbl_type {
-                static constexpr qualify_flags cv_flags = qflags::default_;
+                static constexpr qualify_flags cv_flags = default_;
             };
         }
 
@@ -42,7 +42,6 @@ namespace clbl {
 
         template<typename T>
         inline constexpr qualify_flags cv_flags() {
-            using namespace qflags;
             using namespace cv_flags_detail;
 
             constexpr auto can_deref = can_dereference<T>;
