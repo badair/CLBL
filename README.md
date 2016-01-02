@@ -16,7 +16,7 @@ CLBL is a generic C++14 header-only library for callable types that provides a u
 
 4. Provide intuitive methods for for lazy disambiguation of objects with ambiguous `operator()` (see `clbl::harden`)
 
-5. Allow for easy conversion to type-erased delegates (like `std::function`) with `clbl::convert_to', where
+5. Allow for easy conversion to type-erased delegates (like `std::function`) with `clbl::convert_to`, where
         - conversion of unambiguous calls does not require an explicitly specified signature
         - ambiguous callable types that have been disambiguated with `clbl::harden` maintain CV-overload selection when converted to a
             type-erased delegate (even in copy initialization)
@@ -28,7 +28,7 @@ CLBL has no dependencies outside the standard library. However, Clang is current
 
 CLBL only includes 4 standard library headers:
 
-1. `<functional>` - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts a template template parameter
+1. `<functional>` - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts a template template parameter. Can be excluded by defining `CLBL_EXCLUDE_FUNCTIONAL`.
 
 2. `<tuple>` - only used to make argument types easily accessible for metaprogrammers
 
@@ -36,16 +36,19 @@ CLBL only includes 4 standard library headers:
 
 4. `<utility>` - for std::forward
 
-## [Quick example][example.Wandbox] (build and run online)
+[Quick example - build and run online][example.Wandbox] 
 
 There are more documented examples in the CLBL/examples folder, and more are being added regularly.
 
-CLBL is not yet stable, and should not yet be used in production code. More features are coming soon, and work on Doxygen-generatetd documentation is currently underway. In the meantime, 
+[CLBL User Manual][CLBL.Docs]
+
+CLBL is not yet stable, and should not yet be used in production code. More features are coming soon.
 
 ## License
 Please see [LICENSE.md](LICENSE.md).
 
 
 <!-- Links -->
+[CLBL.Docs]: https://badair.github.io/CLBL/
 [badge.Wandbox]: https://img.shields.io/badge/try%20it-online-blue.svg
 [example.Wandbox]: http://melpon.org/wandbox/permlink/CGFpYjm7071gC7JC
