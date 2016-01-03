@@ -25,9 +25,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    free_fn_wrapper wraps a free function
-    */
+    //! Wraps a free function pointer
     template<typename, typename Failure>
     struct free_fn_wrapper { static_assert(sizeof(Failure) < 0, "Not a function."); };
 

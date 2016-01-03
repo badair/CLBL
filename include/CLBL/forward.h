@@ -19,10 +19,10 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    clbl::forward is an implicitly convertible vessel for pefectly forwarded parameters. This allows
-    us to create a "perfect forwarding" std::function object, that still forwards to the original
-    function/object
+    /*!
+    clbl::forward is an implicitly convertible vessel for pefectly forwarded parameters.
+    This allows us to, ultimately, create a "perfect forwarding" std::function object,
+    that still forwards to the original function/object.
     */
 
     template<typename FwdType>

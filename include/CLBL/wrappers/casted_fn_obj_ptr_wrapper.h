@@ -25,9 +25,9 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    casted_fn_obj_wrapper wraps a pointer to an ambiguous callable 
-    object, but uses a static_cast on operator() to disambiguate it.
+    /*!
+    Wraps a pointer to an ambiguous callable object, but uses a static_cast
+    on operator() to disambiguate it.
     */
     template<typename, qualify_flags, typename, typename, 
         typename TMemberFnPtr, typename DispatchFailureCase>

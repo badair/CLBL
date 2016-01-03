@@ -25,11 +25,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    pmf_ptr_wrapper wraps a PMF and a pointer to an object with
-    which to call it.
-    */
-
+    //!Wraps a PMF and a pointer to an object with which to call it.
     template<typename, qualify_flags, typename, typename, typename, typename DispatchFailureCase>
     struct pmf_ptr_wrapper { static_assert(sizeof(DispatchFailureCase) < 0, "Not a member function."); };
 

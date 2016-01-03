@@ -296,11 +296,10 @@ namespace clbl {
     //! @def CLBL_PMFWRAP
     //! CLBL_PMFWRAP Wraps a non-overloaded member function pointer at compile-time, 
     //! binding an object at the runtime call site via copy/pointer/ref-wrapper/rvalue.
-    //! This removes the storage bloat from calling clbl::fwrap, the result of which
-    //! keeps a pointer-to-member-function for each wrapper instance. Note: the 
-    //! pointer-to-member-function cannot be the result of a cast, per the C++ standard.
+    //! This removes the object bloat from calling clbl::fwrap with a runtime PMF. Note:
+    //! the pointer-to-member-function cannot be the result of a cast, per the C++ standard.
     //! If you need to wrap a pointer-to-member-function cast, use clbl::fwrap instead 
-    //! of this macro.
+    //! of this macro. Expands to `pmf<decltype(my_pmf), my_pmf>::fwrap(my_object)`
     //! @include example/clbl_pmfwrap.cpp
     #define CLBL_PMFWRAP(object, pointer_to_member_function)
     #else

@@ -24,9 +24,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    pmf_wrapper wraps a PMF and an object with which to call it.
-    */
+    //! wraps a PMF and an object with which to call it.
     template<typename, qualify_flags, typename,
         typename, typename Failure>
     struct pmf_wrapper {static_assert(sizeof(Failure) < 0, "Not a member function."); };

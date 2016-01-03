@@ -24,11 +24,10 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    casted_fn_obj_wrapper wraps an ambiguous callable object, but uses a
-    static_cast on operator() to disambiguate it.
+    /*!
+    Wraps an ambiguous callable object, but uses a static_cast on
+    operator() to disambiguate it.
     */
-
     template<typename, qualify_flags, typename, typename, typename Failure>
     struct casted_fn_obj_wrapper { static_assert(sizeof(Failure) < 0, "Not a member function."); };
 

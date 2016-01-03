@@ -31,7 +31,7 @@ namespace clbl {
     to copies. We elimiate overloads except the requested one by copying
     only the desired invocation, which lives inside a lambda. This preserves
     the desired behavior by giving std::function no choice but to call the
-    const-qualified version. 
+    CV-qualified version, if desired. 
     
     We "glue" the CLBL wrapper to std::function by (ultimately) using
     clbl::forward to prevent copies while the arguments travel from

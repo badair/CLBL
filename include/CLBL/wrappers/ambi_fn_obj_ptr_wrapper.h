@@ -24,12 +24,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    ambi_fn_obj_ptr_wrapper wraps a pointer to a callable object whose 
-    operator() is overloaded/templated. You may still call this
-    wrapper as you would call the original object, but you must 
-    disambiguate by calling clbl::harden before using any of the 
-    additional features in CLBL.
+    /*!
+    Wraps a pointer to a callable object whose operator() is overloaded/templated.
+    Typically created via clbl::fwrap. You may still call this wrapper as you would
+    call the original object, but you must disambiguate by calling clbl::harden
+    before using any of the additional features in CLBL.
     */
     template<typename Creator, qualify_flags CvFlags, typename TPtr>
     struct ambi_fn_obj_ptr_wrapper {

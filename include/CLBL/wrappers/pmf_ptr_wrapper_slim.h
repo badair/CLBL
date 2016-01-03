@@ -25,12 +25,12 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    pmf_ptr_wrapper_slim wraps a PMF and a pointer to an object with
-    which to call it. It is identical to pmf_ptr_wrapper except that the
-    PMF is not stored in an object instance, but passed as a template arg instead
+    /*!
+    Wraps a PMF and a pointer to an object with which to call it.
+    It is identical to pmf_ptr_wrapper except that the PMF is not stored
+    in an object instance, but passed as a template arg instead, thus
+    giving it a "slim" profile in memory.
     */
-
     template<typename, qualify_flags, typename, typename,
         typename TMemberFnPtr, TMemberFnPtr, typename DispatchFailureCase>
     struct pmf_ptr_wrapper_slim { static_assert(sizeof(DispatchFailureCase) < 0, "Not a member function."); };
