@@ -62,11 +62,6 @@ int copy_counter::value = 0;
 
 int main() {
 
-#ifdef CLBL_FORWARDING_TESTS
-    std::cout << "running CLBL_FORWARDING_TESTS" << std::endl;
-
-    using copy_counter = copy_counter;
-
     {
         copy_counter::reset();
 
@@ -207,10 +202,6 @@ int main() {
         std_func2();
         assert(copy_counter::value == 0);
     }
-
-#endif
-
-
 
     return 0;
 }

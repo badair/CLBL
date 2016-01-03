@@ -16,78 +16,41 @@ using namespace clbl::tests;
 using namespace clbl;
 
 int main() {
-
-#ifdef CLBL_CONSTABLE_INT_TESTS
-    std::cout << "running CLBL_CONSTABLE_INT_TESTS" << std::endl;
-
+    
     auto constable_int_object = const_int_struct{};
 
-    {
-        auto f = fwrap(&constable_int_object);
-        auto g = fwrap(&int_func);
-        auto h = fwrap(&constable_int_object, &const_int_struct::func);
-        auto hardened_f = harden<std::string(int)>(f);
-        auto hardened_g = harden<std::string(int)>(g);
-        auto hardened_h = harden<std::string(int)>(h);
-        auto default_hardened_f = harden(f);
-        auto default_hardened_g = harden(g);
-        auto default_hardened_h = harden(h);
-
-        run_tests(
-            f, test_id::const_int_struct_op,
-            g, test_id::int_func,
-            h, test_id::const_int_struct_func,
-            1
-            );
-
-        run_tests(
-            hardened_f, test_id::const_int_struct_op,
-            hardened_g, test_id::int_func,
-            hardened_h, test_id::const_int_struct_func,
-            1
-            );
-
-        run_tests(
-            default_hardened_f, test_id::const_int_struct_op,
-            default_hardened_g, test_id::int_func,
-            default_hardened_h, test_id::const_int_struct_func,
-            1
-            );
-    }
-    {
-        auto f = fwrap(constable_int_object);
-        auto g = fwrap(&int_func);
-        auto h = fwrap(constable_int_object, &const_int_struct::func);
-        auto hardened_f = harden<std::string(int)>(f);
-        auto hardened_g = harden<std::string(int)>(g);
-        auto hardened_h = harden<std::string(int)>(h);
-        auto default_hardened_f = harden(f);
-        auto default_hardened_g = harden(g);
-        auto default_hardened_h = harden(h);
-
-        run_tests(
-            f, test_id::const_int_struct_op,
-            g, test_id::int_func,
-            h, test_id::const_int_struct_func,
-            1
-            );
-
-        run_tests(
-            hardened_f, test_id::const_int_struct_op,
-            hardened_g, test_id::int_func,
-            hardened_h, test_id::const_int_struct_func,
-            1
-            );
-
-        run_tests(
-            default_hardened_f, test_id::const_int_struct_op,
-            default_hardened_g, test_id::int_func,
-            default_hardened_h, test_id::const_int_struct_func,
-            1
-            );
-    }
-
-#endif
+    auto f = fwrap(&constable_int_object);
+    auto g = fwrap(&int_func);
+    auto h = fwrap(&constable_int_object, &const_int_struct::func);
+    auto i = fwrap(int_func);
+    auto j = fwrap(constable_int_object, &const_int_struct::func);
+    run_basic_tests(f, test_id::const_int_struct_op, 1);
+    run_basic_tests(g, test_id::int_func, 1);
+    run_basic_tests(h, test_id::const_int_struct_func, 1);
+    run_basic_tests(i, test_id::int_func, 1);
+    run_basic_tests(j, test_id::const_int_struct_func, 1);
+    
+    auto hardened_f = harden<std::string(int)>(f);
+    auto hardened_g = harden<std::string(int)>(g);
+    auto hardened_h = harden<std::string(int)>(h);
+    auto hardened_i = harden<std::string(int)>(i);
+    auto hardened_j = harden<std::string(int)>(j);
+    run_basic_tests(hardened_f, test_id::const_int_struct_op, 1);
+    run_basic_tests(hardened_g, test_id::int_func, 1);
+    run_basic_tests(hardened_h, test_id::const_int_struct_func, 1);
+    run_basic_tests(hardened_i, test_id::int_func, 1);
+    run_basic_tests(hardened_j, test_id::const_int_struct_func, 1);
+    
+    auto default_hardened_f = harden(f);
+    auto default_hardened_g = harden(g);
+    auto default_hardened_h = harden(h);
+    auto default_hardened_i = harden(i);
+    auto default_hardened_j = harden(j);
+    run_basic_tests(default_hardened_f, test_id::const_int_struct_op, 1);
+    run_basic_tests(default_hardened_g, test_id::int_func, 1);
+    run_basic_tests(default_hardened_h, test_id::const_int_struct_func, 1);
+    run_basic_tests(default_hardened_i, test_id::int_func, 1);
+    run_basic_tests(default_hardened_j, test_id::const_int_struct_func, 1);
 
     return 0;
 }

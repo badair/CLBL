@@ -67,6 +67,10 @@ namespace clbl {
             : data{ std::forward<TPtr>(o_ptr) }
         {}
 
+        inline pmf_ptr_wrapper_slim(const TPtr& o_ptr)
+            : data{ o_ptr }
+        {}
+        
         inline pmf_ptr_wrapper_slim(TPtr& o_ptr)
             : data{ o_ptr }
         {}
@@ -74,7 +78,10 @@ namespace clbl {
         inline pmf_ptr_wrapper_slim(my_type& other) = default;
         inline pmf_ptr_wrapper_slim(const my_type& other) = default;
         inline pmf_ptr_wrapper_slim(my_type&& other) = default;
-
+        inline pmf_ptr_wrapper_slim(const volatile my_type& other) 
+            :data { other.data } 
+        {}
+        
         template<typename... Fargs>
         inline Return operator()(Fargs&&... a) {
             return CLBL_UPCAST_AND_CALL_MEMBER_PTR(__CLBL_NO_CV,

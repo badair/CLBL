@@ -66,63 +66,28 @@ std::cout << "(line " << __LINE__ << ")" << \
 #x << ": " << start_of_type_name<decltype(x)>::end_of_type_name() << \
 std::endl << std::endl
 
-template<typename F, typename G, typename H, typename... Args>
-void run_tests(
-    F& f, std::string f_result,
-    G& g, std::string g_result,
-    H& h, std::string h_result,
-    Args... test_args) {
+using test_result_type = std::string;
 
-    assert(f(test_args...) == f_result);
-    assert(g(test_args...) == g_result);
-    assert(h(test_args...) == h_result);
-
-    static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
-    static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
-    static_assert(std::is_same<typename H::return_type, typename F::return_type>::value, "std::is_same<H::return_type, F::return_type>::value");
-
-    static_assert(std::is_same<typename F::arg_types, typename G::arg_types>::value, "std::is_same<F::arg_types, G::arg_types>::value");
-    static_assert(std::is_same<typename G::arg_types, typename H::arg_types>::value, "std::is_same<G::arg_types, H::arg_types>::value");
-    static_assert(std::is_same<typename H::arg_types, typename F::arg_types>::value, "std::is_same<H::arg_types, F::arg_types>::value");
-
+template<typename F, typename... Args>
+void run_basic_tests(F& f, test_result_type expected_result, Args... test_args) {
+    assert(f(test_args...) == expected_result);
+    static_assert(std::is_same<typename F::return_type , test_result_type>::value, "");
+    static_assert(std::is_same<result_of<F> , test_result_type>::value, "");
+    static_assert(std::is_same<typename F::arg_types , std::tuple<Args...> >::value, "");
+    static_assert(std::is_same<args<F> , std::tuple<Args...> >::value, "");
     auto f_std_func = convert_to<std::function>(f);
-    auto g_std_func = convert_to<std::function>(g);
-    auto h_std_func = convert_to<std::function>(h);
-
-    assert(f_std_func(test_args...) == f_result);
-    assert(g_std_func(test_args...) == g_result);
-    assert(h_std_func(test_args...) == h_result);
+    assert(f_std_func(test_args...) == expected_result);
 }
 
-template<typename F, typename G, typename H>
-void run_tests(
-    F& f, std::string f_result,
-    G& g, std::string g_result,
-    H& h, std::string h_result) {
-
-    assert(f() == f_result);
-    assert(g() == g_result);
-    assert(h() == h_result);
-
-    static_assert(std::is_same<typename F::return_type, typename G::return_type>::value, "std::is_same<F::return_type, G::return_type>::value");
-    static_assert(std::is_same<typename G::return_type, typename H::return_type>::value, "std::is_same<G::return_type, H::return_type>::value");
-    static_assert(std::is_same<typename H::return_type, typename F::return_type>::value, "std::is_same<H::return_type, F::return_type>::value");
-
-    static_assert(std::is_same<typename F::arg_types, typename G::arg_types>::value, "std::is_same<F::arg_types, G::arg_types>::value");
-    static_assert(std::is_same<typename G::arg_types, typename H::arg_types>::value, "std::is_same<G::arg_types, H::arg_types>::value");
-    static_assert(std::is_same<typename H::arg_types, typename F::arg_types>::value, "std::is_same<H::arg_types, F::arg_types>::value");
-
+template<typename F>
+void run_basic_tests(F& f, test_result_type expected_result) {
+    assert(f() == expected_result);
+    static_assert(std::is_same<typename F::return_type , test_result_type>::value, "");
+    static_assert(std::is_same<result_of<F> , test_result_type>::value, "");
+    static_assert(std::is_same<typename F::arg_types , std::tuple<> >::value, "");
+    static_assert(std::is_same<args<F> , std::tuple<> >::value, "");
     auto f_std_func = convert_to<std::function>(f);
-    auto g_std_func = convert_to<std::function>(g);
-    auto h_std_func = convert_to<std::function>(h);
-
-    static_assert(std::is_same<std::function<std::string(void)>, decltype(f_std_func)>::value, "convert_to<std::function>(f)");
-    static_assert(std::is_same<std::function<std::string(void)>, decltype(g_std_func)>::value, "convert_to<std::function>(g)");
-    static_assert(std::is_same<std::function<std::string(void)>, decltype(h_std_func)>::value, "convert_to<std::function>(h)");
-
-    assert(f_std_func() == f_result);
-    assert(g_std_func() == g_result);
-    assert(h_std_func() == h_result);
+    assert(f_std_func() == expected_result);
 }
 
 #endif

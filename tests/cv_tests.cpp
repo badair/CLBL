@@ -45,10 +45,6 @@ int mutable_struct::copy_count = 0;
 
 int main() {
 
-#ifdef CLBL_CV_TESTS
-
-    std::cout << "running CLBL_CV_TESTS" << std::endl;
-
     #ifdef CLBL_CV_TESTS_1
     {
         //testing object reference preservation when converted to std::function
@@ -662,7 +658,6 @@ int main() {
         assert(int_char_std_function_result(stdv) == test_id::overloaded_int_char_struct_op_v);
         assert(int_char_std_function_result(stdcv) == test_id::overloaded_int_char_struct_op_cv);
     }
-#endif
 #endif
 
     return 0;

@@ -17,38 +17,21 @@ using namespace clbl;
 
 int main() {
 
-#ifdef CLBL_VOLATILE_INT_CHAR_TESTS
-    std::cout << "running CLBL_VOLATILE_INT_CHAR_TESTS" << std::endl;
-
-    auto g = fwrap(&int_char_func);
-
-    {
+        //testing object that could be volatile but isn't
+        
         volatile volatile_int_char_struct volatile_int_char_object{};
 
-        auto f = fwrap(&volatile_int_char_object);
+        auto f = fwrap(&int_char_func);
+        auto g = fwrap(&volatile_int_char_object);
         auto h = fwrap(&volatile_int_char_object, &volatile_int_char_struct::func);
-
-        run_tests(
-            f, test_id::volatile_int_char_struct_op,
-            g, test_id::int_char_func,
-            h, test_id::volatile_int_char_struct_func,
-            1, 'c');
-    }
-    {
-        //testing object that could be volatile but isn't
-        volatile_int_char_struct volatilable_int_char_object{};
-
-        auto f = fwrap(&volatilable_int_char_object);
-        auto h = fwrap(&volatilable_int_char_object, &volatile_int_char_struct::func);
-
-        run_tests(
-            f, test_id::volatile_int_char_struct_op,
-            g, test_id::int_char_func,
-            h, test_id::volatile_int_char_struct_func,
-        1, 'c');
-    }
-
-#endif
+        auto i = fwrap(volatile_int_char_object);
+        auto j = fwrap(volatile_int_char_object, &volatile_int_char_struct::func);
+        
+        run_basic_tests(f, test_id::int_char_func, 1, 'c');
+        run_basic_tests(g, test_id::volatile_int_char_struct_op, 1, 'c');
+        run_basic_tests(h, test_id::volatile_int_char_struct_func, 1, 'c');
+        run_basic_tests(i, test_id::volatile_int_char_struct_op, 1, 'c');
+        run_basic_tests(j, test_id::volatile_int_char_struct_func, 1, 'c');
 
     return 0;
 }

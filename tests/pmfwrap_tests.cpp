@@ -24,43 +24,25 @@ memory footprint of the callable wrapper
 
 int main() {
 
-#ifdef CLBL_VOID_TESTS
+    {
+        void_struct void_object{};
 
-#if CLBL_TEST_PART == 1
-{
-    void_struct void_object{};
+        auto f = CLBL_PMFWRAP(std::ref(void_object), &void_struct::func);
+        auto g = CLBL_PMFWRAP(void_object,           &void_struct::func);
+        auto h = CLBL_PMFWRAP(&void_object,          &void_struct::func);
+        run_basic_tests(f, test_id::void_struct_func);
+        run_basic_tests(g, test_id::void_struct_func);
+        run_basic_tests(h, test_id::void_struct_func);
+    }
+    {
+        int_char_struct int_char_object{};
 
-    auto f = CLBL_PMFWRAP(std::ref(void_object), &void_struct::func);
-    auto g = CLBL_PMFWRAP(void_object,           &void_struct::func);
-    auto h = CLBL_PMFWRAP(&void_object,          &void_struct::func);
-
-    run_tests(
-        f, test_id::void_struct_func,
-        g, test_id::void_struct_func,
-        h, test_id::void_struct_func
-    );
-}
-#endif
-
-#if CLBL_TEST_PART == 2
-{
-    int_char_struct int_char_object{};
-
-    auto f = CLBL_PMFWRAP(std::ref(int_char_object), &int_char_struct::func); 
-    auto g = CLBL_PMFWRAP(int_char_object,           &int_char_struct::func);
-    auto h = CLBL_PMFWRAP(&int_char_object,          &int_char_struct::func);
-
-    run_tests(
-        f, test_id::int_char_struct_func,
-        g, test_id::int_char_struct_func,
-        h, test_id::int_char_struct_func,
-        1, 'c'
-    );
-}
-
-#endif
-
-#endif
-
+        auto f = CLBL_PMFWRAP(std::ref(int_char_object), &int_char_struct::func); 
+        auto g = CLBL_PMFWRAP(int_char_object,           &int_char_struct::func);
+        auto h = CLBL_PMFWRAP(&int_char_object,          &int_char_struct::func);
+        run_basic_tests(f, test_id::int_char_struct_func, 1, 'c');
+        run_basic_tests(g, test_id::int_char_struct_func, 1,  'c');
+        run_basic_tests(h, test_id::int_char_struct_func, 1, 'c');
+    } 
     return 0;
 }

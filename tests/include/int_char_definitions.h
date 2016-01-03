@@ -33,6 +33,10 @@ namespace clbl { namespace tests {
     namespace test_id { std::string volatile_int_char_struct_func = "volatile_int_char_struct::func(int, char) volatile"; }
     namespace test_id { std::string volatile_int_char_struct_op = "volatile_int_char_struct::operator()(int, char) volatile"; }
     struct volatile_int_char_struct {
+        inline volatile_int_char_struct() = default;
+        inline volatile_int_char_struct(const volatile_int_char_struct&) = default;
+        inline volatile_int_char_struct(volatile_int_char_struct&&) = default;
+        inline volatile_int_char_struct(const volatile volatile_int_char_struct&) {}
         inline std::string func(int, char) volatile { return test_id::volatile_int_char_struct_func; }
         inline std::string operator()(int, char) volatile { return test_id::volatile_int_char_struct_op; }
     };
@@ -40,6 +44,10 @@ namespace clbl { namespace tests {
     namespace test_id { std::string const_volatile_int_char_struct_func = "const_volatile_int_char_struct::func(int, char) const volatile"; }
     namespace test_id { std::string const_volatile_int_char_struct_op = "const_volatile_int_char_struct::operator()(int, char) const volatile"; }
     struct const_volatile_int_char_struct {
+        inline const_volatile_int_char_struct() = default;
+        inline const_volatile_int_char_struct(const const_volatile_int_char_struct&) = default;
+        inline const_volatile_int_char_struct(const_volatile_int_char_struct&&) = default;
+        inline const_volatile_int_char_struct(const volatile const_volatile_int_char_struct&) {}
         inline std::string func(int, char) const volatile { return test_id::const_volatile_int_char_struct_func; }
         inline std::string operator()(int, char) const volatile { return test_id::const_volatile_int_char_struct_op; }
     };

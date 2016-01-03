@@ -31,9 +31,6 @@ struct return_types {
 
 int main() {
 
-#ifdef CLBL_OVERLOAD_TESTS
-    std::cout << "running CLBL_OVERLOAD_TESTS" << std::endl;
-
     {
         overloaded_int_char_struct overloaded_object{};
 
@@ -66,8 +63,6 @@ int main() {
             assert(stdf(1) == "const");
         }
     }
-
-#endif
 
     return 0;
 }

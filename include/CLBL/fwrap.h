@@ -27,7 +27,8 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/member_function_decay.h>
 #include <CLBL/has_normal_call_operator.h>
 
-#include <CLBL/wrap/free_function.h>
+#include <CLBL/wrap/function_pointer.h>
+#include <CLBL/wrap/function_reference.h>
 #include <CLBL/wrap/function_object.h>
 #include <CLBL/wrap/pointer_to_function_object.h>
 #include <CLBL/wrap/member_function_with_object.h>
@@ -140,7 +141,7 @@ namespace clbl {
                 detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
-                return free_function::template
+                return function_pointer::template
                     wrap<default_>(std::forward<T>(t));
             }
 
@@ -148,7 +149,7 @@ namespace clbl {
             detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
-                return free_function_reference::template
+                return function_reference::template
                     wrap<default_>(std::forward<T>(t));
             }
             

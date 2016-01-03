@@ -67,10 +67,6 @@ namespace clbl {
         inline pmf_wrapper_slim(const my_type& other) = default;
         inline pmf_wrapper_slim(my_type&& other) = default;
 
-        inline pmf_wrapper_slim(volatile my_type& other)
-            : data(other.data)
-        {}
-
         inline pmf_wrapper_slim(const volatile my_type& other)
             : data(other.data)
         {}

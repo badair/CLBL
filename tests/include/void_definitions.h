@@ -35,8 +35,10 @@ namespace clbl { namespace tests {
     namespace test_id { std::string volatile_void_struct_op = "volatile_void_struct::operator()() volatile"; }
 
     struct volatile_void_struct {
-        inline volatile_void_struct() {}
-        inline volatile_void_struct(const volatile_void_struct&) {}
+        inline volatile_void_struct() = default;
+        inline volatile_void_struct(const volatile_void_struct&) = default;
+        inline volatile_void_struct(volatile_void_struct&&) = default;
+        inline volatile_void_struct(const volatile volatile_void_struct&) {}
         inline std::string func() volatile { return test_id::volatile_void_struct_func; };
         inline std::string operator()() volatile { return test_id::volatile_void_struct_op; };
     };

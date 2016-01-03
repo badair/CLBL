@@ -32,7 +32,7 @@ namespace clbl {
             using decayed_fn = member_function_decay<member_fn_type>;
             using wrapper = pmf_wrapper_slim<function_object,
                 cv_qualifiers, no_ref<T>, member_fn_type, &no_ref<T>::operator(), decayed_fn>;
-            return wrapper{ std::forward<T>(t)};
+            return wrapper{ std::forward<T>(t) };
         }
 
         template<qualify_flags Flags, typename Invocation>
