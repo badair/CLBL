@@ -42,6 +42,12 @@ namespace clbl {
     wrappers for anything that is callable.
     */
 
+    template<typename T, typename... Args>
+    inline constexpr auto fwrap(T&& t, Args&&... args);
+
+    template<typename T>
+    inline constexpr auto fwrap(T&& t);
+    
     namespace detail {
 
         template<typename T> 
@@ -111,174 +117,240 @@ namespace clbl {
                                                                         && is_ptr 
                                                                         &&  ptr_is_ambiguous;
         };
+
+        template<typename U>
+        struct fwrap_t {
+
+            /********************
+            free function pointer
+            *********************/
+
+            #ifdef CLBL_DOCUMENTATION_BUILD
+            //! @addtogroup ffwrapping Wrapping free functions
+            //! clbl::fwrap lets you wrap free functions. See also @ref fwrap.h
+            //! Example
+            //! -------
+            //! @include example/fwrap_free_function_pointer.cpp
+
+            //! wrap a free function pointer.
+            inline constexpr auto fwrap(free_function_pointer f);
+            #else
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return free_function::template
+                    wrap<default_>(std::forward<T>(t));
+            }
+
+            template<typename T = U, std::enable_if_t<
+            detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return free_function_reference::template
+                    wrap<default_>(std::forward<T>(t));
+            }
+            
+            #endif
+
+
+            /***********************************************
+            Pointer to object with a member function pointer
+            ************************************************/
+
+            #ifdef CLBL_DOCUMENTATION_BUILD
+            //! @addtogroup mfwrapping Wrapping member functions
+            //! clbl::fwrap lets you wrap a pointer-to-member-function bound 
+            //! to an object. The following example shows all the ways you can
+            //! do this in CLBL. See also @ref fwrap.h
+            //! Example
+            //! -------
+            //! @include example/fwrap_member_function_pointer.cpp
+
+            //! Wrap a pointer-to-member-function, binding an object via raw 
+            //! pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
+            inline constexpr auto fwrap(object o, pointer_to_member_function p);
+            #else
+
+            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
+                && detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t, TMemberFnPtr member_fn_ptr) const {
+                return member_function_with_pointer_to_object::template
+                    wrap<default_>(member_fn_ptr, std::forward<T>(t));
+            }
+
+
+            /**********************************
+            Object with member function pointer
+            ***********************************/
+
+            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
+                && !detail::sfinae_switch<T>::is_ptr 
+                && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t, TMemberFnPtr member_fn_ptr) const {
+                return member_function_with_object::template
+                    wrap<default_>(member_fn_ptr, std::forward<T>(t));
+            }
+
+            #endif
+
+
+            /********************************
+            Pointer to object with operator()
+            *********************************/
+
+            #ifdef CLBL_DOCUMENTATION_BUILD
+            //! @addtogroup fowrapping Wrapping callable objects
+            //! clbl::fwrap lets you wrap a callable object via raw pointer, 
+            //! smart pointer, copy, rvalue reference, or ref-wrapper.
+            //! See also @ref fwrap.h
+            //! Example
+            //! -------
+            //! @include example/fwrap_function_object.cpp
+
+            //! Wrap a callable object via raw pointer, smart pointer, copy, 
+            //! rvalue reference, or ref-wrapper.
+            inline constexpr auto fwrap(object o);
+            #else
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return pointer_to_function_object::template
+                    wrap<default_>(std::forward<T>(t));
+            }
+
+            /*****************************************************************
+            Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
+            ******************************************************************/
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return pointer_to_function_object::ambiguous::template
+                    wrap<default_>(std::forward<T>(t));
+            }
+
+            /**********************
+            Object with operator()
+            ***********************/
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::function_object_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return function_object::template
+                    wrap<default_>(std::forward<T>(t));
+            }
+
+            /******************************************************
+            Object with AMBIGUOUS (templated/overloaded) operator()
+            *******************************************************/
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::ambiguous_function_object_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return function_object::ambiguous::template 
+                    wrap<default_>(std::forward<T>(t));
+            }
+
+            #endif
+
+            /*********************
+            std::reference_wrapper
+            **********************/
+
+            #ifndef CLBL_EXCLUDE_FUNCTIONAL
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t) const {
+                return fwrap(std::addressof(t.get()));
+            }
+            #endif
+
+            /**************************************************
+            std::reference_wrapper with member function pointer
+            ***************************************************/
+
+            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
+                && detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(T&& t, TMemberFnPtr ptr) const {
+                return   fwrap(std::addressof(t.get()), ptr);
+            }
+
+                /*********************************************
+            preempting recursive attempts at CLBL wrappers
+            **********************************************/
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::is_clbl
+                && !can_dereference<T>, dummy>* = nullptr>
+            inline constexpr auto
+            operator()(T&& t) const {
+                using callable = no_ref<T>;
+                return callable::creator::template
+                    wrap_data<callable::cv_flags | cv<callable> >(t.data);
+            }
+
+            template<typename T = U, std::enable_if_t<
+                detail::sfinae_switch<T>::is_clbl
+                && can_dereference<T>, dummy>* = nullptr>
+            inline constexpr auto
+            operator()(T&& t) const {
+                using callable = no_ref<decltype(*t)>;
+                return callable::creator::template
+                    wrap_data<callable::cv_flags | cv<callable> >(t -> data);
+            }
+        };
+        
+        /*
+        template<typename T, typename... Args>
+        struct fwrap_t<T(Args...)> {
+            
+            template<typename ActualReturnType>
+            inline constexpr auto
+            operator()(ActualReturnType(&&function_reference)(Args...)) const {
+                return fwrap<ActualReturnType(&&)(Args...)>(function_reference);
+            }
+        };
+
+        template<typename T, typename... Args>
+        struct fwrap_t<T(Args..., ...)> {
+            template<typename ActualReturnType>
+            inline constexpr auto
+            operator()(ActualReturnType(&&function_reference)(Args..., ...)) const {
+                return fwrap<ActualReturnType(&&)(Args..., ...)>(function_reference);
+            }
+        };*/
+        
+        template<typename T>
+        constexpr fwrap_t<T> fwrap_v{};
     }
 
-    /********************
-    free function pointer
-    *********************/
-
-    #ifdef CLBL_DOCUMENTATION_BUILD
-    //! @addtogroup ffwrapping Wrapping free functions
-    //! clbl::fwrap lets you wrap free functions. See also @ref fwrap.h
-    //! Example
-    //! -------
-    //! @include example/fwrap_free_function_pointer.cpp
-
-    //! wrap a free function pointer.
-    inline constexpr auto fwrap(free_function_pointer f);
-    #else
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return free_function::template
-            wrap<default_>(std::forward<T>(t));
+    template<typename T, typename... Args>
+    inline constexpr auto fwrap(T&& t, Args&&... args) {
+        return detail::fwrap_v<T>(std::forward<T>(t), std::forward<Args>(args)...);
     }
 
-    template<typename T, std::enable_if_t<
-    detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return free_function_reference::template
-            wrap<default_>(std::forward<T>(t));
+    template<typename T>
+    inline constexpr auto fwrap(T&& t) {
+        return detail::fwrap_v<T>(std::forward<T>(t));
     }
     
-    #endif
-
-
-    /***********************************************
-    Pointer to object with a member function pointer
-    ************************************************/
-
-    #ifdef CLBL_DOCUMENTATION_BUILD
-    //! @addtogroup mfwrapping Wrapping member functions
-    //! clbl::fwrap lets you wrap a pointer-to-member-function bound 
-    //! to an object. The following example shows all the ways you can
-    //! do this in CLBL. See also @ref fwrap.h
-    //! Example
-    //! -------
-    //! @include example/fwrap_member_function_pointer.cpp
-
-    //! Wrap a pointer-to-member-function, binding an object via raw 
-    //! pointer, smart pointer, copy, rvalue reference, or ref-wrapper.
-    inline constexpr auto fwrap(object o, pointer_to_member_function p);
-    #else
-
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<
-        detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
-        && detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
-        return member_function_with_pointer_to_object::template
-            wrap<default_>(member_fn_ptr, std::forward<T>(t));
-    }
-
-
-    /**********************************
-    Object with member function pointer
-    ***********************************/
-
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<
-        detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
-        && !detail::sfinae_switch<T>::is_ptr 
-        && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t, TMemberFnPtr member_fn_ptr) {
-        return member_function_with_object::template
-            wrap<default_>(member_fn_ptr, std::forward<T>(t));
-    }
-
-    #endif
-
-
-    /********************************
-    Pointer to object with operator()
-    *********************************/
-
-    #ifdef CLBL_DOCUMENTATION_BUILD
-    //! @addtogroup fowrapping Wrapping callable objects
-    //! clbl::fwrap lets you wrap a callable object via raw pointer, 
-    //! smart pointer, copy, rvalue reference, or ref-wrapper.
-    //! See also @ref fwrap.h
-    //! Example
-    //! -------
-    //! @include example/fwrap_function_object.cpp
-
-    //! Wrap a callable object via raw pointer, smart pointer, copy, 
-    //! rvalue reference, or ref-wrapper.
-    inline constexpr auto fwrap(object o);
-    #else
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return pointer_to_function_object::template
-            wrap<default_>(std::forward<T>(t));
-    }
-
-    /*****************************************************************
-    Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
-    ******************************************************************/
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return pointer_to_function_object::ambiguous::template
-            wrap<default_>(std::forward<T>(t));
-    }
-
-    /**********************
-    Object with operator()
-    ***********************/
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::function_object_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return function_object::template
-            wrap<default_>(std::forward<T>(t));
-    }
-
-    /******************************************************
-    Object with AMBIGUOUS (templated/overloaded) operator()
-    *******************************************************/
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::ambiguous_function_object_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return function_object::ambiguous::template 
-            wrap<default_>(std::forward<T>(t));
-    }
-
-    #endif
-
-    /*********************
-    std::reference_wrapper
-    **********************/
-
-    #ifndef CLBL_EXCLUDE_FUNCTIONAL
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t) {
-        return fwrap(std::addressof(t.get()));
-    }
-    #endif
-
-    /**************************************************
-    std::reference_wrapper with member function pointer
-    ***************************************************/
-
-    template<typename T, typename TMemberFnPtr, std::enable_if_t<
-        detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
-        && detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-    inline constexpr auto 
-    fwrap(T&& t, TMemberFnPtr ptr) {
-        return   fwrap(std::addressof(t.get()), ptr);
+    template<typename T, typename Specialization>
+    inline constexpr auto fwrap(T&& t) {
+        return detail::fwrap_v<Specialization>(std::forward<T>(t));
     }
 
     /*************************************************************************************
@@ -333,30 +405,6 @@ namespace clbl {
     #endif
 
     //todo size tests, reference_wrapper tests, CLBL_PMFWRAP tests
-
-    /*********************************************
-    preempting recursive attempts at CLBL wrappers
-    **********************************************/
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::is_clbl
-        && !can_dereference<T>, dummy>* = nullptr>
-    inline constexpr auto
-    fwrap(T&& t) {
-        using callable = no_ref<T>;
-        return callable::creator::template
-            wrap_data<callable::cv_flags | cv<callable> >(t.data);
-    }
-
-    template<typename T, std::enable_if_t<
-        detail::sfinae_switch<T>::is_clbl
-        && can_dereference<T>, dummy>* = nullptr>
-    inline constexpr auto
-        fwrap(T&& t) {
-        using callable = no_ref<decltype(*t)>;
-        return callable::creator::template
-            wrap_data<callable::cv_flags | cv<callable> >(t -> data);
-    }
 }
 
 #endif

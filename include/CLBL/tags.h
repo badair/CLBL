@@ -28,10 +28,10 @@ namespace clbl {
     dummy is used whenever we need a type, but don't care what it is
     */
     struct dummy {};
-    
     struct auto_ {};
     struct ambiguous_return {};
     struct ambiguous_args {};
+
     using ambiguous_type = ambiguous_return(ambiguous_args);
 
     struct free_fn_tag {};
