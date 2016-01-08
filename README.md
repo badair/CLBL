@@ -4,13 +4,17 @@
 
 [![Join the chat at https://gitter.im/badair/CLBL](https://badges.gitter.im/badair/CLBL.svg)](https://gitter.im/badair/CLBL?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-</a> <a target="_blank" href="http://melpon.org/wandbox/permlink/CGFpYjm7071gC7JC">![Try it online][badge.wandbox]</a>
+</a> <a target="_blank" href="http://melpon.org/wandbox/permlink/TlioDiz6yYNxZFnv">![Try it online][badge.wandbox]</a>
 
-CLBL is a generic C++14 header-only library for callable types that provides a uniform interface for wrapping callable types, manual overload resolution tools for operator(), and perfectly-forwarded conversions to std::function and similar type-erased delegates (including implicit for unambiguous calls, which means you don't have to specify the signature). This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
+CLBL is a C++14 header-only library for callable types. 
 
-1. Provide callable wrappers for callable types with minimal runtime overhead (if any), in a fashion similar to 'std::bind'. Note: "Minimal runtime overhead" relies on the compiler to perform <a href="https://en.wikipedia.org/wiki/Return_value_optimization">RVO</a>. Because everything is inlined and most things are `constexpr`, RVO is relatively trivial for compilers. (Benchmarks coming soon)
+[CLBL User Manual][CLBL.Docs] (incomplete, under construction)
 
-2. Use a uniform interface for wrapping anything callable  - `clbl::fwrap` is a heavily overloaded function that accepts function pointers, function object lvalues/rvalues, std::reference_wrapper, and PMFs (pointer-to-member functions).
+This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
+
+1. Provide callable wrappers for callable types with minimal/no runtime overhead, in a fashion similar to 'std::bind'. Note: "Minimal/no runtime overhead" relies on the compiler to perform <a href="https://en.wikipedia.org/wiki/Return_value_optimization">RVO</a>. Because everything is inlined and most things are `constexpr`, RVO is relatively trivial for compilers. (Benchmarks and codegen comparisons coming soon)
+
+2. Provide a uniform interface for wrapping anything callable  - `clbl::fwrap` is (conceptually) a heavily overloaded function that accepts function pointers, function object lvalues/rvalues, std::reference_wrapper, and PMFs (pointer-to-member functions).
 
 3. Deduce signatures for unambiguous callable types, and provide metaprogramming tools for manipulating them
 
@@ -22,27 +26,29 @@ CLBL is a generic C++14 header-only library for callable types that provides a u
             type-erased delegate (even in copy initialization)
         - perfect forwarding to the original callable is preserved
 
-CLBL is a shortening of the word "callable."
+6. Fast compilation - CLBL's internal design favors code repetition in some places for this reason
 
-CLBL has no dependencies outside the standard library. However, Clang is currently the only compiler known to work with CLBL, due to reliance on generic lambdas and variable templates. CLBL is being developed using the LLVM-vs2014 toolkit in Visual Studio 2015.
+CLBL is a grotesque contraction of the word "callable."
+
+CLBL has no dependencies outside the standard library. However, Clang is currently the only compiler known to support all the C++14 features used in CLBL, but g++ will be supported soon. CLBL is being developed using the LLVM-vs2014 toolkit in Visual Studio 2015, with continuous integration for Linux/Clang and OSX/XCode Clang.
 
 CLBL only includes 4 standard library headers:
 
-1. `<functional>` - only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts a template template parameter. Can be excluded by defining `CLBL_EXCLUDE_FUNCTIONAL`.
+1. `<functional>` - (optional) only used to make an interface for std::reference_wrapper. The aforementioned features regarding `std::function` are implicit,  because `clbl::convert_to` accepts a template template parameter. Can be excluded by defining `CLBL_EXCLUDE_FUNCTIONAL`.
 
 2. `<tuple>` - only used to make argument types easily accessible for metaprogrammers
 
 3. `<type_traits>` - used pervasively for type-level compile-time computations
 
-4. `<utility>` - for std::forward
+4. `<utility>` - for std::forward, et al.
 
 [Quick example - build and run online][example.Wandbox] 
 
 There are more documented examples in the CLBL/examples folder, and more are being added regularly.
 
-[CLBL User Manual][CLBL.Docs]
-
 CLBL is not yet stable, and should not yet be used in production code. More features are coming soon.
+
+I'm writing this library in my spare time - I would 
 
 ## License
 Please see [LICENSE.md](LICENSE.md).
@@ -51,4 +57,4 @@ Please see [LICENSE.md](LICENSE.md).
 <!-- Links -->
 [CLBL.Docs]: https://badair.github.io/CLBL/
 [badge.Wandbox]: https://img.shields.io/badge/try%20it-online-blue.svg
-[example.Wandbox]: http://melpon.org/wandbox/permlink/CGFpYjm7071gC7JC
+[example.Wandbox]: http://melpon.org/wandbox/permlink/TlioDiz6yYNxZFnv
