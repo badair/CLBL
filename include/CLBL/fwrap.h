@@ -31,6 +31,8 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/wrap/function_reference.h>
 #include <CLBL/wrap/function_object.h>
 #include <CLBL/wrap/pointer_to_function_object.h>
+#include <CLBL/wrap/member_function.h>
+#include <CLBL/wrap/universal_member_function.h>
 #include <CLBL/wrap/member_function_with_object.h>
 #include <CLBL/wrap/member_function_with_object_slim.h>
 #include <CLBL/wrap/member_function_with_pointer_to_object.h>
@@ -50,7 +52,10 @@ namespace clbl {
     inline constexpr auto fwrap(T&& t);
     
     namespace detail {
-
+    
+        template<qualify_flags Flags>
+        using flags_t = std::integral_constant<qualify_flags, Flags>;
+    
         template<typename T> 
         struct sfinae_switch {
         private:
@@ -137,7 +142,7 @@ namespace clbl {
             inline constexpr auto fwrap(free_function_pointer f);
             #else
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -145,7 +150,7 @@ namespace clbl {
                     wrap<default_>(std::forward<T>(t));
             }
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
             detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -154,8 +159,7 @@ namespace clbl {
             }
             
             #endif
-
-
+            
             /***********************************************
             Pointer to object with a member function pointer
             ************************************************/
@@ -174,7 +178,7 @@ namespace clbl {
             inline constexpr auto fwrap(object o, pointer_to_member_function p);
             #else
 
-            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+            template<typename T, typename TMemberFnPtr, std::enable_if_t<
                 detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
                 && detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
             inline constexpr auto 
@@ -188,7 +192,7 @@ namespace clbl {
             Object with member function pointer
             ***********************************/
 
-            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+            template<typename T, typename TMemberFnPtr, std::enable_if_t<
                 detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
                 && !detail::sfinae_switch<T>::is_ptr 
                 && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
@@ -200,7 +204,19 @@ namespace clbl {
 
             #endif
 
-
+            /***********************
+            Member function pointer
+            ************************/
+            
+            template<typename MemberFnPtr, std::enable_if_t<
+                detail::sfinae_switch<no_ref<MemberFnPtr> >::member_function_ptr_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(MemberFnPtr&& member_fn_ptr) const {
+                return universal_member_function::template
+                    wrap<std::remove_cv_t<no_ref<MemberFnPtr> >  >(
+                    std::forward<MemberFnPtr>(member_fn_ptr));
+            }
+            
             /********************************
             Pointer to object with operator()
             *********************************/
@@ -219,7 +235,7 @@ namespace clbl {
             inline constexpr auto fwrap(object o);
             #else
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -231,7 +247,7 @@ namespace clbl {
             Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
             ******************************************************************/
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -243,7 +259,7 @@ namespace clbl {
             Object with operator()
             ***********************/
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::function_object_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -255,7 +271,7 @@ namespace clbl {
             Object with AMBIGUOUS (templated/overloaded) operator()
             *******************************************************/
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::ambiguous_function_object_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -270,7 +286,7 @@ namespace clbl {
             **********************/
 
             #ifndef CLBL_EXCLUDE_FUNCTIONAL
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -282,7 +298,7 @@ namespace clbl {
             std::reference_wrapper with member function pointer
             ***************************************************/
 
-            template<typename T = U, typename TMemberFnPtr, std::enable_if_t<
+            template<typename T, typename TMemberFnPtr, std::enable_if_t<
                 detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
                 && detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
             inline constexpr auto 
@@ -290,11 +306,11 @@ namespace clbl {
                 return   fwrap(std::addressof(t.get()), ptr);
             }
 
-                /*********************************************
+            /*********************************************
             preempting recursive attempts at CLBL wrappers
             **********************************************/
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::is_clbl
                 && !can_dereference<T>, dummy>* = nullptr>
             inline constexpr auto
@@ -304,7 +320,7 @@ namespace clbl {
                     wrap_data<callable::cv_flags | cv<callable> >(t.data);
             }
 
-            template<typename T = U, std::enable_if_t<
+            template<typename T, std::enable_if_t<
                 detail::sfinae_switch<T>::is_clbl
                 && can_dereference<T>, dummy>* = nullptr>
             inline constexpr auto
@@ -312,6 +328,18 @@ namespace clbl {
                 using callable = no_ref<decltype(*t)>;
                 return callable::creator::template
                     wrap_data<callable::cv_flags | cv<callable> >(t -> data);
+            }
+        };
+        
+        template<qualify_flags Flags>
+        struct fwrap_t<detail::flags_t<Flags> > {
+            template<typename MemberFnPtr, std::enable_if_t<
+                detail::sfinae_switch<no_ref<MemberFnPtr> >::member_function_ptr_case, dummy>* = nullptr>
+            inline constexpr auto 
+            operator()(MemberFnPtr&& member_fn_ptr) const {
+                return member_function::template
+                    wrap<Flags, std::remove_cv_t<no_ref<MemberFnPtr> >  >(
+                    std::forward<MemberFnPtr>(member_fn_ptr));
             }
         };
         
@@ -347,6 +375,11 @@ namespace clbl {
     template<typename T>
     inline constexpr auto fwrap(T&& t) {
         return detail::fwrap_v<T>(std::forward<T>(t));
+    }
+    
+    template<typename T, qualify_flags flags>
+    inline constexpr auto fwrap(T&& t) {
+        return detail::fwrap_v<detail::flags_t<flags> >(std::forward<T>(t));
     }
     
     template<typename T, typename Specialization>

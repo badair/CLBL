@@ -93,31 +93,25 @@ namespace clbl {
         using the preprocessor to spam template specializations of all 
         CV permutations - there is no other way
         */
-
-#define __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, cv_present) \
-        template<typename Callable> \
-        inline constexpr auto \
-        operator()(cv_present Callable& c) const { \
-            constexpr qualify_flags requested = cv<cv_requested dummy>; \
-            constexpr qualify_flags present = cv<cv_present dummy>; \
-            using C = no_ref<Callable>; \
-            using underlying_type = typename C::underlying_type; \
-            using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
-                                decltype(harden_cast<(requested | present)>(c)(std::declval<Args>()...)), \
-                                Return>; \
-            using abominable_fn_type = return_type(Args...) cv_requested; \
-            using requested_pmf_type = abominable_fn_type underlying_type::*; \
-            using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
-            return disambiguator::template wrap_data<requested | present>(c.data); \
-        }
             
 #define __CLBL_SPECIALIZE_HARDEN_T(cv_requested) \
         template<typename Return, typename... Args> \
             struct harden_t<Return(Args...) cv_requested> { \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, __CLBL_NO_CV) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, volatile) \
-            __CLBL_DEFINE_HARDEN_T_OVERLOADS(cv_requested, const volatile) \
+                template<typename Callable> \
+                inline constexpr auto \
+                operator()(Callable&& c) const { \
+                    constexpr qualify_flags requested = cv<cv_requested dummy>; \
+                    constexpr qualify_flags present = cv<Callable>; \
+                    using C = no_ref<Callable>; \
+                    using underlying_type = typename C::underlying_type; \
+                    using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
+                                        decltype(harden_cast<(requested | present)>(std::forward<Callable>(c))(std::declval<Args>()...)), \
+                                        Return>; \
+                    using abominable_fn_type = return_type(Args...) cv_requested; \
+                    using requested_pmf_type = abominable_fn_type underlying_type::*; \
+                    using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
+                    return disambiguator::template wrap_data<requested | present>(c.data); \
+                } \
         }
 
         //ellipses and ref qualifiers not yet implemented... Does anyone care?

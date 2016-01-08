@@ -31,59 +31,72 @@ namespace clbl {
     template<>
     struct qualifiers<const_> {
         template<typename T>
-        using apply = const T;
+        using apply = std::add_const_t<T>;
     };
 
     template<>
     struct qualifiers<volatile_> {
         template<typename T>
-        using apply = volatile T;
+        using apply = std::add_volatile_t<T>;
     };
 
     template<>
     struct qualifiers<const_ | volatile_> {
         template<typename T>
-        using apply = const volatile T;
+        using apply = std::add_cv_t<T>;
     };
 
     template<>
     struct qualifiers<lvalue_reference_> {
         template<typename T>
-        using apply = T&;
+        using apply = std::add_lvalue_reference_t<T>;
     };
 
     template<>
     struct qualifiers<const_ | lvalue_reference_> {
         template<typename T>
-        using apply = const T&;
+        using apply = std::add_lvalue_reference_t<std::add_const_t<T> >;
     };
 
     template<>
     struct qualifiers<volatile_ | lvalue_reference_> {
         template<typename T>
-        using apply = volatile T&;
+        using apply = std::add_lvalue_reference_t<std::add_volatile_t<T> >;
     };
 
     template<>
     struct qualifiers<const_ | volatile_ | lvalue_reference_> {
         template<typename T>
-        using apply = const volatile T&;
+        using apply = std::add_lvalue_reference_t<std::add_cv_t<T> >;
     };
 
-    using no_q = qualifiers<default_>;
-    using const_q = qualifiers<const_>;
-    using volatile_q = qualifiers<volatile_>;
-    using const_volatile_q = qualifiers<const_ | volatile_>;
+        template<>
+    struct qualifiers<rvalue_reference_> {
+        template<typename T>
+        using apply = std::add_rvalue_reference_t<T>;
+    };
 
-    using ref_q = qualifiers<default_ | lvalue_reference_>;
-    using const_ref_q = qualifiers<const_ | lvalue_reference_>;
-    using volatile_ref_q = qualifiers<volatile_ | lvalue_reference_>;
-    using const_volatile_ref_q = qualifiers<volatile_ | lvalue_reference_>;
+    template<>
+    struct qualifiers<const_ | rvalue_reference_> {
+        template<typename T>
+        using apply = std::add_rvalue_reference_t<std::add_const_t<T> >;
+    };
 
+    template<>
+    struct qualifiers<volatile_ | rvalue_reference_> {
+        template<typename T>
+        using apply = std::add_rvalue_reference_t<std::add_volatile_t<T> >;
+    };
+
+    template<>
+    struct qualifiers<const_ | volatile_ | rvalue_reference_> {
+        template<typename T>
+        using apply = std::add_rvalue_reference_t<std::add_cv_t<T> >;
+    };
+    
     namespace apply_qualifiers_detail {
-        template<typename U, qualify_flags Flags>
+        template<typename T, qualify_flags Flags>
         struct apply_qualifiers_t {
-            using T = no_ref<U>;
             using type = typename qualifiers<Flags>::template apply<T>;
         };
     }
@@ -104,6 +117,14 @@ namespace clbl {
     template<typename T, qualify_flags Flags>
     using apply_qualifiers = typename apply_qualifiers_detail::apply_qualifiers_t<T, Flags>::type;
 
+    template<qualify_flags Flags>
+    constexpr auto remove_reference = (Flags & ~rvalue_reference_) & ~rvalue_reference_;
+        
+    template<qualify_flags Flags>
+    constexpr auto default_reference = 
+        ((Flags & rvalue_reference_) == 0 
+        && (Flags & lvalue_reference_) == 0) ? (Flags | lvalue_reference_) : Flags;
+    
     #endif
 }
 

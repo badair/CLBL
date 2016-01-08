@@ -19,13 +19,16 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
+    template<typename T>
+    static constexpr auto ref_qualifiers = 
+        std::is_rvalue_reference<T>::value? rvalue_reference_ : lvalue_reference_;
+
     
     //! clbl::harden_cast is used internally to force desired qualify_flags on a reference
     template<qualify_flags CvFlags, typename Object>
-    inline constexpr auto 
-        harden_cast(Object&& o) 
-            -> apply_qualifiers<Object, CvFlags | cv<Object> | lvalue_reference_> {
-        return std::forward<Object>(o);
+    inline constexpr apply_qualifiers<std::remove_reference_t<Object>, CvFlags | cv<Object> | ref_qualifiers<Object> >
+    harden_cast(Object&& o) {
+        return  std::forward<Object>(o);
     }
 }
 

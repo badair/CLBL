@@ -47,6 +47,10 @@ struct foo {
     auto operator()() const volatile {
         return std::string{ "foo::operator()() const volatile" };
     }
+
+    foo() = default;
+    foo(const foo&) = default;
+    foo(const volatile foo&) {}
 };
 
 int main() {
@@ -122,9 +126,9 @@ int main() {
         clbl::ambiguous_return(clbl::ambiguous_args)>::value, "");
 
     /*
-    There is a little-known (and generally useless) valid C++ function type called an 
+    There is a little-known (and generally useless) valid C++ function type called an
     "abominable function type", which looks looks like a normal function
-    type (e.g. void(int, char) ) except that it is also cv-qualified and/or 
+    type (e.g. void(int, char) ) except that it is also cv-qualified and/or
     ref-qualified, like a member function. An abominable function type cannot be
     instantiated, but CLBL makes use of the information you can store in these
     types. Specifically, CLBL lets you disambiguate operator() by passing an
@@ -249,7 +253,7 @@ int main() {
 
         /*
         There is, however, one "gotcha" with by-value parameters when not explicitly
-        using clbl::forward in an std::function template argument: 
+        using clbl::forward in an std::function template argument:
         std::function<void(int, int, int&)> causes the first 2 arguments to be copied
         twice. To avoid this, you must either use "clbl::forward<Arg>" OR "const Arg&".
 

@@ -21,6 +21,7 @@ permutations with the preprocessor
 
 #define _______CLBL_NOTHING_ARGS(x)
 #define __CLBL_NO_CV _______CLBL_NOTHING_ARGS(x)
+#define __CLBL_COMMA ,
 
 namespace clbl {
 
@@ -29,11 +30,14 @@ namespace clbl {
     */
     struct dummy {};
     struct auto_ {};
-    struct ambiguous_return {};
-    struct ambiguous_args {};
+    
+    template<typename T>
+    struct universal_reference{ universal_reference() = delete; };
+    struct ambiguous_return { ambiguous_return() = delete; };
+    struct ambiguous_args { ambiguous_args() = delete; };
 
     using ambiguous_type = ambiguous_return(ambiguous_args);
-
+    
     struct free_fn_tag {};
     struct free_fn_ref_tag{};
     struct pmf_tag {};
