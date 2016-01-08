@@ -48,7 +48,7 @@ There are more documented examples in the CLBL/examples folder, and more are bei
 
 CLBL is not yet stable, and should not yet be used in production code. More features are coming soon.
 
-I'm writing this library in my spare time - I would 
+Feedback and criticism are highly desired!
 
 ## License
 Please see [LICENSE.md](LICENSE.md).
