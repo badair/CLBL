@@ -19,7 +19,7 @@ namespace clbl {
         auto has_clbl_tag_v = is_valid([](auto arg)-> typename decltype(arg)::clbl_tag{});
     }
 
-    /*
+    /* todo - move this to CLBL/type_traits.h
     clbl::is_clbl is a type trait to determine whether a type
     is a CLBL wrapper.
     */

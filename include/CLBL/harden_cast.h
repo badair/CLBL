@@ -13,22 +13,29 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <utility>
 
-#include <CLBL/apply_qualifiers.h>
+#include <CLBL/qualified_type.h>
 #include <CLBL/cv.h>
-#include <CLBL/qualify_flags.h>
+#include <CLBL/qflags.h>
 
 namespace clbl {
 
+    //todo move
+    template<typename T>
+    static constexpr auto reference_qualifiers = 
+    std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ : 
+        (std::is_lvalue_reference<T>::value ? qflags::lvalue_reference_ : qflags::default_);
+    
+    //todo what is this? rename and move
     template<typename T>
     static constexpr auto ref_qualifiers = 
-        std::is_rvalue_reference<T>::value? rvalue_reference_ : lvalue_reference_;
+        std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ : qflags::lvalue_reference_;
 
     
     //! clbl::harden_cast is used internally to force desired qualify_flags on a reference
-    template<qualify_flags CvFlags, typename Object>
-    inline constexpr apply_qualifiers<std::remove_reference_t<Object>, CvFlags | cv<Object> | ref_qualifiers<Object> >
+    template<qualify_flags QFlags, typename Object>
+    inline constexpr qualified_type<std::remove_reference_t<Object>, QFlags | cv<Object> | ref_qualifiers<Object> >
     harden_cast(Object&& o) {
-        return  std::forward<Object>(o);
+        return  static_cast<Object&&>(o);
     }
 }
 

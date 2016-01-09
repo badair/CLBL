@@ -11,7 +11,7 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FORWARDING_GLUE_H
 #define CLBL_FORWARDING_GLUE_H
 
-#include <CLBL/no_ref.h>
+#include <CLBL/type_traits.h>
 
 namespace clbl {
     template<typename Callable>
