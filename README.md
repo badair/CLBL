@@ -8,6 +8,10 @@
 
 CLBL is a C++14 header-only library for callable types. 
 
+Disclaimer: *All* existing documentation is incomplete and outdated. Quality documentation will be made available before version 0.1 release.
+
+Projected v0.1 release: May 1, 2016
+
 [CLBL User Manual][CLBL.Docs] (incomplete, under construction)
 
 This library is intended to be useful for both template metaprogrammers and general C++ programmers, with the following goals:
