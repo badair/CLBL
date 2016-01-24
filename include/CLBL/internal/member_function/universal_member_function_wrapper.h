@@ -16,34 +16,30 @@ Distributed under the Boost Software License, Version 1.0.
 #include <utility>
 
 #include <CLBL/cv.h>
+#include <CLBL/pmf.h>
 #include <CLBL/tags.h>
 #include <CLBL/forward.h>
 
 namespace clbl {
 
     //! wraps a PMF and takes a corresponding perfectly-forwarded object as the first argument.
-    template<typename, typename, typename Failure>
+
+    template<typename Creator, typename TMemberFnPtr>
     struct universal_member_function_wrapper {
-        static_assert(sizeof(Failure) < 0, "Not a member function.");
-    };
 
-    template<typename Creator, typename TMemberFnPtr,
-    typename T, typename Return, typename... Args>
-    struct universal_member_function_wrapper<Creator, TMemberFnPtr, Return(T::*)(Args...)> {
-
-        using decayed_member_fn_ptr = Return(T::*)(Args...);
-
+        using mf = pmf<TMemberFnPtr>;
+        using class_type = typename mf::class_type;
         static constexpr auto q_flags = qflags::default_;
-        using underlying_type = universal_reference<T>;
+        using underlying_type = universal_reference<class_type>;
 
-        using arg_types = std::tuple<underlying_type, Args...>;
+        using arg_types = typename mf::template prepend_args<std::tuple, underlying_type>;
         using clbl_tag = pmf_tag;
         using creator = Creator;
-        using forwarding_glue = Return(underlying_type, forward<Args>...);
+        using forwarding_glue = typename mf::template prepend_arg_to_forward_function<underlying_type>;
         using invocation_data_type = const no_ref<TMemberFnPtr>;
-        using this_t = universal_member_function_wrapper<Creator, TMemberFnPtr, decayed_member_fn_ptr>;
-        using return_type = Return;
-        using type = Return(underlying_type, Args...);
+        using this_t = universal_member_function_wrapper<Creator, TMemberFnPtr>;
+        using return_type = typename mf::return_type;
+        using type = typename mf::decay_to_function;
         
         template<qualify_flags Flags>
         using add_qualifiers = this_t;
@@ -67,13 +63,13 @@ namespace clbl {
             : data(other.data) {}
 
         template<typename U, typename... Fargs>
-        inline Return
+        inline return_type
         operator()(U&& object, Fargs&&... a) const {
             return ((object).*data)(a...);
         }
 
         template<typename U, typename... Fargs>
-        inline Return
+        inline return_type
         operator()(U&& object, Fargs&&... a) const volatile {
             return ((object).*data)(a...);
         }

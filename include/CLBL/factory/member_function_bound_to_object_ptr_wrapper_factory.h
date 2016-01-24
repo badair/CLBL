@@ -16,7 +16,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.h>
 #include <CLBL/cv.h>
 #include <CLBL/qflags.h>
-#include <CLBL/member_function_decay.h>
 #include <CLBL/internal/member_function/member_function_bound_to_object_ptr_wrapper.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_ptr_wrapper.h>
 
@@ -29,17 +28,15 @@ namespace clbl {
         template<qualify_flags Flags = qflags::default_, typename T, typename TMemberFnPtr>
         static inline constexpr auto
         wrap(TMemberFnPtr member_fn_ptr, T&& t) {
-            constexpr auto cv_qualifiers = cv<T> | Flags;
+            constexpr auto cv_qualifiers = cv_of<T> | Flags;
             using object_type = no_ref<decltype(*std::declval<T>())>;
             using ptr_type = no_ref<T>;
-            using decayed_fn = member_function_decay<TMemberFnPtr>;
             using wrapper = internal::member_function_bound_to_object_ptr_wrapper<
                                     this_t,
                                     cv_qualifiers,
                                     object_type,
                                     ptr_type,
-                                    TMemberFnPtr,
-                                    decayed_fn>;
+                                    TMemberFnPtr>;
             return wrapper{ member_fn_ptr, static_cast<T&&>(t) };
         }
 
@@ -59,18 +56,16 @@ namespace clbl {
                     typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv<T> | Flags;
+                constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using object_type = no_ref<decltype(*std::declval<T>())>;
                 using ptr_type = no_ref<T>;
-                using decayed_fn = member_function_decay<TMemberFnPtr>;
                 using wrapper = slim_member_function_bound_to_object_ptr_wrapper<
                                                 this_t, 
                                                 cv_qualifiers,
                                                 object_type,
                                                 ptr_type,
                                                 TMemberFnPtr,
-                                                Pmf,
-                                                decayed_fn>;
+                                                Pmf>;
                 return wrapper{ static_cast<T&&>(t) };
             }
 

@@ -89,6 +89,9 @@ namespace clbl {
             return value;
         }
     };
+
+    template<>
+    struct forward<void> {};
 }
 
 #endif

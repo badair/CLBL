@@ -19,21 +19,18 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
+    struct force_ref{};
     //todo move
-    template<typename T>
-    static constexpr auto reference_qualifiers = 
-    std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ : 
-        (std::is_lvalue_reference<T>::value ? qflags::lvalue_reference_ : qflags::default_);
-    
-    //todo what is this? rename and move
-    template<typename T>
-    static constexpr auto ref_qualifiers = 
-        std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ : qflags::lvalue_reference_;
-
+    template<typename T, typename E = void>
+    static constexpr auto ref_of = 
+    std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ 
+        : (std::is_lvalue_reference<T>::value ? qflags::lvalue_reference_ 
+            : (std::is_same<E, force_ref>::value? qflags::lvalue_reference_
+                    : qflags::default_));
     
     //! clbl::harden_cast is used internally to force desired qualify_flags on a reference
     template<qualify_flags QFlags, typename Object>
-    inline constexpr qualified_type<std::remove_reference_t<Object>, QFlags | cv<Object> | ref_qualifiers<Object> >
+    inline constexpr qualified_type<no_ref<Object>, QFlags | cv_of<Object> | ref_of<Object, force_ref> >
     harden_cast(Object&& o) {
         return  static_cast<Object&&>(o);
     }

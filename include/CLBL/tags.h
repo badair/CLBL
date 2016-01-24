@@ -31,6 +31,8 @@ namespace clbl {
     struct auto_ {};
     struct copy_ {};
     
+    struct invalid_type{};
+
     template<typename T>
     struct universal_reference{ universal_reference() = delete; };
     struct ambiguous_return { ambiguous_return() = delete; };

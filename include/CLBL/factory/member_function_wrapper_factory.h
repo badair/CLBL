@@ -20,52 +20,16 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/internal/member_function/member_function_wrapper.h>
 
 namespace clbl {
-    
-    namespace member_function_detail {
-
-        template<typename Creator, qualify_flags, typename Bad>
-        struct wrap_t {
-            static_assert(sizeof(Bad) < 0, "Not a member function.");
-        };
-        
-        #define CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(qualifiers) \
-        template<typename Creator, qualify_flags Flags, typename Return, typename T , typename... Args> \
-        struct wrap_t<Creator, Flags, Return(T::*)(Args...) qualifiers> { \
-            using member_fn_ptr = Return(T::*)(Args...) qualifiers; \
-            inline constexpr auto \
-            operator()(const member_fn_ptr& ptr) const { \
-                using wrapper = member_function_wrapper< \
-                Creator, Flags, member_fn_ptr, Return(T::*)(Args...)>; \
-                return wrapper{ ptr }; \
-            } \
-        }
-
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(CLBL_NO_CV);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(&);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(&&);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(volatile);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const volatile);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const &);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(volatile &);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const volatile &);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const &&);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(volatile &&);
-        CLBL_SPECIALIZE_MEMBER_FUNCTION_WRAP(const volatile &&);
-
-        template<typename Creator, qualify_flags Flags, typename MemberFnPtr>
-        constexpr wrap_t<Creator, Flags, no_ref<MemberFnPtr> > wrap {};
-    }
 
     struct member_function_wrapper_factory {
 
         using this_t = member_function_wrapper_factory;
 
-        template<qualify_flags Flags, typename MemberFnPtr>
+        template<qualify_flags Flags, typename Pmf>
         static inline constexpr auto
-        wrap(MemberFnPtr&& ptr){
-            return member_function_detail::wrap<
-                this_t, Flags, MemberFnPtr>(static_cast<MemberFnPtr&&>(ptr));
+        wrap(Pmf&& ptr){
+            return member_function_wrapper<
+                this_t, Flags, Pmf>(static_cast<Pmf&&>(ptr));
         }
 
         template<qualify_flags Flags, typename Invocation>

@@ -18,7 +18,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/qflags.h>
-#include <CLBL/member_function_decay.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_ptr_wrapper.h>
 #include <CLBL/internal/function_object/casted_function_object_ptr_wrapper.h>
 #include <CLBL/internal/function_object/ambiguous_function_object_ptr_wrapper.h>
@@ -35,19 +34,17 @@ namespace clbl {
 
         	CLBL_ASSERT_VALID_REFERENCE_FLAGS(Flags);
 
-            constexpr auto cv_qualifiers = cv<FunctionObjectPtr> | Flags;
+            constexpr auto cv_qualifiers = cv_of<FunctionObjectPtr> | Flags;
             using object_type = no_ref<decltype(*std::declval<FunctionObjectPtr>())>;
             using member_fn_type = decltype(&object_type::operator());
             using ptr_type = no_ref<FunctionObjectPtr>;
-            using decayed_fn = member_function_decay<member_fn_type>;
             using wrapper = slim_member_function_bound_to_object_ptr_wrapper<
                                 this_t, //todo may need to pass a different factory - test clbl::harden
                                 cv_qualifiers,          
                                 object_type,
                                 ptr_type,
                                 member_fn_type,
-                                &object_type::operator(),
-                                decayed_fn>;
+                                &object_type::operator()>;
             return wrapper{ static_cast<FunctionObjectPtr&&>(object_ptr) };
         }
 
@@ -67,7 +64,7 @@ namespace clbl {
 
         		CLBL_ASSERT_VALID_REFERENCE_FLAGS(Flags);
 
-                constexpr auto cv_qualifiers = cv<T> | Flags;
+                constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using wrapper = internal::ambiguous_function_object_ptr_wrapper<
                                     this_t,
                                     cv_qualifiers,
@@ -89,17 +86,15 @@ namespace clbl {
             template<qualify_flags Flags = qflags::default_, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv<T> | Flags;
+                constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using object_type = no_ref<decltype(*std::declval<no_ref<T> >())>;
                 using ptr_type = no_ref<T>;
-                using decayed_fn = member_function_decay<Pmf>;
                 using wrapper = internal::casted_function_object_ptr_wrapper<
                                     this_t,
                                     cv_qualifiers,
                                     object_type,
                                     ptr_type,
-                                    Pmf,
-                                    decayed_fn>;
+                                    Pmf>;
                 return wrapper{ static_cast<T&&>(t) };
             }
 

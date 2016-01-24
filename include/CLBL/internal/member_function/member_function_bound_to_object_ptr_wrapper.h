@@ -15,6 +15,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <tuple>
 #include <utility>
 #include <CLBL/cv.h>
+#include <CLBL/pmf.h>
 #include <CLBL/tags.h>
 #include <CLBL/forward.h>
 #include <CLBL/type_traits.h>
@@ -24,45 +25,33 @@ Distributed under the Boost Software License, Version 1.0.
 namespace clbl { namespace internal {
 
 //!Wraps a PMF and a pointer to an object with which to call it.
-template<typename Failure, qualify_flags, typename, typename, typename, typename>
-struct member_function_bound_to_object_ptr_wrapper {
-    static_assert(sizeof(Failure) < 0, "Not a member function.");
-};
 
 template<typename Creator,
         qualify_flags QFlags,
         typename UnderlyingType,
         typename TPtr,
-        typename TMemberFnPtr,
-        typename Return,
-        typename... Args>
-struct member_function_bound_to_object_ptr_wrapper<
-    Creator,
-    QFlags,
-    UnderlyingType,
-    TPtr,
-    TMemberFnPtr,
-    Return(std::remove_cv_t<UnderlyingType>::*)(Args...)> {
+        typename TMemberFnPtr>
+struct member_function_bound_to_object_ptr_wrapper {
     
-    using decayed_member_fn_ptr = Return(std::remove_cv_t<UnderlyingType>::*)(Args...);
+    using mf = pmf<TMemberFnPtr>;
 
-    using arg_types = std::tuple<Args...>;
+    using arg_types = typename mf::template unpack_args<std::tuple>;
     using clbl_tag = pmf_ptr_tag;
     using creator = Creator;
-    using forwarding_glue = Return(forward<Args>...);
+    using forwarding_glue = typename mf::forwarding_glue;
     using invocation_data_type = 
             member_function_bound_to_object_ptr_invocation_data<TPtr, TMemberFnPtr>;
 
     using this_t = member_function_bound_to_object_ptr_wrapper<
-            Creator, QFlags, UnderlyingType, TPtr, TMemberFnPtr, decayed_member_fn_ptr>;
+            Creator, QFlags, UnderlyingType, TPtr, TMemberFnPtr>;
 
-    using return_type = Return;
-    using type = Return(Args...);
+    using return_type = typename mf::return_type;
+    using type = typename mf::decay_to_function;
     using underlying_type = UnderlyingType;
 
     template<qualify_flags Flags>
     using add_qualifiers = member_function_bound_to_object_ptr_wrapper<
-            Creator, QFlags | Flags, UnderlyingType, TPtr, TMemberFnPtr, decayed_member_fn_ptr>;
+            Creator, QFlags | Flags, UnderlyingType, TPtr, TMemberFnPtr>;
 
     static constexpr auto q_flags = QFlags;
     static constexpr auto is_ambiguous = false;
@@ -91,28 +80,28 @@ struct member_function_bound_to_object_ptr_wrapper<
     member_function_bound_to_object_ptr_wrapper(this_t&& other) = default;
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) {
         return (harden_cast<q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) const {
         return (harden_cast<qflags::const_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) volatile {
         return (harden_cast<qflags::volatile_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) const volatile {
         return (harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);

@@ -18,7 +18,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/qflags.h>
-#include <CLBL/member_function_decay.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_wrapper.h>
 #include <CLBL/internal/function_object/ambiguous_function_object_wrapper.h>
 #include <CLBL/internal/function_object/casted_function_object_wrapper.h>
@@ -33,16 +32,14 @@ namespace clbl {
         static inline constexpr auto 
         wrap(T&& t) {
             
-            constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
+            constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
             using member_fn_type = decltype(&no_ref<T>::operator());
-            using decayed_fn = member_function_decay<member_fn_type>;
             using wrapper = internal::slim_member_function_bound_to_object_wrapper<
                                 this_t,
                                 cv_qualifiers,
                                 no_ref<T>,
                                 member_fn_type,
-                                &no_ref<T>::operator(),
-                                decayed_fn>;
+                                &no_ref<T>::operator()>;
             return wrapper{ static_cast<T&&>(t) };
         }
 
@@ -59,7 +56,7 @@ namespace clbl {
             template<qualify_flags Flags, typename FunctionObject>
             static inline constexpr auto
             wrap(FunctionObject&& f) {
-                constexpr auto cv_qualifiers = cv<FunctionObject> | Flags;
+                constexpr auto cv_qualifiers = cv_of<FunctionObject> | Flags;
                 using wrapper = internal::ambiguous_function_object_wrapper<
                                     this_t,
                                     cv_qualifiers,
@@ -81,14 +78,12 @@ namespace clbl {
             template<qualify_flags Flags, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
-                using decayed_fn = member_function_decay<Pmf>;
+                constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
                 using wrapper = internal::casted_function_object_wrapper<
                                     this_t,
                                     cv_qualifiers,
                                     no_ref<T>,
-                                    Pmf,
-                                    decayed_fn>;
+                                    Pmf>;
                 return wrapper{ static_cast<T&&>(t) };
             }
 

@@ -17,7 +17,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/forward.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/qflags.h>
-#include <CLBL/member_function_decay.h>
 #include <CLBL/internal/member_function/member_function_bound_to_object_wrapper.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_wrapper.h>
 
@@ -33,14 +32,12 @@ struct member_function_bound_to_object_wrapper_factory {
     template<qualify_flags Flags, typename T, typename Pmf>
     static inline constexpr auto 
     wrap(Pmf member_fn_ptr, T&& t) {
-        constexpr auto cv_qualifiers = cv<T> | Flags;
-        using decayed_fn = member_function_decay<no_ref<Pmf> >;
+        constexpr auto cv_qualifiers = cv_of<T> | Flags;
         using wrapper = internal::member_function_bound_to_object_wrapper<
                             this_t, 
                             cv_qualifiers,
                             no_ref<T>,
-                            no_ref<Pmf>,
-                            decayed_fn>;
+                            no_ref<Pmf> >;
         return wrapper{ member_fn_ptr, static_cast<T&&>(t) };
     }
 
@@ -62,15 +59,13 @@ struct member_function_bound_to_object_wrapper_factory {
             typename T>
         static inline constexpr auto
         wrap(T&& t) {
-            constexpr auto cv_qualifiers = cv<no_ref<T> > | Flags;
-            using decayed_fn = member_function_decay<no_ref<Pmf> >;
+            constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
             using wrapper = internal::slim_member_function_bound_to_object_wrapper<
                                 this_t, 
                                 cv_qualifiers,
                                 no_ref<T>,
                                 Pmf,
-                                Value,
-                                decayed_fn>;
+                                Value>;
             return wrapper{ static_cast<T&&>(t) };
         }
 

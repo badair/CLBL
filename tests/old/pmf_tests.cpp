@@ -6,6 +6,8 @@ Distributed under the Boost Software License, Version 1.0.
 (See accompanying file LICENSE.md or copy at http://boost.org/LICENSE_1_0.txt)
 
 */
+
+/*
 #include <iostream>
 #include <tuple>
 #include <functional>
@@ -105,14 +107,16 @@ constexpr auto is_same = std::is_same<T, U>::value;
 
 template<typename From, typename To>
 constexpr auto can_convert = std::is_convertible<From, To>::value;
+*/
 
 int main() {
 
+/*
     auto my_bar = bar{};
     auto my_bar2 = bar2{};
     {
-        /*auto f = fwrap<overload(bar::*)(const foo&) &>(&bar::func);
-        assert(f(bar{}, foo{}) == overload::const_lref);*/
+        auto f = fwrap<overload(bar::*)(const foo&) &>(&bar::func);
+        assert(f(bar{}, foo{}) == overload::const_lref);
     }
     {
         auto f = pmf::define<overload(const foo&) const &>::wrap<bar>(&bar::func);
@@ -138,6 +142,7 @@ int main() {
         static_assert(is_same<pmf::decay<wrapper>, overload(bar2::*)(const foo&)>, "");
         static_assert(is_same<pmf::type<wrapper>, overload(bar2::*)(const foo&) const &&>, "");
     }
-
+*/
+    
     return 0;
 }

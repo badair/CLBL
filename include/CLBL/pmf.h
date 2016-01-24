@@ -2,61 +2,77 @@
 #define CLBL_PMF_H
 
 #include <CLBL/tags.h>
+#include <CLBL/forward.h>
 #include <CLBL/qualified_type.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/qflags.h>
 
 namespace clbl {
-namespace pmf {
-    template<typename T>
-    struct define { static_assert(sizeof(T) < 0, "invalid function type"); };
 
-#define CLBL_SPECIALIZE_PMF(qualifiers) \
-    template<typename Return, typename... Args> \
-    struct define<Return(Args...) qualifiers> { \
-        static constexpr auto flags = cv<dummy qualifiers> | ref_qualifiers<dummy qualifiers>; \
-        using return_type = Return; \
-        using arg_types = std::tuple<Args...>; \
-        using abominable_type = Return(Args...) qualifiers; \
-        template<typename T> \
-        using apply_class = Return(T::*)(Args...) qualifiers; \
-        template<typename T> \
-        struct wrapper {}; \
-        template<typename T> \
-        struct wrapper<Return(T::*)(Args...) qualifiers> { \
-            static constexpr auto flags = cv<dummy qualifiers> | reference_qualifiers<dummy qualifiers>; \
-            using return_type = Return; \
-            using arg_types = std::tuple<Args...>; \
-            using abominable_type = Return(Args...) qualifiers; \
-            using type = Return(T::*)(Args...) qualifiers; \
-            using decay_type = Return(T::*)(Args...);\
-            const type value; \
-            inline wrapper(const type& val) : value(val) {}; \
-            inline operator type() const volatile { \
-                return value; \
-            } \
-            template<typename U, typename... Fargs> \
-            inline auto invoke(U&& u, Fargs... args) const volatile { \
-                return (static_cast<U&&>(u).*value)(static_cast<Fargs&&>(args)...); \
-            } \
-            using definition = define<Return(Args...) qualifiers>; \
-            template<typename U> \
-            static inline auto reseat(Return(U::*ptr)(Args...) qualifiers) { \
-                return wrapper<Return(U::*)(Args...) qualifiers>{ptr}; \
-            } \
-        }; \
-        template<typename T> \
-        using apply_wrapper = wrapper<Return(T::*)(Args...) qualifiers>; \
-        template<typename T> \
-        static inline constexpr auto \
-        disambiguate(Return(T::*ptr)(Args...) qualifiers) { \
-            return ptr; \
-        } \
-        template<typename T> \
-        static inline constexpr auto \
-        wrap(Return(T::*ptr)(Args...) qualifiers) { \
-            return apply_wrapper<T>{ptr}; \
-        } \
+template<typename T>
+struct pmf {
+    static_assert(sizeof(T) < 0, "invalid member function type");
+};
+    
+#define CLBL_SPECIALIZE_PMF(QUAL)                                                    \
+                                                                                     \
+    template<typename Return, typename T, typename... Args>                          \
+    struct pmf<Return(T::*)(Args...) QUAL> {                                         \
+                                                                                     \
+        static constexpr auto flags = cv_of<dummy QUAL> | ref_of<dummy QUAL>;        \
+        static constexpr auto cv_flags = cv_of<dummy QUAL>;                          \
+        static constexpr auto ref_flags = ref_of<dummy QUAL>;                        \
+        using return_type = Return;                                                  \
+        using arg_types = std::tuple<Args...>;                                       \
+        using type = Return(T::*)(Args...) QUAL;                                     \
+        using decay_type = Return(T::*)(Args...);                                    \
+        using decay_to_function = Return(Args...);                                   \
+        using abominable_type = Return(Args...) QUAL;                                \
+        using forwarding_glue = Return(forward<Args>...);                            \
+        using class_type = T;                                                        \
+                                                                                     \
+        template<typename Callable>                                                  \
+        static auto unevaluated_invoke_with_args_declval(Callable&& c)               \
+            -> decltype(std::declval<Callable>()(std::declval<Args>()...));          \
+                                                                                     \
+        template<typename U>                                                         \
+        using apply_class = Return(U::*)(Args...) QUAL;                              \
+                                                                                     \
+        template<typename NewReturn>                                                 \
+        using apply_return = NewReturn(T::*)(Args...) QUAL;                          \
+                                                                                     \
+        template<template<class...> class U>                                         \
+        using unpack_args = U<Args...>;                                              \
+                                                                                     \
+        template<template<class...> class U, template<class> class K>                \
+        using unpack_args_on = U<K<Args>...>;                                        \
+                                                                                     \
+        template<template<class...> class U, typename PrependArg>                    \
+        using prepend_arg = U<PrependArg, Args...>;                                  \
+                                                                                     \
+        template<template<class...> class U, typename... PrependArgs>                \
+        using prepend_args = U<PrependArgs..., Args...>;                             \
+                                                                                     \
+        template<template<class...> class U, template<class> class K, typename... P> \
+        using prepend_args_on = U<P..., forward<Args>...>;                           \
+                                                                                     \
+        template<typename AdaptReturn, typename... PrependArgs>                      \
+        using prepend_args_to_function = AdaptReturn(PrependArgs..., Args...);       \
+                                                                                     \
+        template<typename Ret, typename Pre>                                         \
+        using prepend_arg_to_forward_function = Ret(Pre, forward<Args>...);          \
+                                                                                     \
+        template<typename Ret, typename... Pre>                                      \
+        using prepend_args_to_forward_function = Ret(Pre..., forward<Args>...);      \
+                                                                                     \
+        template<typename AdaptReturn>                                               \
+        using unpack_args_to_function = AdaptReturn(Args...);                        \
+                                                                                     \
+        template<typename AdaptReturn>                                               \
+        using unpack_args_to_forward_function = AdaptReturn(forward<Args>...);       \
+                                                                                     \
+        template<typename AdaptReturn, typename AdaptClass>                          \
+        using unpack_args_to_member_function = AdaptReturn(AdaptClass::*)(Args...);  \
     }
 
     CLBL_SPECIALIZE_PMF(CLBL_NO_CV);
@@ -71,31 +87,6 @@ namespace pmf {
     CLBL_SPECIALIZE_PMF(const &&);
     CLBL_SPECIALIZE_PMF(volatile &&);
     CLBL_SPECIALIZE_PMF(const volatile &&);
-
-    template<typename Pmf>
-    using args = typename Pmf::arg_types;
-
-    template<typename Pmf>
-    constexpr auto qualifiers = Pmf::flags;
-
-    template<typename Pmf>
-    using return_type = typename Pmf::return_type;
-
-    template<typename Pmf>
-    using decay = typename Pmf::decay_type;
-
-    template<typename Pmf>
-    using abominable = typename Pmf::abominable_type;
-
-    template<typename Pmf>
-    using type = typename Pmf::type;
-
-    template<typename Pmf, typename... Args>
-    inline constexpr auto
-    invoke(Pmf&& p, Args&&... a) {
-        return p.invoke(static_cast<Args&&>(a)...);
-    }
-}
 }
 
 #endif
