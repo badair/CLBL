@@ -58,7 +58,6 @@ namespace clbl {
         using this_t = slim_member_function_bound_to_object_ptr_wrapper<
                 Creator, QFlags, UnderlyingType, TPtr, TMemberFnPtr, Pmf>;
 
-        using return_type = typename mf::return_type;
         using type = typename mf::decay_to_function;
         using underlying_type = UnderlyingType;
 
