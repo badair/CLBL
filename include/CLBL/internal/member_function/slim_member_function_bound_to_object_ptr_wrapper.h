@@ -18,7 +18,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/tags.h>
 #include <CLBL/pmf.h>
 #include <CLBL/type_traits.h>
-#include <CLBL/cv.h>
+#include <CLBL/cv_of.h>
 #include <CLBL/forward.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_ptr_invocation_data.h>

@@ -15,7 +15,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <CLBL/tags.h>
 #include <CLBL/type_traits.h>
-#include <CLBL/cv.h>
+#include <CLBL/cv_of.h>
 #include <CLBL/qflags.h>
 #include <CLBL/internal/member_function/member_function_wrapper.h>
 
