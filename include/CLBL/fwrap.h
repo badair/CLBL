@@ -24,7 +24,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/qflags.h>
 #include <CLBL/can_dereference.h>
 #include <CLBL/is_reference_wrapper.h>
-#include <CLBL/member_function_decay.h>
 #include <CLBL/has_normal_call_operator.h>
 #include <CLBL/factory/function_ptr_wrapper_factory.h>
 #include <CLBL/factory/function_reference_wrapper_factory.h>
@@ -355,7 +354,7 @@ namespace clbl {
             operator()(T&& t) const {
                 using callable = no_ref<T>;
                 return callable::creator::template
-                    wrap_data<callable::q_flags | cv<callable> >(t.data);
+                    wrap_data<callable::q_flags | cv_of<callable> >(t.data);
             }
 
             template<typename T, std::enable_if_t<
@@ -365,7 +364,7 @@ namespace clbl {
             operator()(T&& t) const {
                 using callable = no_ref<decltype(*t)>;
                 return callable::creator::template
-                    wrap_data<callable::q_flags | cv<callable> >((*t).data);
+                    wrap_data<callable::q_flags | cv_of<callable> >((*t).data);
             }
         };
         
@@ -391,7 +390,7 @@ namespace clbl {
             inline constexpr auto 
             operator()(MemberFnPtr&& member_fn_ptr) const {
                 return universal_member_function_wrapper_factory::template
-                    wrap<std::remove_cv_t<no_ref<MemberFnPtr> >  >(
+                    wrap<std::remove_cv_t<no_ref<MemberFnPtr> > >(
                     static_cast<MemberFnPtr&&>(member_fn_ptr));
             }
         };

@@ -11,50 +11,37 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_MEMBER_FUNCTION_BOUND_TO_OBJECT_WRAPPER_H
 #define CLBL_MEMBER_FUNCTION_BOUND_TO_OBJECT_WRAPPER_H
 
+#include <CLBL/pmf.h>
 #include <CLBL/internal/member_function/member_function_bound_to_object_invocation_data.h>
 
 namespace clbl { namespace internal {
 
 //! wraps a PMF and an object with which to call it.
-template<typename Failure, qualify_flags, typename, typename, typename>
-struct member_function_bound_to_object_wrapper {
-    static_assert(sizeof(Failure) < 0, "Not a member function.");
-};
-
 template<
     typename Creator,
     qualify_flags QFlags,
     typename T, 
-    typename Pmf,
-    typename Return,
-    typename... Args>
-struct member_function_bound_to_object_wrapper<
-        Creator,
-        QFlags,
-        T,
-        Pmf,
-        Return(std::remove_cv_t<T>::*)(Args...)> {
+    typename Pmf>
+struct member_function_bound_to_object_wrapper {
 
-    using decayed_member_fn_ptr = Return(std::remove_cv_t<T>::*)(Args...);
-
-    using arg_types = std::tuple<Args...>;
+    using mf = pmf<Pmf>;
+    using arg_types = typename mf::template unpack_args<std::tuple>;
     using clbl_tag = pmf_tag;
     using creator = Creator;
-    using forwarding_glue = Return(forward<Args>...);
-
+    using forwarding_glue = typename mf::forwarding_glue;
     using invocation_data_type = 
             member_function_bound_to_object_invocation_data<qualified_type<T, QFlags>, Pmf>;
 
     using this_t = member_function_bound_to_object_wrapper<
-                        Creator, QFlags, T, Pmf, decayed_member_fn_ptr>;
+                        Creator, QFlags, T, Pmf>;
 
-    using return_type = Return;
-    using type = Return(Args...);
+    using return_type = typename mf::return_type;
+    using type = typename mf::decay_to_function;
     using underlying_type = qualified_type<T, QFlags>;
 
     template<qualify_flags Flags>
     using add_qualifiers = member_function_bound_to_object_wrapper<
-                        Creator, QFlags | Flags, T, Pmf, decayed_member_fn_ptr>;
+                        Creator, QFlags | Flags, T, Pmf>;
 
     static constexpr auto q_flags = QFlags;
     static constexpr auto is_ambiguous = false;
@@ -93,28 +80,28 @@ struct member_function_bound_to_object_wrapper<
         : data(other.data) {}
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) {
         return (harden_cast<q_flags>(data.object)
                  .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) const {
         return (harden_cast<qflags::const_ | q_flags>(data.object)
                  .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) volatile {
         return (harden_cast<qflags::volatile_ | q_flags>(data.object)
                  .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline Return
+    inline return_type
     operator()(Fargs&&... a) const volatile {
         return (harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(data.object)
                  .*data.pmf)(static_cast<Fargs&&>(a)...);

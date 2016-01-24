@@ -103,8 +103,8 @@ namespace detail {
             template<typename Callable> \
             inline constexpr auto \
             operator()(Callable&& c) const { \
-                constexpr qualify_flags requested = cv<cv_requested dummy>; \
-                constexpr qualify_flags present = cv<Callable>; \
+                constexpr qualify_flags requested = cv_of<cv_requested dummy>; \
+                constexpr qualify_flags present = cv_of<Callable>; \
                 using C = no_ref<Callable>; \
                 using underlying_type = typename C::underlying_type; \
                 using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
@@ -155,12 +155,12 @@ inline constexpr auto harden(Callable&& c) {
 
 template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> QFlags = qflags::default_>
 inline constexpr auto harden(Callable&& c) {
-    return no_ref<Callable>::creator::template wrap_data<QFlags | cv<no_ref<Callable> > >(c.data);
+    return no_ref<Callable>::creator::template wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
 }
 
 template<qualify_flags QFlags, typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
 inline constexpr auto harden(Callable&& c) {
-    return no_ref<Callable>::creator::template wrap_data<QFlags | cv<no_ref<Callable> > >(c.data);
+    return no_ref<Callable>::creator::template wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
 }
 }
 

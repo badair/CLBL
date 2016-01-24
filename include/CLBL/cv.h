@@ -1,6 +1,6 @@
 /*!
 @file
-Defines `clbl::cv`.
+Defines `clbl::cv_of`.
 
 @copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
@@ -24,8 +24,8 @@ Distributed under the Boost Software License, Version 1.0.
 namespace clbl {
 
     /*
-    clbl::cv is a variable template (at the bottom of this file)
-    that determines the appropriate qualify_flags for a type.
+    clbl::cv_of is a variable template that determines
+    the appropriate qualify_flags for a type.
     */
 
     namespace detail {
@@ -56,7 +56,7 @@ namespace clbl {
     }
 
     template<typename T>
-    constexpr qualify_flags cv = detail::q_flags<T>();
+    constexpr qualify_flags cv_of = detail::q_flags<T>();
 }
 
 #endif

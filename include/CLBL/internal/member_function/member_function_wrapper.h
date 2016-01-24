@@ -16,44 +16,40 @@ Distributed under the Boost Software License, Version 1.0.
 #include <utility>
 
 #include <CLBL/cv.h>
+#include <CLBL/pmf.h>
 #include <CLBL/tags.h>
 #include <CLBL/forward.h>
 #include <CLBL/harden_cast.h>
 
 namespace clbl {
 
-    //! wraps a PMF and takes a corresponding object as the first argument.
-    template<typename, qualify_flags,
-        typename, typename Failure>
-    struct member_function_wrapper {static_assert(sizeof(Failure) < 0, "Not a member function."); };
+    template<typename Creator, qualify_flags QFlags, typename Pmf>
+    struct member_function_wrapper {
 
-    template<typename Creator, qualify_flags QFlags, typename TMemberFnPtr,
-    typename T, typename Return, typename... Args>
-    struct member_function_wrapper<Creator, QFlags, TMemberFnPtr, Return(T::*)(Args...)> {
-
-        using decayed_member_fn_ptr = Return(T::*)(Args...);
+        using mf = pmf<Pmf>;
+        using return_type = typename mf::return_type;
+        using class_type = typename mf::class_type;
 
         static constexpr auto q_flags = QFlags;
-        using underlying_type = qualified_type<T, q_flags>;
+        using underlying_type = qualified_type<class_type, q_flags>;
 
-        using arg_types = std::tuple<underlying_type, Args...>;
+        using arg_types = typename mf::template prepend_args<std::tuple, underlying_type>;
         using clbl_tag = pmf_tag;
         using creator = Creator;
-        using forwarding_glue = Return(underlying_type, forward<Args>...);
-        using invocation_data_type = const no_ref<TMemberFnPtr>;
-        using this_t = member_function_wrapper<Creator, QFlags, TMemberFnPtr, decayed_member_fn_ptr>;
-        using return_type = Return;
-        using type = Return(underlying_type, Args...);
+        using forwarding_glue = typename mf::template prepend_args_to_function_with_forward<underlying_type>;
+        using invocation_data_type = const no_ref<Pmf>;
+        using this_t = member_function_wrapper<Creator, QFlags, Pmf>;
+        using type = typename mf::template prepend_args_to_function<underlying_type>;
         
         template<qualify_flags Flags>
-        using add_qualifiers = member_function_wrapper<Creator, QFlags | Flags, TMemberFnPtr, decayed_member_fn_ptr>;
+        using add_qualifiers = member_function_wrapper<Creator, QFlags | Flags, Pmf>;
 
         static constexpr auto is_ambiguous = false;
 
         invocation_data_type data;
 
         inline
-        member_function_wrapper(const TMemberFnPtr& f_ptr)
+        member_function_wrapper(const Pmf& f_ptr)
             : data{ f_ptr } {}
 
         inline
@@ -67,13 +63,13 @@ namespace clbl {
             : data(other.data) {}
 
         template<qualify_flags Flags = q_flags, typename... Fargs>
-        inline std::enable_if_t<Flags == qflags::default_, Return>
+        inline std::enable_if_t<Flags == qflags::default_, return_type>
         operator()(underlying_type object, Fargs&&... a) const volatile {
             return (object.*data)(static_cast<Fargs&&>(a)...);
         }
         
         template<qualify_flags Flags = q_flags, typename... Fargs>
-        inline std::enable_if_t<Flags !=  qflags::default_, Return> 
+        inline std::enable_if_t<Flags !=  qflags::default_, return_type> 
         operator()(underlying_type object, Fargs&&... a) const volatile {
             return (object.*data)(static_cast<Fargs&&>(a)...);
         }

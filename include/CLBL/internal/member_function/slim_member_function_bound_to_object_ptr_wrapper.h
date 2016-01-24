@@ -16,6 +16,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <utility>
 
 #include <CLBL/tags.h>
+#include <CLBL/pmf.h>
 #include <CLBL/type_traits.h>
 #include <CLBL/cv.h>
 #include <CLBL/forward.h>
@@ -30,11 +31,6 @@ namespace clbl {
     in an object instance, but passed as a template arg instead, thus
     giving it a "slim" profile in memory.
     */
-    template<typename, qualify_flags, typename, 
-    typename, typename Failure, Failure, typename>
-    struct slim_member_function_bound_to_object_ptr_wrapper {
-        static_assert(sizeof(Failure) < 0, "Not a member function.");
-    };
 
     template<
         typename Creator,
@@ -42,41 +38,33 @@ namespace clbl {
         typename UnderlyingType,
         typename TPtr,
         typename TMemberFnPtr,
-        TMemberFnPtr Pmf,
-        typename Return,
-        typename... Args>
-    struct slim_member_function_bound_to_object_ptr_wrapper<
-        Creator,
-        QFlags,
-        UnderlyingType,
-        TPtr,
-        TMemberFnPtr,
-        Pmf,
-        Return(std::remove_cv_t<UnderlyingType>::*)(Args...)
-    > {
+        TMemberFnPtr Pmf>
+    struct slim_member_function_bound_to_object_ptr_wrapper {
         
-        using decayed_member_fn_ptr =
-                Return(std::remove_cv_t<UnderlyingType>::*)(Args...);
+        using mf = pmf<TMemberFnPtr>;
 
-        using arg_types = std::tuple<Args...>;
+        using decay_type = typename mf::decay_type;
+        using return_type = typename mf::return_type;
+
+        using arg_types = typename mf::template unpack_args<std::tuple>;
         using clbl_tag = pmf_ptr_tag;
         using creator = Creator;
-        using forwarding_glue = Return(forward<Args>...);
+        using forwarding_glue = typename mf::forwarding_glue;
 
         using invocation_data_type = 
                 slim_member_function_bound_to_object_ptr_invocation_data<
                     TPtr, TMemberFnPtr, Pmf>;
 
         using this_t = slim_member_function_bound_to_object_ptr_wrapper<
-                Creator, QFlags, UnderlyingType, TPtr, TMemberFnPtr, Pmf, decayed_member_fn_ptr>;
+                Creator, QFlags, UnderlyingType, TPtr, TMemberFnPtr, Pmf>;
 
-        using return_type = Return;
-        using type = Return(Args...);
+        using return_type = typename mf::return_type;
+        using type = typename mf::decay_to_function;
         using underlying_type = UnderlyingType;
 
         template<qualify_flags Flags>
         using add_qualifiers = slim_member_function_bound_to_object_ptr_wrapper<
-                Creator, QFlags | Flags, UnderlyingType, TPtr, TMemberFnPtr, Pmf, decayed_member_fn_ptr>;
+                Creator, QFlags | Flags, UnderlyingType, TPtr, TMemberFnPtr, Pmf>;
 
         static constexpr auto q_flags = QFlags;
         static constexpr auto is_ambiguous = false;
@@ -108,28 +96,28 @@ namespace clbl {
             : data { other.data } {}
 
         template<typename... Fargs>
-        inline Return
+        inline return_type
         operator()(Fargs&&... a) {
             return (harden_cast<q_flags>(
                 *data.object_ptr).*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
         }
 
         template<typename... Fargs>
-        inline Return
+        inline return_type
         operator()(Fargs&&... a) const {
             return (harden_cast<qflags::const_ | q_flags>(
                 *data.object_ptr).*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
         }
 
         template<typename... Fargs>
-        inline Return
+        inline return_type
         operator()(Fargs&&... a) volatile {
             return (harden_cast<qflags::volatile_ | q_flags>(
                 *data.object_ptr).*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
         }
 
         template<typename... Fargs>
-        inline Return
+        inline return_type
         operator()(Fargs&&... a) const volatile {
             return (harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(
                 *data.object_ptr).*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);

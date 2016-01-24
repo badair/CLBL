@@ -21,53 +21,17 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/internal/member_function/universal_member_function_wrapper.h>
 
 namespace clbl {
-    
-    namespace universal_member_function_detail {
-
-        //todo replace with clbl::pmf::define equivvalent
-        template<typename Creator, typename Bad>
-        struct wrap_t {
-            static_assert(sizeof(Bad) < 0, "Not a member function.");
-        };
-        
-        #define CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(qualifiers) \
-        template<typename Creator, typename Return, typename T , typename... Args> \
-        struct wrap_t<Creator, Return(T::*)(Args...) qualifiers> { \
-            using member_fn_ptr = Return(T::*)(Args...) qualifiers; \
-            inline constexpr auto \
-            operator()(const member_fn_ptr& ptr) const { \
-                using wrapper = universal_member_function_wrapper< \
-                Creator, member_fn_ptr, Return(T::*)(Args...)>; \
-                return wrapper{ ptr }; \
-            } \
-        }
-
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(CLBL_NO_CV);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(&);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(&&);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(volatile);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const volatile);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const &);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(volatile &);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const volatile &);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const &&);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(volatile &&);
-        CLBL_SPECIALIZE_UNIVERSAL_MEMBER_FUNCTION_WRAP(const volatile &&);
-
-        template<typename Creator, typename MemberFnPtr>
-        constexpr wrap_t<Creator, no_ref<MemberFnPtr> > wrap {};
-    }
 
     //todo slim
     struct universal_member_function_wrapper_factory {
 
-        template<typename MemberFnPtr>
+        template<typename Pmf>
         static inline constexpr auto
-        wrap(MemberFnPtr&& ptr){
-            //using member_function as the creator - member_function takes CV flags for hardening
-            return universal_member_function_detail::wrap<
-                member_function_wrapper_factory, MemberFnPtr>(static_cast<MemberFnPtr&&>(ptr));
+        wrap(Pmf&& ptr){
+            //using member_function_wrapper_factory as the creator, because 
+            //member_function_wrapper_factory takes CV flags for hardening
+            return universal_member_function_wrapper<
+                member_function_wrapper_factory, Pmf>(static_cast<Pmf&&>(ptr));
         }
 
         template<typename Invocation>
