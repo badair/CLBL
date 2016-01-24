@@ -14,7 +14,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <utility>
 
 #include <CLBL/qualified_type.h>
-#include <CLBL/cv.h>
+#include <CLBL/cv_of.h>
 #include <CLBL/qflags.h>
 
 namespace clbl {

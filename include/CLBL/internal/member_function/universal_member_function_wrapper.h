@@ -15,7 +15,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <tuple>
 #include <utility>
 
-#include <CLBL/cv.h>
+#include <CLBL/cv_of.h>
 #include <CLBL/pmf.h>
 #include <CLBL/tags.h>
 #include <CLBL/forward.h>
