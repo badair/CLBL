@@ -29,15 +29,18 @@ struct member_function_bound_to_object_wrapper {
     using clbl_tag = pmf_tag;
     using creator = Creator;
     using forwarding_glue = typename mf::forwarding_glue;
+    using underlying_type = qualified_type<T, QFlags>;
+
     using invocation_data_type = 
-            member_function_bound_to_object_invocation_data<qualified_type<T, QFlags>, Pmf>;
+            member_function_bound_to_object_invocation_data<
+                underlying_type, Pmf>;
 
     using this_t = member_function_bound_to_object_wrapper<
                         Creator, QFlags, T, Pmf>;
 
     using return_type = typename mf::return_type;
     using type = typename mf::decay_to_function;
-    using underlying_type = qualified_type<T, QFlags>;
+    
 
     template<qualify_flags Flags>
     using add_qualifiers = member_function_bound_to_object_wrapper<

@@ -21,6 +21,7 @@ struct pmf {
                                                                                      \
         static constexpr auto flags = cv_of<dummy QUAL> | ref_of<dummy QUAL>;        \
         static constexpr auto cv_flags = cv_of<dummy QUAL>;                          \
+        static constexpr auto ref_flags = ref_of<dummy QUAL>;                        \
         using return_type = Return;                                                  \
         using arg_types = std::tuple<Args...>;                                       \
         using type = Return(T::*)(Args...) QUAL;                                     \
@@ -30,8 +31,15 @@ struct pmf {
         using forwarding_glue = Return(forward<Args>...);                            \
         using class_type = T;                                                        \
                                                                                      \
+        template<typename Callable>                                                  \
+        static auto unevaluated_invoke_with_args_declval(Callable&& c)               \
+            -> decltype(std::declval<Callable>()(std::declval<Args>()...));          \
+                                                                                     \
         template<typename U>                                                         \
         using apply_class = Return(U::*)(Args...) QUAL;                              \
+                                                                                     \
+        template<typename NewReturn>                                                 \
+        using apply_return = NewReturn(T::*)(Args...) QUAL;                          \
                                                                                      \
         template<template<class...> class U>                                         \
         using unpack_args = U<Args...>;                                              \

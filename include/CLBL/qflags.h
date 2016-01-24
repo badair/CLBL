@@ -99,6 +99,12 @@ namespace clbl {
         constexpr auto remove_volatile = Flags & ~volatile_;
 
         template<qualify_flags Flags>
+        constexpr auto add_cv = Flags | volatile_ | const_;
+
+        template<qualify_flags Flags>
+        constexpr auto remove_cv = Flags & ~volatile_ & ~const_;
+
+        template<qualify_flags Flags>
         constexpr auto remove_reference = 
             (Flags & ~rvalue_reference_) & ~lvalue_reference_;
 

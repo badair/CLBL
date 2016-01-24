@@ -36,6 +36,8 @@ namespace detail {
     template<typename, typename, typename Creator>
     struct disambiguate : Creator {};
 
+    //todo forward invocation_data instead of its by-value members
+
     /*
     These specializations "override" the *::ambiguous and *::casted creators'
     wrap_data functions and pass the requested disambiguation, which ultimately
@@ -85,44 +87,48 @@ namespace detail {
         }
     };
 
-    template<typename Bad>
-    struct harden_t {
-        static_assert(sizeof(Bad) < 0, "Not a valid function type.");
-    };
+template<typename Abominable>
+struct harden_t {
+    using dummy_mf = pmf<Abominable dummy::*>;
+    using is_auto = std::is_same<typename dummy_mf::return_type, auto_>;
 
-    /*
-    using the preprocessor to spam template specializations of all 
-    CV permutations - there is no other way
-    */
-        
-//todo utilize clbl::pmf::define to speed up compile times by avoiding redundant specializations
+    template<typename Callable>
+    inline constexpr auto
+    operator()(Callable&& c) const {
+        constexpr qualify_flags requested = dummy_mf::flags;
+        constexpr qualify_flags present =
+                    cv_of<Callable> |(ref_of<Callable> & dummy_mf::ref_flags);
 
-#define CLBL_SPECIALIZE_HARDEN_T(cv_requested) \
-    template<typename Return, typename... Args> \
-        struct harden_t<Return(Args...) cv_requested> { \
-            template<typename Callable> \
-            inline constexpr auto \
-            operator()(Callable&& c) const { \
-                constexpr qualify_flags requested = cv_of<cv_requested dummy>; \
-                constexpr qualify_flags present = cv_of<Callable>; \
-                using C = no_ref<Callable>; \
-                using underlying_type = typename C::underlying_type; \
-                using return_type = std::conditional_t<std::is_same<Return, auto_>::value, \
-                                    decltype(harden_cast<(requested | present)>(static_cast<Callable&&>(c))(std::declval<Args>()...)), \
-                                    Return>; \
-                using abominable_fn_type = return_type(Args...) cv_requested; \
-                using requested_pmf_type = abominable_fn_type underlying_type::*; \
-                using disambiguator = disambiguate<requested_pmf_type, C, typename C::creator>; \
-                return disambiguator::template wrap_data<requested | present>(c.data); \
-            } \
+        constexpr qualify_flags resolved_flags = 
+                    qflags::collapse_reference<
+                        present | qflags::remove_reference<requested>,
+                        qflags::remove_cv<requested> >;
+
+        using C = no_ref<Callable>;
+        using underlying_type = typename C::underlying_type;
+
+        using actual_return_type = 
+        std::conditional_t<
+            is_auto::value,
+            decltype(dummy_mf::unevaluated_invoke_with_args_declval(
+                harden_cast<resolved_flags>(static_cast<Callable&&>(c))
+            )),
+            typename dummy_mf::return_type
+        >;
+
+        using actual_dummy_mf = pmf<typename dummy_mf::template
+                apply_return<actual_return_type> >;
+
+        using requested_pmf_type = typename actual_dummy_mf::template
+                apply_class<underlying_type>;
+
+        using disambiguator = 
+                disambiguate<requested_pmf_type, C, typename C::creator>;
+
+        return disambiguator::template
+                wrap_data<requested | present>(c.data);
     }
-
-    //TODO use clbl::pmf::define for ref qualifiers
-
-    CLBL_SPECIALIZE_HARDEN_T(CLBL_NO_CV);
-    CLBL_SPECIALIZE_HARDEN_T(const);
-    CLBL_SPECIALIZE_HARDEN_T(volatile);
-    CLBL_SPECIALIZE_HARDEN_T(const volatile);
+};
 
     template<typename T>
     constexpr harden_t<T> harden_v{};
