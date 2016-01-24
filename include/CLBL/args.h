@@ -15,7 +15,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <tuple>
 
 #include <CLBL/tags.h>
-#include <CLBL/no_ref.h>
+#include <CLBL/type_traits.h>
 #include <CLBL/is_clbl.h>
 
 namespace clbl {
@@ -26,6 +26,20 @@ namespace clbl {
     template<typename Callable>
     using args = typename no_ref<Callable>::arg_types;
 
+    template<typename Callable, size_t Index>
+    using arg_at = typename std::tuple_element<Index, args<Callable> >::type;
+    
+    //todo add tests
+    template<typename Callable>
+    using first_arg = arg_at<Callable, 0>;
+    
+    template<typename Callable>
+    using second_arg = arg_at<Callable, 1>;
+    
+    template<typename Callable>
+    using last_arg = arg_at<Callable, std::tuple_size<args<Callable> >::value - 1>;
+    
+    //todo - arity, better error messages, etc
     namespace detail {
         template<typename... Args>
         struct has_args_t {
@@ -42,13 +56,15 @@ namespace clbl {
                 std::enable_if_t<is_clbl<no_ref<T> >, dummy>* = nullptr>
             inline constexpr auto
             operator()(T&&) const {
-                return std::is_same<args<T>, std::tuple<Args...> >::value;
+                return is_same<args<T>, std::tuple<Args...> >;
             }
         };
     }
     
     template<typename... Args>
     constexpr auto has_args = detail::has_args_t<Args...>{};
+    
+    
 }
 
 #endif

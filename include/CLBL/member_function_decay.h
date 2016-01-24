@@ -19,11 +19,11 @@ qualifiers from PMFs, which allows us to use partial
 template specializations to break down signatures
 */
 
-#define __SPECIALIZE_MEMBER_FUNCTION_DECAY(qualifiers) \
+#define CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(qualifiers) \
     template<typename T, typename Return, typename... Args> \
     struct member_function_decay_t<Return(T::*)(Args...) qualifiers> { using type = Return(T::*)(Args...); }
 
-#define __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(qualifiers) \
+#define CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(qualifiers) \
     template<typename T, typename Return, typename... Args> \
     struct member_function_decay_t<Return(T::*)(Args...,...) qualifiers> { using type = Return(T::*)(Args...,...); }
 
@@ -38,29 +38,29 @@ namespace clbl {
     template<typename T, typename Return, typename... Args>
     struct member_function_decay_t<Return(T::*)(Args..., ...)> { using type = Return(T::*)(Args..., ...); };
 
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(&&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const &&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile &&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(&&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(volatile &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY(const volatile &&);
 
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(&&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile &);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const &&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile &&);
-    __SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(&&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile &);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(volatile &&);
+    CLBL_SPECIALIZE_MEMBER_FUNCTION_DECAY_ELLIPSES(const volatile &&);
 
     template<typename T>
     using member_function_decay = typename member_function_decay_t<T>::type;

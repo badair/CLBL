@@ -14,14 +14,13 @@ Distributed under the Boost Software License, Version 1.0.
 #include <type_traits>
 
 /*
-__CLBL_NO_CV represents an empty macro argument,
+CLBL_NO_CV represents an empty macro argument,
 which is really useful for spamming qualifier
 permutations with the preprocessor
 */
 
-#define _______CLBL_NOTHING_ARGS(x)
-#define __CLBL_NO_CV _______CLBL_NOTHING_ARGS(x)
-#define __CLBL_COMMA ,
+#define CLBL_NOTHING_ARGS(x)
+#define CLBL_NO_CV CLBL_NOTHING_ARGS(x)
 
 namespace clbl {
 
@@ -30,6 +29,7 @@ namespace clbl {
     */
     struct dummy {};
     struct auto_ {};
+    struct copy_ {};
     
     template<typename T>
     struct universal_reference{ universal_reference() = delete; };
@@ -38,6 +38,7 @@ namespace clbl {
 
     using ambiguous_type = ambiguous_return(ambiguous_args);
     
+    //todo - update tags for every wrapper and write tests
     struct free_fn_tag {};
     struct free_fn_ref_tag{};
     struct pmf_tag {};

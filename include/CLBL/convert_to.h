@@ -16,9 +16,9 @@ Distributed under the Boost Software License, Version 1.0.
 #include <utility>
 
 #include <CLBL/tags.h>
-#include <CLBL/no_ref.h>
+#include <CLBL/type_traits.h>
 #include <CLBL/harden.h>
-#include <CLBL/qualify_flags.h>
+#include <CLBL/qflags.h>
 #include <CLBL/invocation_copy.h>
 #include <CLBL/forwarding_glue.h>
 
@@ -65,6 +65,6 @@ namespace clbl {
             "Ambiguous signature. Please disambiguate by calling clbl::harden before calling clbl::convert_to.");
 
         using glue = typename no_ref<Callable>::forwarding_glue;
-        return TypeErasedFunctionTemplate<glue> { apply_glue<glue>(std::forward<Callable>(c)) };
+        return TypeErasedFunctionTemplate<glue> { apply_glue<glue>(static_cast<Callable&&>(c)) };
     }
 }

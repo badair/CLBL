@@ -12,9 +12,10 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_FORWARD_H
 
 #include <type_traits>
+#include <utility>
 
 #include <CLBL/tags.h>
-#include <CLBL/no_ref.h>
+#include <CLBL/type_traits.h>
 #include <CLBL/forwardable.h>
 
 namespace clbl {
@@ -42,7 +43,7 @@ namespace clbl {
 
         //construction from rvalue
         template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
-        inline forward(U t) : value(static_cast<U>(t)) {}
+        inline forward(U t) : value(std::move(t)) {}
 
         //construction from lvalue
         template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
@@ -55,13 +56,13 @@ namespace clbl {
         //implicit conversion to xvalue
         template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
         inline operator U() const { 
-            return static_cast<U>(value);
+            return std::move(value);
         }
 
         //implicit conversion to xvalue
         template<typename U = FwdType, std::enable_if_t<std::is_rvalue_reference<U>::value, dummy>* = nullptr>
         inline operator U() const volatile {
-            return static_cast<U>(value);
+            return std::move(value);
         }
 
         //implicit conversion to prvalue

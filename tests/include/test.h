@@ -68,6 +68,7 @@ std::endl << std::endl
 
 using test_result_type = std::string;
 
+
 template<typename F, typename... Args>
 void run_basic_tests(F& f, test_result_type expected_result, Args... test_args) {
     assert(f(test_args...) == expected_result);

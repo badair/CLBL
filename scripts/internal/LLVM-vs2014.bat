@@ -105,8 +105,8 @@ echo . | %msbuild_cmd% RUN_TESTS.vcxproj %msbuild_environment%
 :exit_script
 ::pause if this script was started by double clicked from Windows
 ::Explorer instead of starting from a pre-existing cmd.exe window
-for %%x in (%cmdcmdline%) do if /i "%%~x"=="/c" set DOUBLECLICKED=1
-if defined DOUBLECLICKED pause
+for %%x in (%cmdcmdline%) do if /i "%%~x"=="/c" set CLICKED=1
+if defined CLICKED pause
 
 cd ..\scripts
 
