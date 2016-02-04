@@ -43,58 +43,58 @@ struct ambiguous_function_object_ptr_wrapper {
 
     invocation_data_type data;
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(no_const_no_ref<FunctionObjectPtr>& o_ptr)
         : data{ o_ptr } {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(const no_const_no_ref<FunctionObjectPtr>& o_ptr)
         : data{ o_ptr } {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(no_const_no_ref<FunctionObjectPtr>&& o_ptr)
         : data{ std::move(o_ptr) } {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(this_t& other)= default;
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(const this_t& other) = default;
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(this_t&& other) = default;
   
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(volatile this_t& other)
         : data(other.data) {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_ptr_wrapper(const volatile this_t& other)
         : data(other.data) {}
 
     template<typename... Fargs>
-    inline auto
+    inline  constexpr auto
     operator()(Fargs&&... a) {
         return harden_cast<q_flags>
                 (*data.ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) const {
         return harden_cast<qflags::const_ | q_flags>
                 (*data.ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) volatile {
         return harden_cast<qflags::volatile_ | q_flags>
                 (*data.ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) const volatile {
         return harden_cast<qflags::const_ | qflags::volatile_ | q_flags>
                 (*data.ptr)(static_cast<Fargs&&>(a)...);

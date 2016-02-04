@@ -30,7 +30,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/factory/function_object_wrapper_factory.h>
 #include <CLBL/factory/function_object_ptr_wrapper_factory.h>
 #include <CLBL/factory/member_function_wrapper_factory.h>
-#include <CLBL/factory/universal_member_function_wrapper_factory.h>
 #include <CLBL/factory/member_function_bound_to_object_wrapper_factory.h>
 #include <CLBL/factory/member_function_bound_to_object_ptr_wrapper_factory.h>
 
@@ -179,6 +178,48 @@ namespace clbl {
             }
 
             template<typename T, std::enable_if_t<
+                detail::sfinae_switch<T>::function_ref_case, T> Value>
+            inline constexpr auto 
+            slim() const {
+                return function_reference_wrapper_factory::slim::template
+                    wrap<T, Value>();
+            }
+
+            template<typename T, std::enable_if_t<
+            detail::sfinae_switch<T>::member_function_ptr_case, T> Value>
+            inline constexpr auto 
+            slim() const {
+                return member_function_wrapper_factory::slim::template
+                    wrap<T, Value>();
+            }
+
+            template<typename Pmf, Pmf Value, typename T, std::enable_if_t<
+                !detail::sfinae_switch<T>::is_ptr
+                && !detail::sfinae_switch<T>::reference_wrapper_case>* = nullptr>
+            static inline constexpr auto 
+            slim_bound(T&& t) {
+                return member_function_bound_to_object_wrapper_factory::slim::template
+                    wrap<qflags::default_, Pmf, Value>(static_cast<T&&>(t));
+            }
+
+            template<typename Pmf, Pmf Value, typename TPtr, std::enable_if_t<
+                detail::sfinae_switch<TPtr>::is_ptr
+                && !detail::sfinae_switch<TPtr>::reference_wrapper_case>* = nullptr>
+            static inline constexpr auto
+            slim_bound(TPtr&& object_ptr) {
+                return member_function_bound_to_object_ptr_wrapper_factory::slim::template
+                    wrap<qflags::default_, Pmf, Value>(static_cast<TPtr&&>(object_ptr));
+            }
+
+            template<typename Pmf, Pmf Value, typename T, std::enable_if_t<
+                detail::sfinae_switch<T>::reference_wrapper_case>* = nullptr>
+            static inline constexpr auto
+            slim_bound(T&& t) {
+                return member_function_bound_to_object_ptr_wrapper_factory::slim::template
+                    wrap<qflags::default_, Pmf, Value>(&t.get());
+            }
+
+            template<typename T, std::enable_if_t<
             detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(T&& t) const {
@@ -186,14 +227,6 @@ namespace clbl {
                     wrap(static_cast<T&&>(t));
             }
 
-            template<typename T, std::enable_if_t<
-            detail::sfinae_switch<T>::function_ref_case, T> Value>
-            inline constexpr auto 
-            slim() const {
-                return function_reference_wrapper_factory::slim::template
-                    wrap<T, Value>();
-            }
-            
             #endif
             
             /***********************************************
@@ -249,7 +282,7 @@ namespace clbl {
                     >::member_function_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(MemberFnPtr&& member_fn_ptr) const {
-                return universal_member_function_wrapper_factory::template
+                return member_function_wrapper_factory::template
                     wrap<std::remove_cv_t<no_ref<MemberFnPtr> >  >(
                     static_cast<MemberFnPtr&&>(member_fn_ptr));
             }
@@ -389,7 +422,7 @@ namespace clbl {
                     >::member_function_ptr_case, dummy>* = nullptr>
             inline constexpr auto 
             operator()(MemberFnPtr&& member_fn_ptr) const {
-                return universal_member_function_wrapper_factory::template
+                return member_function_wrapper_factory::template
                     wrap<std::remove_cv_t<no_ref<MemberFnPtr> > >(
                     static_cast<MemberFnPtr&&>(member_fn_ptr));
             }
@@ -437,58 +470,11 @@ namespace clbl {
         return detail::fwrap_v<T>.template slim<T, Value>();
     }
 
-    /*************************************************************************************
-    pmf accepts a PMF as a compile-time template argument (can't be a cast result, though)
-    **************************************************************************************/
-
-    template <typename TMemberFnPtr, TMemberFnPtr Pmf>
-    struct pmf_t
-    {
-        template<typename T, std::enable_if_t<
-            !detail::sfinae_switch<T>::is_ptr
-            && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-        static inline constexpr auto 
-        fwrap(T&& t) {
-            return member_function_bound_to_object_wrapper_factory::slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(static_cast<T&&>(t));
-        }
-
-        template<typename TPtr, std::enable_if_t<
-            detail::sfinae_switch<TPtr>::is_ptr
-            && !detail::sfinae_switch<TPtr>::reference_wrapper_case, dummy>* = nullptr>
-        static inline constexpr auto
-        fwrap(TPtr&& object_ptr) {
-            return member_function_bound_to_object_ptr_wrapper_factory::slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(static_cast<TPtr&&>(object_ptr));
-        }
-
-        template<typename T, std::enable_if_t<
-            detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
-        static inline constexpr auto
-        fwrap(T&& t) {
-            return member_function_bound_to_object_ptr_wrapper_factory::slim::template
-                wrap<qflags::default_, TMemberFnPtr, Pmf>(&t.get());
-        }
-    };
-
-    #ifdef CLBL_DOCUMENTATION_BUILD
-    //! @def CLBL_PMFWRAP
-    //! CLBL_PMFWRAP Wraps a non-overloaded member function pointer at compile-time, 
-    //! binding an object at the runtime call site via copy/pointer/ref-wrapper/rvalue.
-    //! This removes the object bloat from calling clbl::fwrap with a runtime PMF. Note:
-    //! the pointer-to-member-function cannot be the result of a cast, per the C++ standard.
-    //! If you need to wrap a pointer-to-member-function cast, use clbl::fwrap instead 
-    //! of this macro. Expands to `pmf<decltype(my_pmf), my_pmf>::fwrap(my_object)`
-    //! @include example/clbl_pmfwrap.cpp
-    #define CLBL_PMFWRAP(object, pointer_to_member_function)
-    #else
-
-    #define CLBL_PMFWRAP(o, pmf_expr) \
-    clbl::pmf_t<decltype(pmf_expr), pmf_expr>::fwrap(o)
-
-    #endif
-
-    //todo size tests, reference_wrapper tests, CLBL_PMFWRAP tests
+    template<typename T, T Value, typename Obj>
+    inline constexpr auto fwrap(Obj&& obj) {
+        return detail::fwrap_v<T>.template
+            slim_bound<T, Value>(static_cast<Obj&&>(obj));
+    }
 }
 
 #endif

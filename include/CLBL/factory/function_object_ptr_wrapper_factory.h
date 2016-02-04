@@ -38,7 +38,7 @@ namespace clbl {
             using object_type = no_ref<decltype(*std::declval<FunctionObjectPtr>())>;
             using member_fn_type = decltype(&object_type::operator());
             using ptr_type = no_ref<FunctionObjectPtr>;
-            using wrapper = slim_member_function_bound_to_object_ptr_wrapper<
+            using wrapper = internal::slim_member_function_bound_to_object_ptr_wrapper<
                                 this_t, //todo may need to pass a different factory - test clbl::harden
                                 cv_qualifiers,          
                                 object_type,

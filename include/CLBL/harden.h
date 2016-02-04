@@ -95,7 +95,7 @@ struct harden_t {
     template<typename Callable>
     inline constexpr auto
     operator()(Callable&& c) const {
-        constexpr qualify_flags requested = dummy_mf::flags;
+        constexpr qualify_flags requested = dummy_mf::q_flags;
         constexpr qualify_flags present =
                     cv_of<Callable> |(ref_of<Callable> & dummy_mf::ref_flags);
 

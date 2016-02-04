@@ -40,63 +40,63 @@ struct ambiguous_function_object_wrapper {
 
     invocation_data_type data;
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(const no_const_no_ref<T>& o)
         : data( o )
     {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(no_const_no_ref<T>& o)
         : data( o )
     {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(no_const_no_ref<T>&& o)
         : data( std::move(o) )
     {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(this_t&) = default;
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(this_t&&) = default;
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(const this_t&) = default;
     
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(volatile this_t& other)
         : data( other.data )
     {}
 
-    inline
+    inline constexpr
     ambiguous_function_object_wrapper(const volatile this_t& other)
         : data( other.data )
     {}
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) {
         return harden_cast<q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) const {
         return harden_cast<qflags::const_ | q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) volatile {
         return harden_cast<qflags::volatile_ | q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline auto
+    inline constexpr auto
     operator()(Fargs&&... a) const volatile {
         return harden_cast<qflags::const_ | qflags::volatile_ | q_flags>
                 (data)(static_cast<Fargs&&>(a)...);

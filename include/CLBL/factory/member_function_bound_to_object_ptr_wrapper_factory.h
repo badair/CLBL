@@ -59,7 +59,7 @@ namespace clbl {
                 constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using object_type = no_ref<decltype(*std::declval<T>())>;
                 using ptr_type = no_ref<T>;
-                using wrapper = slim_member_function_bound_to_object_ptr_wrapper<
+                using wrapper = internal::slim_member_function_bound_to_object_ptr_wrapper<
                                                 this_t, 
                                                 cv_qualifiers,
                                                 object_type,
