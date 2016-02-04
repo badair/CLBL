@@ -18,6 +18,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/cv_of.h>
 #include <CLBL/qflags.h>
 #include <CLBL/internal/member_function/member_function_wrapper.h>
+#include <CLBL/internal/member_function/slim_member_function_wrapper.h>
 
 namespace clbl {
 
@@ -25,11 +26,11 @@ namespace clbl {
 
         using this_t = member_function_wrapper_factory;
 
-        template<qualify_flags Flags, typename Pmf>
+        template<qualify_flags Ignored, typename Pmf>
         static inline constexpr auto
         wrap(Pmf&& ptr){
-            return member_function_wrapper<
-                this_t, Flags, Pmf>(static_cast<Pmf&&>(ptr));
+            return internal::member_function_wrapper<
+                this_t, Pmf>(static_cast<Pmf&&>(ptr));
         }
 
         template<qualify_flags Flags, typename Invocation>
@@ -37,6 +38,30 @@ namespace clbl {
             wrap_data(Invocation&& data) {
             return wrap<Flags, no_ref<Invocation> >(data);
         }
+
+        struct slim {
+            
+            using this_t = slim;
+
+            template<typename Pmf, Pmf Value>
+            static inline constexpr auto
+            wrap() {
+                using wrapper = internal::slim_member_function_wrapper<
+                                    this_t,
+                                    Pmf,
+                                    Value>;
+                return wrapper{};
+            }
+
+            template<qualify_flags Ignored, typename Data>
+            static inline constexpr auto
+            wrap_data(Data&&) {
+                return wrap<
+                            typename no_ref<Data>::type,
+                            no_ref<Data>::ptr
+                        >();
+            }
+        };
     };
 }
 

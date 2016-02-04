@@ -23,7 +23,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/harden_cast.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_ptr_invocation_data.h>
 
-namespace clbl {
+namespace clbl { namespace internal {
 
     /*!
     Wraps a PMF and a pointer to an object with which to call it.
@@ -142,6 +142,6 @@ namespace clbl {
             return add_qualifiers<qflags::const_ | qflags::volatile_>{c};
         }
     };
-}
+}}
 
 #endif

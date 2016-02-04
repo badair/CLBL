@@ -11,7 +11,7 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_SLIM_MEMBER_FUNCTION_BOUND_TO_OBJECT_PTR_INVOCATION_DATA_H
 #define CLBL_SLIM_MEMBER_FUNCTION_BOUND_TO_OBJECT_PTR_INVOCATION_DATA_H
 
-namespace clbl {
+namespace clbl { namespace internal {
 
     template<typename TPtr, typename TMemberFnPtr, TMemberFnPtr Pmf>
     struct slim_member_function_bound_to_object_ptr_invocation_data {
@@ -49,6 +49,6 @@ namespace clbl {
         slim_member_function_bound_to_object_ptr_invocation_data(TPtr&& o)
             : object_ptr( std::move(o) ) {}
     };
-}
+}}
 
 #endif

@@ -46,15 +46,24 @@ struct slim_function_reference_wrapper<Creator, Return(Args...), FunctionReferen
     //todo volatile copy ctors, which means default copy/move
 
     template<typename... Fargs>
-    inline Return operator()(Fargs&&... a) const volatile {
+    inline constexpr Return
+    operator()(Fargs&&... a) const {
         return invocation_data_type::ptr(static_cast<Fargs&&>(a)...);
     }
 
-    static inline constexpr auto copy_invocation(const this_t&) {
+    template<typename... Fargs>
+    inline constexpr Return
+    operator()(Fargs&&... a) const volatile {
+        return invocation_data_type::ptr(static_cast<Fargs&&>(a)...);
+    }
+
+    static inline constexpr auto
+    copy_invocation(const this_t&) {
         return invocation_data_type::ptr;
     }
 
-    static inline constexpr auto copy_invocation(const volatile this_t&) {
+    static inline constexpr auto
+    copy_invocation(const volatile this_t&) {
         return invocation_data_type::ptr;
     }
 };

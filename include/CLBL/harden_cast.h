@@ -32,7 +32,7 @@ namespace clbl {
     template<qualify_flags QFlags, typename Object>
     inline constexpr qualified_type<no_ref<Object>, QFlags | cv_of<Object> | ref_of<Object, force_ref> >
     harden_cast(Object&& o) {
-        return  static_cast<Object&&>(o);
+        return static_cast<Object&&>(o);
     }
 }
 

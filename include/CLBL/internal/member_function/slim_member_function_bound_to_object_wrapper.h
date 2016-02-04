@@ -60,7 +60,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     inline
     slim_member_function_bound_to_object_wrapper(no_const_no_ref<T>&& o)
-        : data{ std::move(o) } {}
+        : data{ static_cast<no_const_no_ref<T>&&>(o) } {}
 
     inline
     slim_member_function_bound_to_object_wrapper(const no_const_no_ref<T>& o)

@@ -41,13 +41,19 @@ struct function_reference_wrapper<Creator, Return(Args...)> {
 
     //todo volatile copy constructors, which means default copy/move
 
-    inline
+    inline constexpr
     function_reference_wrapper(Return(&f)(Args...))
         : data{ f }
     {}
 
     template<typename... Fargs>
-    inline Return
+    inline constexpr Return
+    operator()(Fargs&&... a) const {
+        return data(static_cast<Fargs&&>(a)...);
+    }
+
+    template<typename... Fargs>
+    inline constexpr Return
     operator()(Fargs&&... a) const volatile {
         return data(static_cast<Fargs&&>(a)...);
     }

@@ -16,7 +16,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/tags.h>
 #include <CLBL/type_traits.h>
 
-namespace clbl {
+namespace clbl { namespace internal {
 
     template<typename TPtr>
     struct ambiguous_function_object_ptr_invocation_data {
@@ -24,35 +24,35 @@ namespace clbl {
 
         using this_t = ambiguous_function_object_ptr_invocation_data<TPtr>;
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(this_t&) = default;
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(const this_t&) = default;
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(this_t&&) = default;
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(volatile this_t& other)
             : ptr( other.ptr ) {}
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(const volatile this_t& other)
             : ptr( other.ptr ) {}
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(no_const<TPtr>& p)
             : ptr( p ) {}
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(const TPtr& p)
             : ptr( p ) {}
 
-        inline
+        inline constexpr
         ambiguous_function_object_ptr_invocation_data(TPtr&& p)
             : ptr( std::move(p) ) {}
     };
-}
+}}
 
 #endif

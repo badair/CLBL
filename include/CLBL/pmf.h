@@ -18,10 +18,10 @@ struct pmf {
                                                                                      \
     template<typename Return, typename T, typename... Args>                          \
     struct pmf<Return(T::*)(Args...) QUAL> {                                         \
-                                                                                     \
-        static constexpr auto flags = cv_of<dummy QUAL> | ref_of<dummy QUAL>;        \
         static constexpr auto cv_flags = cv_of<dummy QUAL>;                          \
         static constexpr auto ref_flags = ref_of<dummy QUAL>;                        \
+        static constexpr auto q_flags = cv_flags | ref_flags;                        \
+        static constexpr bool is_ref_qualified = !(ref_flags | qflags::default_);    \
         using return_type = Return;                                                  \
         using arg_types = std::tuple<Args...>;                                       \
         using type = Return(T::*)(Args...) QUAL;                                     \
@@ -30,6 +30,8 @@ struct pmf {
         using abominable_type = Return(Args...) QUAL;                                \
         using forwarding_glue = Return(forward<Args>...);                            \
         using class_type = T;                                                        \
+        using invoke_type =                                                          \
+                qualified_type<T, qflags::guarantee_reference<cv_flags> >;           \
                                                                                      \
         template<typename Callable>                                                  \
         static auto unevaluated_invoke_with_args_declval(Callable&& c)               \

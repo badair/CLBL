@@ -48,7 +48,13 @@ struct slim_function_ptr_wrapper<Creator, Return(Args...), FunctionPtr> {
     static constexpr auto function_ptr = invocation_data_type::ptr;
 
     template<typename... Fargs>
-    inline Return
+    inline constexpr Return
+    operator()(Fargs&&... a) const {
+        return (*function_ptr)(static_cast<Fargs&&>(a)...);
+    }
+
+    template<typename... Fargs>
+    inline constexpr Return
     operator()(Fargs&&... a) const volatile {
         return (*function_ptr)(static_cast<Fargs&&>(a)...);
     }
