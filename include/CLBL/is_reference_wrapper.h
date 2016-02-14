@@ -11,8 +11,6 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_IS_REFERENCE_WRAPPER_H
 #define CLBL_IS_REFERENCE_WRAPPER_H
 
-#ifndef CLBL_EXCLUDE_FUNCTIONAL
-
 namespace clbl {
 
     namespace detail {
@@ -27,7 +25,5 @@ namespace clbl {
     template<typename T>
 	constexpr bool is_reference_wrapper = detail::is_reference_wrapper_t<T>::value;
 }
-
-#endif
 
 #endif

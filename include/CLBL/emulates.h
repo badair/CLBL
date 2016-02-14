@@ -19,15 +19,21 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    template<typename FunctionType, typename Callable, 
-    	std::enable_if_t<is_clbl<no_ref<Callable> >, dummy>* = nullptr>
+    template<
+        typename FunctionType,
+        typename Callable, 
+    	CLBL_REQUIRES_(is_clbl<no_ref<Callable> >)
+    >
     static inline constexpr auto
     emulates(Callable&&) {
         return std::is_same<typename no_ref<Callable>::type, FunctionType>::value;
     }
 
-    template<typename FunctionType, typename T,
-    	std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+    template<
+        typename FunctionType,
+        typename T,
+    	CLBL_REQUIRES_(!is_clbl<no_ref<T> >)
+    >
     static constexpr auto
     emulates(T&&) {
         static_assert(sizeof(T) < 0, 

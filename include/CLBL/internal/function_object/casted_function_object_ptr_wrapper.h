@@ -11,6 +11,7 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_CASTED_FUNCTION_OBJECT_PTR_WRAPPER_H
 #define CLBL_CASTED_FUNCTION_OBJECT_PTR_WRAPPER_H
 
+#include <CLBL/constraints.h>
 #include <CLBL/internal/function_object/casted_function_object_ptr_invocation_data.h>
 
 namespace clbl { namespace internal {
@@ -110,8 +111,10 @@ struct casted_function_object_ptr_wrapper {
                 .*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(U& c) {
         return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
@@ -119,8 +122,10 @@ struct casted_function_object_ptr_wrapper {
         );
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const U& c) {
         return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
@@ -128,8 +133,10 @@ struct casted_function_object_ptr_wrapper {
         );
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(volatile U& c) {
         return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
@@ -137,38 +144,50 @@ struct casted_function_object_ptr_wrapper {
         );
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const volatile U& c) {
         return no_ref<decltype(*c.data.object_ptr)>::copy_invocation(
-            harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(*c.data.object_ptr)
+            harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(
+                *c.data.object_ptr
+            )
         );
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(this_t& c) {
         return c;
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const this_t& c) {
         return add_qualifiers<qflags::const_>{c.data.object_ptr};
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(volatile this_t& c) {
         return add_qualifiers<qflags::volatile_>{c.data.object_ptr};
     }
 
-    template<typename U = UnderlyingType, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = UnderlyingType,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {
         return add_qualifiers<qflags::const_ | qflags::volatile_>{c.data.object_ptr};

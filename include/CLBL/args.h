@@ -13,8 +13,8 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 #include <tuple>
-
 #include <CLBL/tags.h>
+#include <CLBL/constraints.h>
 #include <CLBL/type_traits.h>
 #include <CLBL/is_clbl.h>
 
@@ -44,16 +44,20 @@ namespace clbl {
         template<typename... Args>
         struct has_args_t {
 
-            template<typename T,
-                std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(!is_clbl<no_ref<T> >)
+            >
             inline constexpr auto
             operator()(T&&) const {
                 static_assert(sizeof(T) < 0, "You didn't pass a CLBL callable wrapper to clbl::has_args.");
                 return false;
             }
 
-            template<typename T,
-                std::enable_if_t<is_clbl<no_ref<T> >, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(is_clbl<no_ref<T> >)
+            >
             inline constexpr auto
             operator()(T&&) const {
                 return is_same<args<T>, std::tuple<Args...> >;

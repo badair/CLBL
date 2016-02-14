@@ -46,7 +46,6 @@ auto var = factory::wrap(&test_case); \
 auto current_case = id::test_case_id; \
 assert(current_case == id::test_case_id)
 
-//the assert at the end of this macro is used to suppress unused variable warnings
 #define CREATE_WRAPPERS(var, slim_var, test_case) \
     CREATE_WRAPPERS_DETAIL(var, slim_var, test_case, test_case)
 

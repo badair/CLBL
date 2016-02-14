@@ -12,6 +12,7 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_MEMBER_FUNCTION_BOUND_TO_OBJECT_WRAPPER_H
 
 #include <CLBL/pmf.h>
+#include <CLBL/constraints.h>
 #include <CLBL/internal/member_function/member_function_bound_to_object_invocation_data.h>
 
 namespace clbl { namespace internal {
@@ -110,8 +111,10 @@ struct member_function_bound_to_object_wrapper {
                  .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(U& c) {
         return no_ref<decltype(c.data.object)>::copy_invocation(
@@ -119,8 +122,10 @@ struct member_function_bound_to_object_wrapper {
         );
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const U& c) {
         return no_ref<decltype(c.data.object)>::copy_invocation(
@@ -128,8 +133,10 @@ struct member_function_bound_to_object_wrapper {
         );
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(volatile U& c) {
         return no_ref<decltype(c.data.object)>::copy_invocation(
@@ -137,8 +144,10 @@ struct member_function_bound_to_object_wrapper {
         );
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(const volatile U& c) {
         return no_ref<decltype(data.object)>::copy_invocation(
@@ -146,29 +155,40 @@ struct member_function_bound_to_object_wrapper {
         );
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto
     copy_invocation(this_t& c) {
         return c;
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto copy_invocation(const this_t& c) {
         return add_qualifiers<qflags::const_>{c.data.pmf, c.data.object};
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto copy_invocation(volatile this_t& c) {
         return add_qualifiers<qflags::volatile_>{c.data.pmf, c.data.object};
     }
 
-    template<typename U = underlying_type, std::enable_if_t<
-        !is_clbl<U>, dummy>* = nullptr>
+    template<
+        typename U = underlying_type,
+        CLBL_REQUIRES_(!is_clbl<U>)
+    >
     static inline constexpr auto copy_invocation(const volatile this_t& c) {
-        return add_qualifiers<qflags::const_ | qflags::volatile_>{c.data.pmf, c.data.object};
+        return add_qualifiers<qflags::const_ | qflags::volatile_>{
+            c.data.pmf,
+            c.data.object
+        };
     }
 };
 
