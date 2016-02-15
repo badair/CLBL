@@ -64,7 +64,7 @@ namespace clbl {
                                                 ptr_type,
                                                 TMemberFnPtr,
                                                 Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags = qflags::default_,

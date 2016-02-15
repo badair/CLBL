@@ -63,10 +63,9 @@ namespace clbl {
 
         		CLBL_ASSERT_VALID_REFERENCE_FLAGS(Flags);
 
-                constexpr auto cv_qualifiers = cv_of<T>::value | Flags;
                 using wrapper = internal::ambiguous_function_object_ptr_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<T>::value | Flags,
                                     no_ref<T> >;
                 return wrapper{{ static_cast<T&&>(t) }};
             }
@@ -94,7 +93,7 @@ namespace clbl {
                                     object_type,
                                     ptr_type,
                                     Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags, typename Invocation>

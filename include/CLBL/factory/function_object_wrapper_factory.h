@@ -53,10 +53,9 @@ namespace clbl {
             template<qualify_flags Flags, typename FunctionObject>
             static inline constexpr auto
             wrap(FunctionObject&& f) {
-                constexpr auto cv_qualifiers = cv_of<FunctionObject>::value | Flags;
                 using wrapper = internal::ambiguous_function_object_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<FunctionObject>::value | Flags,
                                     no_ref<FunctionObject> >;
                 return wrapper{ static_cast<FunctionObject&&>(f) };
             }

@@ -40,40 +40,6 @@ struct ambiguous_function_object_wrapper {
 
     invocation_data_type data;
 
-    inline constexpr
-    ambiguous_function_object_wrapper(const no_const_no_ref<T>& o)
-        : data( o )
-    {}
-
-    inline constexpr
-    ambiguous_function_object_wrapper(no_const_no_ref<T>& o)
-        : data( o )
-    {}
-
-    inline constexpr
-    ambiguous_function_object_wrapper(no_const_no_ref<T>&& o)
-        : data( std::move(o) )
-    {}
-
-    inline constexpr
-    ambiguous_function_object_wrapper(this_t&) = default;
-
-    inline constexpr
-    ambiguous_function_object_wrapper(this_t&&) = default;
-
-    inline constexpr
-    ambiguous_function_object_wrapper(const this_t&) = default;
-    
-    inline constexpr
-    ambiguous_function_object_wrapper(volatile this_t& other)
-        : data( other.data )
-    {}
-
-    inline constexpr
-    ambiguous_function_object_wrapper(const volatile this_t& other)
-        : data( other.data )
-    {}
-
     template<typename... Fargs>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     operator()(Fargs&&... a) {
