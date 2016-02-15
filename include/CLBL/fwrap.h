@@ -18,7 +18,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/constraints.h>
 #include <CLBL/type_traits.h>
 #include <CLBL/is_clbl.h>
-#include <CLBL/is_valid.h>
 #include <CLBL/qflags.h>
 #include <CLBL/can_dereference.h>
 #include <CLBL/is_reference_wrapper.h>

@@ -16,7 +16,6 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <CLBL/tags.h>
 #include <CLBL/type_traits.h>
-#include <CLBL/is_valid.h>
 #include <CLBL/qflags.h>
 #include <CLBL/can_dereference.h>
 

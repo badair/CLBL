@@ -12,7 +12,6 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_INVOCATION_COPY_H
 
 #include <type_traits>
-#include <CLBL/is_valid.h>
 
 namespace clbl {
 
