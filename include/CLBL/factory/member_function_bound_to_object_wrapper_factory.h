@@ -65,7 +65,7 @@ struct member_function_bound_to_object_wrapper_factory {
                                 no_ref<T>,
                                 Pmf,
                                 Value>;
-            return wrapper{{ static_cast<T&&>(t) }};
+            return wrapper{ static_cast<T&&>(t) };
         }
 
         template<qualify_flags Flags, typename Data>
