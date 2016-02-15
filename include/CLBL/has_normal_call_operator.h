@@ -18,10 +18,12 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
+    //bending over backwards for MSVC here
+
     template<typename T>
     struct has_normal_call_operator
     {
-        template<typename N, N Value> struct check{ check(nullptr_t){} };
+        template<typename N, N Value> struct check{ check(std::nullptr_t){} };
 
         template<typename U>
         static std::int8_t test(check<decltype(&no_ref<U>::operator()), &no_ref<U>::operator()>);
@@ -36,7 +38,7 @@ namespace clbl {
     template<typename T>
     struct ptr_has_normal_call_operator
     {
-        template<typename N, N Value> struct check { check(nullptr_t){} };
+        template<typename N, N Value> struct check { check(std::nullptr_t){} };
 
         template<typename U>
         static std::int8_t test(check<
