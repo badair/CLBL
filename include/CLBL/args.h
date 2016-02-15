@@ -19,6 +19,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/is_clbl.h>
 
 namespace clbl {
+
 	/*
     clbl::args is a metafunction to extract the arg_types
     alias of a CLBL wrapper
@@ -46,7 +47,7 @@ namespace clbl {
 
             template<
                 typename T,
-                CLBL_REQUIRES_(!is_clbl<no_ref<T> >)
+                CLBL_REQUIRES_(!is_clbl<no_ref<T> >::value)
             >
             inline constexpr auto
             operator()(T&&) const {
@@ -56,19 +57,19 @@ namespace clbl {
 
             template<
                 typename T,
-                CLBL_REQUIRES_(is_clbl<no_ref<T> >)
+                CLBL_REQUIRES_(is_clbl<no_ref<T> >::value)
             >
             inline constexpr auto
             operator()(T&&) const {
-                return is_same<args<T>, std::tuple<Args...> >;
+                return std::is_same<args<T>, std::tuple<Args...> >::value;
             }
         };
     }
-    
+
+    #ifdef __cpp_variable_templates
     template<typename... Args>
     constexpr auto has_args = detail::has_args_t<Args...>{};
-    
-    
+    #endif
 }
 
 #endif

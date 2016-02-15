@@ -35,16 +35,16 @@ Distributed under the Boost Software License, Version 1.0.
 
 //assert at end of macro is used to suppress unused variable warnings
 #define CREATE_WRAPPERS_DETAIL(var, slim_var, test_case, test_case_id) \
-auto var = factory::wrap(&test_case); \
-auto slim_var = slim_factory::wrap<decltype(&test_case), &test_case>(); \
-auto current_case = id::test_case_id; \
-assert(current_case == id::test_case_id)
+    auto var = factory::wrap(&test_case); \
+    auto slim_var = slim_factory::wrap<decltype(&test_case), &test_case>(); \
+    auto current_case = id::test_case_id; \
+    assert(current_case == id::test_case_id)
 
 //assert at end of macro is used to suppress unused variable warnings
 #define CREATE_WRAPPER(var, test_case, test_case_id) \
-auto var = factory::wrap(&test_case); \
-auto current_case = id::test_case_id; \
-assert(current_case == id::test_case_id)
+    auto var = factory::wrap(&test_case); \
+    auto current_case = id::test_case_id; \
+    assert(current_case == id::test_case_id)
 
 #define CREATE_WRAPPERS(var, slim_var, test_case) \
     CREATE_WRAPPERS_DETAIL(var, slim_var, test_case, test_case)

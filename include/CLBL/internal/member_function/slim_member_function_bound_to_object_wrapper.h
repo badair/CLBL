@@ -14,7 +14,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <tuple>
 #include <CLBL/pmf.h>
 #include <CLBL/constraints.h>
-#include <CLBL/internal/member_function/slim_member_function_bound_to_object_invocation_data.h>
 
 namespace clbl { namespace internal {
 
@@ -41,8 +40,10 @@ struct slim_member_function_bound_to_object_wrapper {
     using creator = Creator;
     using forwarding_glue = typename mf::forwarding_glue;
 
-    using invocation_data_type = 
-            slim_member_function_bound_to_object_invocation_data<qualified_type<T, QFlags>, Pmf, Value>;
+    struct invocation_data_type {
+        static constexpr const Pmf pmf = Value;
+        qualified_type<T, QFlags> object;
+    };
 
     using this_t = slim_member_function_bound_to_object_wrapper<
                         Creator, QFlags, T, Pmf, Value>;
@@ -59,54 +60,29 @@ struct slim_member_function_bound_to_object_wrapper {
 
     invocation_data_type data;
 
-    inline
-    slim_member_function_bound_to_object_wrapper(no_const_no_ref<T>&& o)
-        : data{ static_cast<no_const_no_ref<T>&&>(o) } {}
-
-    inline
-    slim_member_function_bound_to_object_wrapper(const no_const_no_ref<T>& o)
-        : data{ o } {}
-
-    inline
-    slim_member_function_bound_to_object_wrapper(no_const_no_ref<T>& o)
-        : data{ o } {}
-
-    inline
-    slim_member_function_bound_to_object_wrapper(this_t& other) = default;
-
-    inline
-    slim_member_function_bound_to_object_wrapper(const this_t& other) = default;
-
-    inline
-    slim_member_function_bound_to_object_wrapper(this_t&& other) = default;
-
-    inline
-    slim_member_function_bound_to_object_wrapper(const volatile this_t& other)
-        : data(other.data) {}
-
     template<typename... Fargs>
-    inline return_type
+    inline CLBL_CXX14_CONSTEXPR return_type
     operator()(Fargs&&... a) {
         return (harden_cast<q_flags>(data.object)
                 .*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline constexpr return_type
     operator()(Fargs&&... a) const {
         return (harden_cast<qflags::const_ | q_flags>(data.object)
                 .*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline CLBL_CXX14_CONSTEXPR return_type
     operator()(Fargs&&... a) volatile {
         return (harden_cast<qflags::volatile_ | q_flags>(data.object)
                 .*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline constexpr return_type
     operator()(Fargs&&... a) const volatile {
         return (harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(data.object)
                 .*invocation_data_type::pmf)(static_cast<Fargs&&>(a)...);
@@ -114,7 +90,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(is_clbl<U>)
+        CLBL_REQUIRES_(is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(U& c) {
@@ -125,7 +101,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(is_clbl<U>)
+        CLBL_REQUIRES_(is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(const U& c) {
@@ -136,7 +112,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(is_clbl<U>)
+        CLBL_REQUIRES_(is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(volatile U& c) {
@@ -147,7 +123,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(is_clbl<U>)
+        CLBL_REQUIRES_(is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(const volatile U& c) {
@@ -160,7 +136,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(!is_clbl<U>)
+        CLBL_REQUIRES_(!is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(this_t& c) {
@@ -169,7 +145,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(!is_clbl<U>)
+        CLBL_REQUIRES_(!is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(const this_t& c) {
@@ -178,7 +154,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(!is_clbl<U>)
+        CLBL_REQUIRES_(!is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(volatile this_t& c) {
@@ -187,7 +163,7 @@ struct slim_member_function_bound_to_object_wrapper {
 
     template<
         typename U = underlying_type,
-        CLBL_REQUIRES_(!is_clbl<U>)
+        CLBL_REQUIRES_(!is_clbl<U>::value)
     >
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {

@@ -51,7 +51,7 @@ namespace detail {
         static inline constexpr auto
         wrap_data(Invocation&& data) {
             return function_object_ptr_wrapper_factory::casted::template 
-                wrap<Flags, Pmf>(data.ptr);
+                wrap<Flags, Pmf>(data);
         }
     };
 
@@ -95,12 +95,13 @@ struct harden_t {
     operator()(Callable&& c) const {
         constexpr qualify_flags requested = dummy_mf::q_flags;
         constexpr qualify_flags present =
-                    cv_of<Callable> |(ref_of<Callable> & dummy_mf::ref_flags);
+            cv_of<Callable>::value
+            | (ref_of<Callable>::value & dummy_mf::ref_flags);
 
-        constexpr qualify_flags resolved_flags = 
-                    qflags::collapse_reference<
-                        present | qflags::remove_reference<requested>,
-                        qflags::remove_cv<requested> >;
+        constexpr qualify_flags resolved_flags = qflags::collapse_reference<
+            present | qflags::remove_reference<requested>::value,
+            qflags::remove_cv<requested>::value
+        >::value;
 
         using C = no_ref<Callable>;
         using underlying_type = typename C::underlying_type;
@@ -128,8 +129,6 @@ struct harden_t {
     }
 };
 
-    template<typename T>
-    constexpr harden_t<T> harden_v{};
 }
 
 //! @addtogroup cv-correctness CV Correctness - full example
@@ -149,7 +148,7 @@ struct harden_t {
 //! by passing an abominable function type as a template argument.
 template<typename AbominableFunctionType, typename Callable>
 inline constexpr auto harden(Callable&& c) {
-    return detail::harden_v<AbominableFunctionType>(
+    return detail::harden_t<AbominableFunctionType>{}(
         static_cast<Callable&&>(c)
     );
 }
@@ -159,7 +158,7 @@ template<
     CLBL_REQUIRES_(!no_ref<Callable>::is_ambiguous)
 >
 inline constexpr auto harden(Callable&& c) {
-    return detail::harden_v<typename no_ref<Callable>::type>(
+    return detail::harden_t<typename no_ref<Callable>::type>{}(
         static_cast<Callable&&>(c)
     );
 }
@@ -169,7 +168,7 @@ template<
     std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> QFlags = qflags::default_>
 inline constexpr auto harden(Callable&& c) {
     return no_ref<Callable>::creator::template
-        wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
+        wrap_data<QFlags | cv_of<no_ref<Callable> >::value>(c.data);
 }
 
 template<
@@ -179,7 +178,7 @@ template<
 >
 inline constexpr auto harden(Callable&& c) {
     return no_ref<Callable>::creator::template
-        wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
+        wrap_data<QFlags | cv_of<no_ref<Callable> >::value>(c.data);
 }
 
 }

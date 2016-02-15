@@ -21,7 +21,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/constraints.h>
-#include <CLBL/internal/member_function/member_function_bound_to_object_ptr_invocation_data.h>
 
 namespace clbl { namespace internal {
 
@@ -40,8 +39,11 @@ struct member_function_bound_to_object_ptr_wrapper {
     using clbl_tag = pmf_ptr_tag;
     using creator = Creator;
     using forwarding_glue = typename mf::forwarding_glue;
-    using invocation_data_type = 
-            member_function_bound_to_object_ptr_invocation_data<TPtr, Pmf>;
+
+    struct invocation_data_type {
+        Pmf pmf;
+        TPtr object_ptr;
+    };
 
     using this_t = member_function_bound_to_object_ptr_wrapper<
             Creator, QFlags, UnderlyingType, TPtr, Pmf>;
@@ -59,50 +61,29 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     invocation_data_type data;
 
-    inline
-    member_function_bound_to_object_ptr_wrapper(Pmf f_ptr, no_const_no_ref<TPtr>&& o_ptr)
-        : data{ f_ptr, static_cast<TPtr&&>(o_ptr) } {}
-
-    inline
-    member_function_bound_to_object_ptr_wrapper(Pmf f_ptr, no_const_no_ref<TPtr>& o_ptr)
-        : data{ f_ptr, o_ptr } {}
-
-    inline
-    member_function_bound_to_object_ptr_wrapper(Pmf f_ptr, const no_const_no_ref<TPtr>&  o_ptr)
-        : data{ f_ptr, o_ptr } {}
-
-    inline
-    member_function_bound_to_object_ptr_wrapper(this_t& other) = default;
-
-    inline
-    member_function_bound_to_object_ptr_wrapper(const this_t& other) = default;
-
-    inline
-    member_function_bound_to_object_ptr_wrapper(this_t&& other) = default;
-
     template<typename... Fargs>
-    inline return_type
+    inline CLBL_CXX14_CONSTEXPR return_type
     operator()(Fargs&&... a) {
         return (harden_cast<q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline constexpr return_type
     operator()(Fargs&&... a) const {
         return (harden_cast<qflags::const_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline CLBL_CXX14_CONSTEXPR return_type
     operator()(Fargs&&... a) volatile {
         return (harden_cast<qflags::volatile_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline return_type
+    inline constexpr return_type
     operator()(Fargs&&... a) const volatile {
         return (harden_cast<qflags::const_ | qflags::volatile_ | q_flags>(*data.object_ptr)
             .*data.pmf)(static_cast<Fargs&&>(a)...);
@@ -110,7 +91,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(is_clbl<T>)
+        CLBL_REQUIRES_(is_clbl<T>::value)
     >
     static inline constexpr auto 
     copy_invocation(T& c){
@@ -121,7 +102,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(is_clbl<T>)
+        CLBL_REQUIRES_(is_clbl<T>::value)
     >
     static inline constexpr auto 
     copy_invocation(const T& c) {
@@ -132,7 +113,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(is_clbl<T>)
+        CLBL_REQUIRES_(is_clbl<T>::value)
     >
     static inline constexpr auto
     copy_invocation(volatile T& c) {
@@ -143,7 +124,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(is_clbl<T>)
+        CLBL_REQUIRES_(is_clbl<T>::value)
     >
     static inline constexpr auto
     copy_invocation(const volatile T& c) {
@@ -156,7 +137,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(!is_clbl<T>)
+        CLBL_REQUIRES_(!is_clbl<T>::value)
     >
     static inline constexpr auto
     copy_invocation(this_t& c) {
@@ -165,7 +146,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(!is_clbl<T>)
+        CLBL_REQUIRES_(!is_clbl<T>::value)
     >
     static inline constexpr auto 
     copy_invocation(const this_t& c) {
@@ -177,7 +158,7 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(!is_clbl<T>)
+        CLBL_REQUIRES_(!is_clbl<T>::value)
     >
     static inline constexpr auto
     copy_invocation(volatile this_t& c) {
@@ -189,13 +170,12 @@ struct member_function_bound_to_object_ptr_wrapper {
 
     template<
         typename T = UnderlyingType,
-        CLBL_REQUIRES_(!is_clbl<T>)
+        CLBL_REQUIRES_(!is_clbl<T>::value)
     >
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {
         return add_qualifiers<qflags::const_ | qflags::volatile_>{
-                c.data.pmf,
-                c.data.object_ptr
+            {c.data.pmf, c.data.object_ptr}
         };
     }
 };

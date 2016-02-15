@@ -41,7 +41,7 @@ namespace clbl {
 template<
     typename Target,
     typename Ptr, 
-    CLBL_REQUIRES_(std::is_convertible<decltype(*std::declval<Ptr>()), Target>())
+    CLBL_REQUIRES_(std::is_convertible<decltype(*std::declval<Ptr>()), Target>::value)
 >
 using ConvertiblePointer = Ptr;
 

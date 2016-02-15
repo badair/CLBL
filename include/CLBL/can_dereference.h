@@ -12,21 +12,31 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_CAN_DEREFERENCE_H
 
 #include <utility>
-
-#include <CLBL/is_valid.h>
+#include <cstdint>
 
 namespace clbl {
-    namespace detail {
-        auto can_dereference_v = is_valid([](auto arg)->decltype(*arg) {});
-    }
 
     /*
     clbl::can_dereference is a type trait that we use to determine whether
     a type is a pointer by checking whether we can dereference it.
     This allows us to treat smart pointers and raw pointers with the same code.
     */
+
     template<typename T>
-    constexpr bool can_dereference = decltype(detail::can_dereference_v(std::declval<T>()))::value;
+    struct can_dereference
+    {
+        template<typename>
+        struct check {};
+
+        template<typename U>
+        static std::int8_t test(check<decltype(*std::declval<U>())>*);
+
+        template<typename>
+        static std::int16_t test(...);
+
+        static constexpr const bool value = 
+            sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
+    };
 }
 
 #endif

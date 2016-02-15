@@ -75,28 +75,28 @@ struct ambiguous_function_object_wrapper {
     {}
 
     template<typename... Fargs>
-    inline constexpr auto
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
     operator()(Fargs&&... a) {
         return harden_cast<q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline constexpr auto
+    inline constexpr decltype(auto)
     operator()(Fargs&&... a) const {
         return harden_cast<qflags::const_ | q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline constexpr auto
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
     operator()(Fargs&&... a) volatile {
         return harden_cast<qflags::volatile_ | q_flags>(data)
                 (static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
-    inline constexpr auto
+    inline constexpr decltype(auto)
     operator()(Fargs&&... a) const volatile {
         return harden_cast<qflags::const_ | qflags::volatile_ | q_flags>
                 (data)(static_cast<Fargs&&>(a)...);

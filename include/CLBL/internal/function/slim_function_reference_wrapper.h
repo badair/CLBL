@@ -43,8 +43,6 @@ struct slim_function_reference_wrapper<Creator, Return(Args...), FunctionReferen
     static constexpr auto is_ambiguous = false;
     static constexpr auto data = invocation_data_type{};
 
-    //todo volatile copy ctors, which means default copy/move
-
     template<typename... Fargs>
     inline constexpr Return
     operator()(Fargs&&... a) const {

@@ -13,17 +13,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    namespace detail {
-
-        template<typename T>
-        struct is_reference_wrapper_t : std::false_type {};
-
-        template <typename T>
-        struct is_reference_wrapper_t<std::reference_wrapper<T> > : std::true_type {};
-    }
-
     template<typename T>
-	constexpr bool is_reference_wrapper = detail::is_reference_wrapper_t<T>::value;
+    struct is_reference_wrapper : std::false_type {};
+
+    template <typename T>
+    struct is_reference_wrapper<std::reference_wrapper<T> > : std::true_type {};
 }
 
 #endif

@@ -30,7 +30,7 @@ namespace clbl {
         static inline constexpr auto
         wrap(Pmf&& ptr){
             return internal::member_function_wrapper<
-                this_t, Pmf>(static_cast<Pmf&&>(ptr));
+                this_t, Pmf>{static_cast<Pmf&&>(ptr)};
         }
 
         template<qualify_flags Flags, typename Invocation>

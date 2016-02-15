@@ -22,7 +22,7 @@ namespace clbl {
     template<
         typename FunctionType,
         typename Callable, 
-    	CLBL_REQUIRES_(is_clbl<no_ref<Callable> >)
+    	CLBL_REQUIRES_(is_clbl<no_ref<Callable> >::value)
     >
     static inline constexpr auto
     emulates(Callable&&) {
@@ -32,7 +32,7 @@ namespace clbl {
     template<
         typename FunctionType,
         typename T,
-    	CLBL_REQUIRES_(!is_clbl<no_ref<T> >)
+    	CLBL_REQUIRES_(!is_clbl<no_ref<T> >::value)
     >
     static constexpr auto
     emulates(T&&) {

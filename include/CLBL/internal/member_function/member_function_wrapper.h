@@ -49,22 +49,8 @@ namespace clbl { namespace internal {
 
         invocation_data_type data;
 
-        inline constexpr
-        member_function_wrapper(const Pmf& f_ptr)
-            : data{ f_ptr } {}
-
-        inline constexpr
-        member_function_wrapper(const this_t& other) = default;
-
-        inline constexpr
-        member_function_wrapper(this_t&& other) = default;
-
-        inline constexpr
-        member_function_wrapper(const volatile this_t& other)
-            : data(other.data) {}
-
         template<typename... Fargs>
-        inline constexpr decltype(auto)
+        inline CLBL_CXX14_CONSTEXPR decltype(auto)
         operator()(underlying_type object, Fargs&&... a) const {
             return (object.*data)(static_cast<Fargs&&>(a)...);
         }
@@ -76,7 +62,7 @@ namespace clbl { namespace internal {
         }
 
         template<typename P, typename... Fargs>
-        inline constexpr decltype(auto)
+        inline CLBL_CXX14_CONSTEXPR decltype(auto)
         operator()(ConvertiblePointer<underlying_type, P&&> p, Fargs&&... a) const {
             return ((*p).*data)(static_cast<Fargs&&>(a)...);
         }

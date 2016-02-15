@@ -54,6 +54,13 @@ namespace clbl {
     struct ambi_fn_obj_tag {};
     struct fn_obj_ptr_tag {};
     struct ambi_fn_obj_ptr_tag {}; 
+
+    //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3652.html
+    #ifdef __cpp_constexpr
+    #define CLBL_CXX14_CONSTEXPR constexpr
+    #else
+    #define CLBL_CXX14_CONSTEXPR
+    #endif
 }
 
 #endif
