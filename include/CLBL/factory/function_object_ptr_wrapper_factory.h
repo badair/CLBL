@@ -34,18 +34,17 @@ namespace clbl {
 
         	CLBL_ASSERT_VALID_REFERENCE_FLAGS(Flags);
 
-            constexpr auto cv_qualifiers = cv_of<FunctionObjectPtr> | Flags;
             using object_type = no_ref<decltype(*std::declval<FunctionObjectPtr>())>;
             using member_fn_type = decltype(&object_type::operator());
             using ptr_type = no_ref<FunctionObjectPtr>;
             using wrapper = internal::slim_member_function_bound_to_object_ptr_wrapper<
                                 this_t, //todo may need to pass a different factory - test clbl::harden
-                                cv_qualifiers,          
+                                cv_of<FunctionObjectPtr>::value | Flags,
                                 object_type,
                                 ptr_type,
                                 member_fn_type,
                                 &object_type::operator()>;
-            return wrapper{ static_cast<FunctionObjectPtr&&>(object_ptr) };
+            return wrapper{{ static_cast<FunctionObjectPtr&&>(object_ptr) }};
         }
 
         template<qualify_flags Flags, typename Invocation>
@@ -64,18 +63,17 @@ namespace clbl {
 
         		CLBL_ASSERT_VALID_REFERENCE_FLAGS(Flags);
 
-                constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using wrapper = internal::ambiguous_function_object_ptr_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<T>::value | Flags,
                                     no_ref<T> >;
-                return wrapper{static_cast<T&&>(t)};
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
             wrap_data(Invocation&& data) {
-                return wrap<Flags>(data.ptr);
+                return wrap<Flags>(data.object_ptr);
             }
         };
 
@@ -86,7 +84,7 @@ namespace clbl {
             template<qualify_flags Flags = qflags::default_, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv_of<T> | Flags;
+                constexpr auto cv_qualifiers = cv_of<T>::value | Flags;
                 using object_type = no_ref<decltype(*std::declval<no_ref<T> >())>;
                 using ptr_type = no_ref<T>;
                 using wrapper = internal::casted_function_object_ptr_wrapper<
@@ -95,17 +93,16 @@ namespace clbl {
                                     object_type,
                                     ptr_type,
                                     Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
             wrap_data(Invocation&& data) {
                 /*
-                no_const here removes constness from the 
-                type of the constexpr pointer in Invocation, which is
-                only const because of constexr. This has no affect
-                whatsoever on const-correctness
+                no_const here removes constness from the type of the constexpr
+                pmf in the Invocation type, which is only const because of constexr.
+                This has no effect whatsoever on const-correctness.
                 */
                 using pmf_type = no_const<decltype(no_ref<Invocation>::pmf)>;
                 return wrap<Flags, pmf_type>(data.object_ptr);

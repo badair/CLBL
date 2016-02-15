@@ -40,11 +40,6 @@ struct function_ptr_wrapper<Creator, Return(Args...)> {
 
     const invocation_data_type data;
 
-    inline constexpr
-    function_ptr_wrapper(const invocation_data_type& ptr)
-        : data{ ptr }
-    {}
-
     template<typename... Fargs>
     inline constexpr Return
     operator()(Fargs&&... a) const {

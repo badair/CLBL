@@ -16,22 +16,19 @@ Distributed under the Boost Software License, Version 1.0.
 namespace clbl {
 	
     template<typename T>
-    using no_ref = std::remove_reference_t<T>;
+    using no_ref = typename std::remove_reference<T>::type;
 
     template<typename T>
-    using no_const = std::remove_const_t<T>;
+    using no_const = typename std::remove_const<T>::type;
 
     template<typename T>
-    using no_const_no_ref = std::remove_const_t<std::remove_reference_t<T> >;
+    using no_const_no_ref = 
+        typename std::remove_const<
+            typename std::remove_reference<T>::type
+        >::type;
 
     template<typename T>
-    using no_volatile = std::remove_volatile_t<T>;
-
-    template<typename T, typename U>
-    constexpr auto is_same = std::is_same<T, U>::value;
-
-    template<typename From, typename To>
-    constexpr auto can_convert = std::is_convertible<From, To>::value;
+    using no_volatile = typename std::remove_volatile<T>::type;
 }
 
 #endif

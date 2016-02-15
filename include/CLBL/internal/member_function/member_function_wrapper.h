@@ -38,7 +38,11 @@ namespace clbl { namespace internal {
         using clbl_tag = pmf_tag;
         using creator = Creator;
         using forwarding_glue = typename mf::template prepend_args_to_forward_function<underlying_type>;
-        using invocation_data_type = const no_ref<Pmf>;
+
+        struct invocation_data_type {
+            const no_ref<Pmf> pmf;
+        };
+
         using this_t = member_function_wrapper<Creator, Pmf>;
         using type = typename mf::template prepend_args_to_function<underlying_type>;
         
@@ -49,42 +53,28 @@ namespace clbl { namespace internal {
 
         invocation_data_type data;
 
-        inline constexpr
-        member_function_wrapper(const Pmf& f_ptr)
-            : data{ f_ptr } {}
-
-        inline constexpr
-        member_function_wrapper(const this_t& other) = default;
-
-        inline constexpr
-        member_function_wrapper(this_t&& other) = default;
-
-        inline constexpr
-        member_function_wrapper(const volatile this_t& other)
-            : data(other.data) {}
-
         template<typename... Fargs>
-        inline constexpr decltype(auto)
+        inline CLBL_CXX14_CONSTEXPR decltype(auto)
         operator()(underlying_type object, Fargs&&... a) const {
-            return (object.*data)(static_cast<Fargs&&>(a)...);
+            return (object.*data.pmf)(static_cast<Fargs&&>(a)...);
         }
         
         template<typename... Fargs>
         inline constexpr decltype(auto)
         operator()(underlying_type object, Fargs&&... a) const volatile {
-            return (object.*data)(static_cast<Fargs&&>(a)...);
+            return (object.*data.pmf)(static_cast<Fargs&&>(a)...);
         }
 
         template<typename P, typename... Fargs>
-        inline constexpr decltype(auto)
+        inline CLBL_CXX14_CONSTEXPR decltype(auto)
         operator()(ConvertiblePointer<underlying_type, P&&> p, Fargs&&... a) const {
-            return ((*p).*data)(static_cast<Fargs&&>(a)...);
+            return ((*p).*data.pmf)(static_cast<Fargs&&>(a)...);
         }
         
         template<typename P, typename... Fargs>
         inline constexpr decltype(auto)
         operator()(ConvertiblePointer<underlying_type, P&&> p, Fargs&&... a) const volatile {
-            return ((*p).*data)(static_cast<Fargs&&>(a)...);
+            return ((*p).*data.pmf)(static_cast<Fargs&&>(a)...);
         }
 
         static inline constexpr auto

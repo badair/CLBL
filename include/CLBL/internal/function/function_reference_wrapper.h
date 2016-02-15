@@ -39,13 +39,6 @@ struct function_reference_wrapper<Creator, Return(Args...)> {
 
     invocation_data_type data;
 
-    //todo volatile copy constructors, which means default copy/move
-
-    inline constexpr
-    function_reference_wrapper(Return(&f)(Args...))
-        : data{ f }
-    {}
-
     template<typename... Fargs>
     inline constexpr Return
     operator()(Fargs&&... a) const {

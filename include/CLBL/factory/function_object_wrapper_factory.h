@@ -29,18 +29,15 @@ namespace clbl {
         using this_t = function_object_wrapper_factory;
 
         template<qualify_flags Flags, typename T>
-        static inline constexpr auto 
+        static inline constexpr decltype(auto)
         wrap(T&& t) {
-            
-            constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
-            using member_fn_type = decltype(&no_ref<T>::operator());
             using wrapper = internal::slim_member_function_bound_to_object_wrapper<
                                 this_t,
-                                cv_qualifiers,
+                                cv_of<no_ref<T> >::value | Flags,
                                 no_ref<T>,
-                                member_fn_type,
+                                decltype(&no_ref<T>::operator()),
                                 &no_ref<T>::operator()>;
-            return wrapper{ static_cast<T&&>(t) };
+            return wrapper{{ static_cast<T&&>(t) }};
         }
 
         template<qualify_flags Flags, typename Invocation>
@@ -56,18 +53,17 @@ namespace clbl {
             template<qualify_flags Flags, typename FunctionObject>
             static inline constexpr auto
             wrap(FunctionObject&& f) {
-                constexpr auto cv_qualifiers = cv_of<FunctionObject> | Flags;
                 using wrapper = internal::ambiguous_function_object_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<FunctionObject>::value | Flags,
                                     no_ref<FunctionObject> >;
-                return wrapper{ static_cast<FunctionObject&&>(f) };
+                return wrapper{{ static_cast<FunctionObject&&>(f) }};
             }
 
             template<qualify_flags Flags, typename Data>
             static inline constexpr auto
             wrap_data(Data&& data) {
-                return wrap<Flags>(data);
+                return wrap<Flags>(data.object);
             }
         };
 
@@ -78,13 +74,13 @@ namespace clbl {
             template<qualify_flags Flags, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
+                constexpr auto cv_qualifiers = cv_of<no_ref<T> >::value | Flags;
                 using wrapper = internal::casted_function_object_wrapper<
                                     this_t,
                                     cv_qualifiers,
                                     no_ref<T>,
                                     Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags, typename Data>

@@ -87,72 +87,103 @@ namespace clbl {
         constexpr qualify_flags move_              = 8;
 
         template<qualify_flags Flags>
-        constexpr auto add_const = Flags | const_;
+        struct add_const {
+            static constexpr const auto value = Flags | const_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto remove_const = Flags & ~const_;
+        struct remove_const {
+            static constexpr const auto value = Flags & ~const_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto add_volatile = Flags | volatile_;
+        struct add_volatile {
+            static constexpr const auto value = Flags | volatile_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto remove_volatile = Flags & ~volatile_;
+        struct remove_volatile {
+            static constexpr const auto value = Flags & ~volatile_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto add_cv = Flags | volatile_ | const_;
+        struct add_cv {
+            static constexpr const auto value =
+                Flags | volatile_ | const_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto remove_cv = Flags & ~volatile_ & ~const_;
+        struct remove_cv {
+            static constexpr const auto value =
+                Flags & ~volatile_ & ~const_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto remove_reference = 
-            (Flags & ~rvalue_reference_) & ~lvalue_reference_;
+        struct remove_reference {
+            static constexpr const auto value =
+                (Flags & ~rvalue_reference_) & ~lvalue_reference_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto force_lvalue_reference =
-            (Flags & ~rvalue_reference_) | lvalue_reference_;
+        struct force_lvalue_reference {
+            static constexpr const auto value =
+                (Flags & ~rvalue_reference_) | lvalue_reference_;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto force_rvalue_reference =
-            (Flags & ~lvalue_reference_) | rvalue_reference_;
+        struct force_rvalue_reference {
+            static constexpr const auto value =
+                (Flags & ~lvalue_reference_) | rvalue_reference_;
+        };
 
         namespace detail {
             template<qualify_flags Flags, qualify_flags Other>
             struct collapse_reference_t {
-                static constexpr auto value = Flags | Other;
+                static constexpr const auto value = Flags | Other;
             };
 
             template<qualify_flags Flags>
             struct collapse_reference_t<Flags, lvalue_reference_> {
-                static constexpr auto value = 
-                    remove_reference<Flags> | lvalue_reference_;
+                static constexpr const auto value = 
+                    remove_reference<Flags>::value | lvalue_reference_;
             };
 
             template<qualify_flags Flags>
             struct collapse_reference_t<Flags, rvalue_reference_> {
-                static constexpr auto value = 
+                static constexpr const auto value = 
                     (Flags & lvalue_reference_) == 0?
                          (Flags | rvalue_reference_)
-                        :(remove_reference<Flags> | lvalue_reference_);
+                        :(remove_reference<Flags>::value | lvalue_reference_);
             };
         }
 
         template<qualify_flags existing, qualify_flags reference>
-        constexpr auto collapse_reference =
-            detail::collapse_reference_t<existing, reference>::value;
+        struct collapse_reference {
+            static constexpr const auto value =
+                detail::collapse_reference_t<existing, reference>::value;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto add_lvalue_reference 
-            = collapse_reference<Flags, lvalue_reference_>;
+        struct add_lvalue_reference {
+            static constexpr const auto value =
+                collapse_reference<Flags, lvalue_reference_>::value;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto add_rvalue_reference 
-            = collapse_reference<Flags, rvalue_reference_>;
+        struct add_rvalue_reference {
+            static constexpr const auto value =
+                collapse_reference<Flags, rvalue_reference_>::value;
+        };
 
         template<qualify_flags Flags>
-        constexpr auto guarantee_reference = 
-            ((Flags & rvalue_reference_) == 0 
-            && (Flags & lvalue_reference_) == 0) ? (Flags | lvalue_reference_) : Flags;
+        struct guarantee_reference {
+            static constexpr const auto value = 
+            (
+                (Flags & rvalue_reference_) == 0 
+                && (Flags & lvalue_reference_) == 0
+            ) ? 
+            (Flags | lvalue_reference_) : Flags;
+        };
     }
 }
 

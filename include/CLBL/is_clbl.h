@@ -11,20 +11,31 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_IS_CLBL_H
 #define CLBL_IS_CLBL_H
 
+#include <cstdint>
+#include <type_traits>
 #include <CLBL/is_valid.h>
 
 namespace clbl {
-
-    namespace detail {
-        auto has_clbl_tag_v = is_valid([](auto arg)-> typename decltype(arg)::clbl_tag{});
-    }
 
     /* todo - move this to CLBL/type_traits.h
     clbl::is_clbl is a type trait to determine whether a type
     is a CLBL wrapper.
     */
     template<typename T>
-    constexpr auto is_clbl = decltype(detail::has_clbl_tag_v(std::declval<T>()))::value;
+    struct is_clbl
+    {
+        template<typename>
+        struct check {};
+
+        template<typename U>
+        static std::int8_t test(check<typename std::remove_reference_t<U>::clbl_tag>*);
+
+        template<typename>
+        static std::int16_t test(...);
+
+        static constexpr const bool value = 
+            sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
+    };
 }
 
 #endif

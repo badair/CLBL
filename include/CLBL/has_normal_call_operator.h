@@ -18,28 +18,40 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    /*
-    clbl::fwrap is a heavily overloaded function that can be used to create CLBL 
-    wrappers for anything that is callable.
-    */
-
-    namespace detail {
-        auto has_normal_call_operator_impl = is_valid(
-            [](auto&& arg)->decltype(&no_ref<decltype(arg)>::operator()) {}
-        );
-
-        auto ptr_has_normal_call_operator_impl = is_valid(
-            [](auto&& arg)->decltype(&no_ref<decltype(*arg)>::operator()) {}
-        );
-    }
+    //bending over backwards for MSVC here
 
     template<typename T>
-    constexpr bool has_normal_call_operator = 
-    	decltype(detail::has_normal_call_operator_impl(std::declval<T>()))::value;
+    struct has_normal_call_operator
+    {
+        template<typename N, N Value> struct check{ check(std::nullptr_t){} };
+
+        template<typename U>
+        static std::int8_t test(check<decltype(&no_ref<U>::operator()), &no_ref<U>::operator()>);
+
+        template<typename>
+        static std::int16_t test(...);
+
+        static constexpr const bool value = 
+            sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
+    };
 
     template<typename T>
-    constexpr bool ptr_has_normal_call_operator =
-        decltype(detail::ptr_has_normal_call_operator_impl(std::declval<T>()))::value;
+    struct ptr_has_normal_call_operator
+    {
+        template<typename N, N Value> struct check { check(std::nullptr_t){} };
+
+        template<typename U>
+        static std::int8_t test(check<
+                                    decltype(&no_ref<decltype(*std::declval<U>())>::operator()),
+                                    &no_ref<decltype(*std::declval<U>())>::operator()
+                                >);
+
+        template<typename U>
+        static std::int16_t test(...);
+
+        static constexpr const bool value = 
+            sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
+    };
 
 }
 

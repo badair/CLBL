@@ -11,23 +11,13 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_IS_REFERENCE_WRAPPER_H
 #define CLBL_IS_REFERENCE_WRAPPER_H
 
-#ifndef CLBL_EXCLUDE_FUNCTIONAL
-
 namespace clbl {
 
-    namespace detail {
-
-        template<typename T>
-        struct is_reference_wrapper_t : std::false_type {};
-
-        template <typename T>
-        struct is_reference_wrapper_t<std::reference_wrapper<T> > : std::true_type {};
-    }
-
     template<typename T>
-	constexpr bool is_reference_wrapper = detail::is_reference_wrapper_t<T>::value;
-}
+    struct is_reference_wrapper : std::false_type {};
 
-#endif
+    template <typename T>
+    struct is_reference_wrapper<std::reference_wrapper<T> > : std::true_type {};
+}
 
 #endif

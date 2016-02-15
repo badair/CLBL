@@ -11,13 +11,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_HARDEN_H
 #define CLBL_HARDEN_H
 
-#ifndef CLBL_EXCLUDE_FUNCTIONAL
 #include <functional>
-#endif
-
 #include <utility>
 
 #include <CLBL/tags.h>
+#include <CLBL/constraints.h>
 #include <CLBL/qflags.h>
 #include <CLBL/fwrap.h> //todo include factory headers individually
 #include <CLBL/harden_cast.h>
@@ -47,43 +45,43 @@ namespace detail {
     where the cast will be performed while initializing a static constexpr member
     (see casted_* structs defined in CLBL/invocation_data.h TODO update this comment)
     */
-    template<typename TMemberFnPtr, typename C>
-    struct disambiguate<TMemberFnPtr, C, typename function_object_ptr_wrapper_factory::ambiguous> {
+    template<typename Pmf, typename C>
+    struct disambiguate<Pmf, C, typename function_object_ptr_wrapper_factory::ambiguous> {
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
         wrap_data(Invocation&& data) {
             return function_object_ptr_wrapper_factory::casted::template 
-                wrap<Flags, TMemberFnPtr>(data.ptr);
+                wrap<Flags, Pmf>(data.object_ptr);
         }
     };
 
-    template<typename TMemberFnPtr, typename C>
-    struct disambiguate<TMemberFnPtr, C, typename function_object_ptr_wrapper_factory::casted> {
+    template<typename Pmf, typename C>
+    struct disambiguate<Pmf, C, typename function_object_ptr_wrapper_factory::casted> {
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return function_object_ptr_wrapper_factory::casted::template 
-                wrap<Flags, TMemberFnPtr>(data.object_ptr);
+                wrap<Flags, Pmf>(data.object_ptr);
         }
     };
 
-    template<typename TMemberFnPtr, typename C>
-    struct disambiguate<TMemberFnPtr, C, typename function_object_wrapper_factory::ambiguous> {
+    template<typename Pmf, typename C>
+    struct disambiguate<Pmf, C, typename function_object_wrapper_factory::ambiguous> {
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return function_object_wrapper_factory::casted::template 
-                wrap<Flags, TMemberFnPtr>(data);
+                wrap<Flags, Pmf>(data.object);
         }
     };
 
-    template<typename TMemberFnPtr, typename C>
-    struct disambiguate<TMemberFnPtr, C, typename function_object_wrapper_factory::casted> {
+    template<typename Pmf, typename C>
+    struct disambiguate<Pmf, C, typename function_object_wrapper_factory::casted> {
         template<qualify_flags Flags, typename Invocation>
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return function_object_wrapper_factory::casted::template 
-                wrap<Flags, TMemberFnPtr>(data.object);
+                wrap<Flags, Pmf>(data.object);
         }
     };
 
@@ -97,12 +95,13 @@ struct harden_t {
     operator()(Callable&& c) const {
         constexpr qualify_flags requested = dummy_mf::q_flags;
         constexpr qualify_flags present =
-                    cv_of<Callable> |(ref_of<Callable> & dummy_mf::ref_flags);
+            cv_of<Callable>::value
+            | (ref_of<Callable>::value & dummy_mf::ref_flags);
 
-        constexpr qualify_flags resolved_flags = 
-                    qflags::collapse_reference<
-                        present | qflags::remove_reference<requested>,
-                        qflags::remove_cv<requested> >;
+        constexpr qualify_flags resolved_flags = qflags::collapse_reference<
+            present | qflags::remove_reference<requested>::value,
+            qflags::remove_cv<requested>::value
+        >::value;
 
         using C = no_ref<Callable>;
         using underlying_type = typename C::underlying_type;
@@ -130,8 +129,6 @@ struct harden_t {
     }
 };
 
-    template<typename T>
-    constexpr harden_t<T> harden_v{};
 }
 
 //! @addtogroup cv-correctness CV Correctness - full example
@@ -151,23 +148,39 @@ struct harden_t {
 //! by passing an abominable function type as a template argument.
 template<typename AbominableFunctionType, typename Callable>
 inline constexpr auto harden(Callable&& c) {
-    return detail::harden_v<AbominableFunctionType>(static_cast<Callable&&>(c));
+    return detail::harden_t<AbominableFunctionType>{}(
+        static_cast<Callable&&>(c)
+    );
 }
 
-template<typename Callable, std::enable_if_t<!no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
+template<
+    typename Callable,
+    CLBL_REQUIRES_(!no_ref<Callable>::is_ambiguous)
+>
 inline constexpr auto harden(Callable&& c) {
-    return detail::harden_v<typename no_ref<Callable>::type>(static_cast<Callable&&>(c));
+    return detail::harden_t<typename no_ref<Callable>::type>{}(
+        static_cast<Callable&&>(c)
+    );
 }
 
-template<typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> QFlags = qflags::default_>
+template<
+    typename Callable,
+    std::enable_if_t<no_ref<Callable>::is_ambiguous, qualify_flags> QFlags = qflags::default_>
 inline constexpr auto harden(Callable&& c) {
-    return no_ref<Callable>::creator::template wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
+    return no_ref<Callable>::creator::template
+        wrap_data<QFlags | cv_of<no_ref<Callable> >::value>(c.data);
 }
 
-template<qualify_flags QFlags, typename Callable, std::enable_if_t<no_ref<Callable>::is_ambiguous, dummy>* = nullptr >
+template<
+    qualify_flags QFlags,
+    typename Callable,
+    CLBL_REQUIRES_(no_ref<Callable>::is_ambiguous)
+>
 inline constexpr auto harden(Callable&& c) {
-    return no_ref<Callable>::creator::template wrap_data<QFlags | cv_of<no_ref<Callable> > >(c.data);
+    return no_ref<Callable>::creator::template
+        wrap_data<QFlags | cv_of<no_ref<Callable> >::value>(c.data);
 }
+
 }
 
 #endif

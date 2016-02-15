@@ -22,15 +22,21 @@ namespace clbl {
     struct force_ref{};
     //todo move
     template<typename T, typename E = void>
-    static constexpr auto ref_of = 
-    std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ 
-        : (std::is_lvalue_reference<T>::value ? qflags::lvalue_reference_ 
-            : (std::is_same<E, force_ref>::value? qflags::lvalue_reference_
-                    : qflags::default_));
+    struct ref_of { 
+
+        static constexpr const qualify_flags value = 
+            std::is_rvalue_reference<T>::value? qflags::rvalue_reference_ 
+                : (std::is_lvalue_reference<T>::value ? qflags::lvalue_reference_ 
+                    : (std::is_same<E, force_ref>::value? qflags::lvalue_reference_
+                            : qflags::default_));
+    };
     
     //! clbl::harden_cast is used internally to force desired qualify_flags on a reference
     template<qualify_flags QFlags, typename Object>
-    inline constexpr qualified_type<no_ref<Object>, QFlags | cv_of<Object> | ref_of<Object, force_ref> >
+    inline constexpr qualified_type<
+                no_ref<Object>,
+                QFlags | cv_of<Object>::value | ref_of<Object, force_ref>::value
+            >
     harden_cast(Object&& o) {
         return static_cast<Object&&>(o);
     }

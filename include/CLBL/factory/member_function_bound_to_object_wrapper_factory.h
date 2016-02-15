@@ -32,13 +32,12 @@ struct member_function_bound_to_object_wrapper_factory {
     template<qualify_flags Flags, typename T, typename Pmf>
     static inline constexpr auto 
     wrap(Pmf member_fn_ptr, T&& t) {
-        constexpr auto cv_qualifiers = cv_of<T> | Flags;
         using wrapper = internal::member_function_bound_to_object_wrapper<
                             this_t, 
-                            cv_qualifiers,
+                            cv_of<T>::value | Flags,
                             no_ref<T>,
                             no_ref<Pmf> >;
-        return wrapper{ member_fn_ptr, static_cast<T&&>(t) };
+        return wrapper{{ member_fn_ptr, static_cast<T&&>(t) }};
     }
 
     template<qualify_flags Flags, typename Data>
@@ -59,14 +58,14 @@ struct member_function_bound_to_object_wrapper_factory {
             typename T>
         static inline constexpr auto
         wrap(T&& t) {
-            constexpr auto cv_qualifiers = cv_of<no_ref<T> > | Flags;
+            constexpr auto cv_qualifiers = cv_of<no_ref<T> >::value | Flags;
             using wrapper = internal::slim_member_function_bound_to_object_wrapper<
                                 this_t, 
                                 cv_qualifiers,
                                 no_ref<T>,
                                 Pmf,
                                 Value>;
-            return wrapper{ static_cast<T&&>(t) };
+            return wrapper{{ static_cast<T&&>(t) }};
         }
 
         template<qualify_flags Flags, typename Data>

@@ -11,13 +11,11 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FWRAP_H
 #define CLBL_FWRAP_H
 
-#ifndef CLBL_EXCLUDE_FUNCTIONAL
 #include <functional>
-#endif
-
 #include <type_traits>
 #include <utility>
 #include <CLBL/tags.h>
+#include <CLBL/constraints.h>
 #include <CLBL/type_traits.h>
 #include <CLBL/is_clbl.h>
 #include <CLBL/is_valid.h>
@@ -52,19 +50,19 @@ namespace clbl {
         using flags_t = std::integral_constant<qualify_flags, Flags>;
     
         template<typename T> 
-        struct sfinae_switch {
+        struct switch_ {
             
         private:
             
-            static constexpr auto can_deref = can_dereference<T>;
+            static constexpr auto can_deref = can_dereference<T>::value;
 
             using dereferenceable = std::conditional_t<can_deref, no_ref<T>, dummy*>;
 
-            static constexpr auto is_ref_wrapper = is_reference_wrapper<T>;
+            static constexpr auto is_ref_wrapper = is_reference_wrapper<T>::value;
 
-            static constexpr auto is_ambiguous = !has_normal_call_operator<T>;
+            static constexpr auto is_ambiguous = !has_normal_call_operator<T>::value;
 
-            static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>;
+            static constexpr auto ptr_is_ambiguous = !ptr_has_normal_call_operator<T>::value;
 
             static constexpr auto is_function_ptr =
                 !std::is_function<no_ref<T> >::value 
@@ -87,12 +85,12 @@ namespace clbl {
         public:
 
             static constexpr auto is_clbl =
-                clbl::is_clbl<no_ref<T> > 
-                || clbl::is_clbl<no_ref<decltype(*std::declval<dereferenceable>())> >;
+                clbl::is_clbl<no_ref<T> >::value 
+                || clbl::is_clbl<no_ref<decltype(*std::declval<dereferenceable>())> >::value;
 
             static constexpr auto is_ptr =
-                !is_clbl && can_dereference<no_ref<T> > 
-                && !has_normal_call_operator<T>;
+                !is_clbl && can_dereference<no_ref<T> >::value
+                && !has_normal_call_operator<T>::value;
 
             static constexpr auto reference_wrapper_case = is_ref_wrapper;
 
@@ -103,9 +101,9 @@ namespace clbl {
             static constexpr auto function_ref_case =
                 !is_clbl
                 && is_function_ref 
-                && !has_normal_call_operator<T>;
+                && !has_normal_call_operator<T>::value;
 
-            static constexpr auto member_function_ptr_case = 
+            static constexpr auto pmf_case = 
                 !is_clbl 
                 && !is_function_ptr 
                 && is_member_function_ptr;
@@ -117,7 +115,7 @@ namespace clbl {
                 && !reference_wrapper_case 
                 && !function_ptr_case 
                 && !function_ref_case
-                && !member_function_ptr_case
+                && !pmf_case
                 && std::is_class<std::remove_pointer<no_ref<T> > >::value;
 
         public:
@@ -161,66 +159,89 @@ namespace clbl {
             inline constexpr auto fwrap(free_function_pointer f);
             #else
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::function_ptr_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::function_ptr_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return function_ptr_wrapper_factory::template
                     wrap(static_cast<T&&>(t));
             }
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::function_ptr_case, T> Value>
+            template<
+                typename T, 
+                std::enable_if_t<detail::switch_<T>::function_ptr_case, T> Value>
             inline constexpr auto 
             slim() const {
                 return function_ptr_wrapper_factory::slim::template
                     wrap<T, Value>();
             }
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::function_ref_case, T> Value>
+            template<
+                typename T,
+                std::enable_if_t<detail::switch_<T>::function_ref_case, T> Value>
             inline constexpr auto 
             slim() const {
                 return function_reference_wrapper_factory::slim::template
                     wrap<T, Value>();
             }
 
-            template<typename T, std::enable_if_t<
-            detail::sfinae_switch<T>::member_function_ptr_case, T> Value>
+            template<
+                typename T,
+                std::enable_if_t<detail::switch_<T>::pmf_case, T> Value>
             inline constexpr auto 
             slim() const {
                 return member_function_wrapper_factory::slim::template
                     wrap<T, Value>();
             }
 
-            template<typename Pmf, Pmf Value, typename T, std::enable_if_t<
-                !detail::sfinae_switch<T>::is_ptr
-                && !detail::sfinae_switch<T>::reference_wrapper_case>* = nullptr>
+            template<
+                typename Pmf,
+                Pmf Value,
+                typename T,
+                CLBL_REQUIRES_(
+                    !detail::switch_<T>::is_ptr
+                    && !detail::switch_<T>::reference_wrapper_case
+                )
+            >
             static inline constexpr auto 
             slim_bound(T&& t) {
                 return member_function_bound_to_object_wrapper_factory::slim::template
                     wrap<qflags::default_, Pmf, Value>(static_cast<T&&>(t));
             }
 
-            template<typename Pmf, Pmf Value, typename TPtr, std::enable_if_t<
-                detail::sfinae_switch<TPtr>::is_ptr
-                && !detail::sfinae_switch<TPtr>::reference_wrapper_case>* = nullptr>
+            template<
+                typename Pmf,
+                Pmf Value,
+                typename TPtr,
+                CLBL_REQUIRES_(
+                    detail::switch_<TPtr>::is_ptr
+                    && !detail::switch_<TPtr>::reference_wrapper_case
+                )
+            >
             static inline constexpr auto
             slim_bound(TPtr&& object_ptr) {
                 return member_function_bound_to_object_ptr_wrapper_factory::slim::template
                     wrap<qflags::default_, Pmf, Value>(static_cast<TPtr&&>(object_ptr));
             }
 
-            template<typename Pmf, Pmf Value, typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::reference_wrapper_case>* = nullptr>
+            template<
+                typename Pmf,
+                Pmf Value,
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::reference_wrapper_case)
+            >
             static inline constexpr auto
             slim_bound(T&& t) {
                 return member_function_bound_to_object_ptr_wrapper_factory::slim::template
                     wrap<qflags::default_, Pmf, Value>(&t.get());
             }
 
-            template<typename T, std::enable_if_t<
-            detail::sfinae_switch<T>::function_ref_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::function_ref_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return function_reference_wrapper_factory::template
@@ -247,28 +268,37 @@ namespace clbl {
             inline constexpr auto fwrap(object o, pointer_to_member_function p);
             #else
 
-            template<typename T, typename TMemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
-                && detail::sfinae_switch<T>::is_ptr, dummy>* = nullptr>
+            template<
+                typename T,
+                typename Pmf,
+                CLBL_REQUIRES_(
+                    detail::switch_<Pmf>::pmf_case 
+                    && detail::switch_<T>::is_ptr
+                )
+            >
             inline constexpr auto 
-            operator()(T&& t, TMemberFnPtr member_fn_ptr) const {
+            operator()(T&& t, Pmf p) const {
                 return member_function_bound_to_object_ptr_wrapper_factory::template
-                    wrap<qflags::default_>(member_fn_ptr, static_cast<T&&>(t));
+                    wrap<qflags::default_>(p, static_cast<T&&>(t));
             }
-
 
             /**********************************
             Object with member function pointer
             ***********************************/
 
-            template<typename T, typename TMemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case 
-                && !detail::sfinae_switch<T>::is_ptr 
-                && !detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            template<
+                typename T,
+                typename Pmf,
+                CLBL_REQUIRES_(
+                    detail::switch_<Pmf>::pmf_case 
+                    && !detail::switch_<T>::is_ptr 
+                    && !detail::switch_<T>::reference_wrapper_case
+                )
+            >
             inline constexpr auto 
-            operator()(T&& t, TMemberFnPtr member_fn_ptr) const {
+            operator()(T&& t, Pmf p) const {
                 return member_function_bound_to_object_wrapper_factory::template
-                    wrap<qflags::default_>(member_fn_ptr, static_cast<T&&>(t));
+                    wrap<qflags::default_>(p, static_cast<T&&>(t));
             }
 
             #endif
@@ -277,14 +307,18 @@ namespace clbl {
             Member function pointer
             ************************/
             
-            template<typename MemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<no_ref<MemberFnPtr>
-                    >::member_function_ptr_case, dummy>* = nullptr>
+            template<
+                typename Pmf,
+                CLBL_REQUIRES_(
+                    detail::switch_<no_ref<Pmf>>::pmf_case
+                )
+            >
             inline constexpr auto 
-            operator()(MemberFnPtr&& member_fn_ptr) const {
+            operator()(Pmf&& p) const {
                 return member_function_wrapper_factory::template
-                    wrap<std::remove_cv_t<no_ref<MemberFnPtr> >  >(
-                    static_cast<MemberFnPtr&&>(member_fn_ptr));
+                    wrap<qflags::default_, std::remove_cv_t<no_ref<Pmf> > >(
+                        static_cast<Pmf&&>(p)
+                    );
             }
             
             /********************************
@@ -305,8 +339,10 @@ namespace clbl {
             inline constexpr auto fwrap(object o);
             #else
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::function_object_ptr_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::function_object_ptr_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return function_object_ptr_wrapper_factory::template
@@ -317,8 +353,10 @@ namespace clbl {
             Pointer to object with AMBIGUOUS (templated/overloaded) operator() 
             ******************************************************************/
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::ambiguous_function_object_ptr_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::ambiguous_function_object_ptr_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return function_object_ptr_wrapper_factory::ambiguous::template
@@ -329,9 +367,11 @@ namespace clbl {
             Object with operator()
             ***********************/
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::function_object_case, dummy>* = nullptr>
-            inline constexpr auto 
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::function_object_case)
+            >
+            inline constexpr decltype(auto)
             operator()(T&& t) const {
                 return function_object_wrapper_factory::template
                     wrap<qflags::default_>(static_cast<T&&>(t));
@@ -341,8 +381,10 @@ namespace clbl {
             Object with AMBIGUOUS (templated/overloaded) operator()
             *******************************************************/
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::ambiguous_function_object_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::ambiguous_function_object_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return function_object_wrapper_factory::ambiguous::template 
@@ -355,124 +397,148 @@ namespace clbl {
             std::reference_wrapper
             **********************/
 
-            #ifndef CLBL_EXCLUDE_FUNCTIONAL
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(detail::switch_<T>::reference_wrapper_case)
+            >
             inline constexpr auto 
             operator()(T&& t) const {
                 return fwrap(std::addressof(t.get()));
             }
-            #endif
 
             /**************************************************
             std::reference_wrapper with member function pointer
             ***************************************************/
 
-            template<typename T, typename TMemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<TMemberFnPtr>::member_function_ptr_case
-                && detail::sfinae_switch<T>::reference_wrapper_case, dummy>* = nullptr>
+            template<
+                typename T,
+                typename Pmf,
+                CLBL_REQUIRES_(
+                    detail::switch_<Pmf>::pmf_case
+                    && detail::switch_<T>::reference_wrapper_case
+                )
+            >
             inline constexpr auto 
-            operator()(T&& t, TMemberFnPtr ptr) const {
-                return   fwrap(std::addressof(t.get()), ptr);
+            operator()(T&& t, Pmf ptr) const {
+                return fwrap(std::addressof(t.get()), ptr);
             }
 
             /*********************************************
             preempting recursive attempts at CLBL wrappers
             **********************************************/
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::is_clbl
-                && !can_dereference<T>, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(
+                    detail::switch_<T>::is_clbl
+                    && !can_dereference<T>::value
+                )
+            >
             inline constexpr auto
             operator()(T&& t) const {
                 using callable = no_ref<T>;
                 return callable::creator::template
-                    wrap_data<callable::q_flags | cv_of<callable> >(t.data);
+                    wrap_data<callable::q_flags | cv_of<callable>::value >(t.data);
             }
 
-            template<typename T, std::enable_if_t<
-                detail::sfinae_switch<T>::is_clbl
-                && can_dereference<T>, dummy>* = nullptr>
+            template<
+                typename T,
+                CLBL_REQUIRES_(
+                    detail::switch_<T>::is_clbl
+                    && can_dereference<T>::value
+                )
+            >
             inline constexpr auto
             operator()(T&& t) const {
                 using callable = no_ref<decltype(*t)>;
                 return callable::creator::template
-                    wrap_data<callable::q_flags | cv_of<callable> >((*t).data);
+                    wrap_data<callable::q_flags | cv_of<callable>::value >((*t).data);
             }
         };
         
         template<qualify_flags Flags>
         struct fwrap_t<detail::flags_t<Flags> > {
-            template<typename MemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<no_ref<MemberFnPtr> 
-                    >::member_function_ptr_case, dummy>* = nullptr>
+
+            template<
+                typename Pmf,
+                CLBL_REQUIRES_(detail::switch_<no_ref<Pmf> >::pmf_case)
+            >
             inline constexpr auto 
-            operator()(MemberFnPtr&& member_fn_ptr) const {
+            operator()(Pmf&& p) const {
                 return member_function_wrapper_factory::template
-                    wrap<qflags::guarantee_reference<Flags>,
-                        std::remove_cv_t<no_ref<MemberFnPtr> >  >(
-                    static_cast<MemberFnPtr&&>(member_fn_ptr));
+                    wrap<
+                        qflags::guarantee_reference<Flags>::value,
+                        std::remove_cv_t<no_ref<Pmf> > 
+                    >(
+                        static_cast<Pmf&&>(p)
+                    );
             }
         };
         
         template<>
         struct fwrap_t<detail::flags_t<qflags::default_> > {
-            template<typename MemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<no_ref<MemberFnPtr>
-                    >::member_function_ptr_case, dummy>* = nullptr>
+
+            template<
+                typename Pmf,
+                CLBL_REQUIRES_(detail::switch_<no_ref<Pmf> >::pmf_case)
+            >
             inline constexpr auto 
-            operator()(MemberFnPtr&& member_fn_ptr) const {
+            operator()(Pmf&& p) const {
                 return member_function_wrapper_factory::template
-                    wrap<std::remove_cv_t<no_ref<MemberFnPtr> > >(
-                    static_cast<MemberFnPtr&&>(member_fn_ptr));
+                    wrap<std::remove_cv_t<no_ref<Pmf> > >(
+                        static_cast<Pmf&&>(p)
+                    );
             }
         };
         
         template<>
         struct fwrap_t<copy_> {
-            template<typename MemberFnPtr, std::enable_if_t<
-                detail::sfinae_switch<no_ref<MemberFnPtr>
-                    >::member_function_ptr_case, dummy>* = nullptr>
+
+            template<
+                typename Pmf,
+                CLBL_REQUIRES_(detail::switch_<no_ref<Pmf> >::pmf_case)
+            >
             inline constexpr auto 
-            operator()(MemberFnPtr&& member_fn_ptr) const {
+            operator()(Pmf&& p) const {
                 return member_function_wrapper_factory::template
-                    wrap<qflags::default_, std::remove_cv_t<no_ref<MemberFnPtr> >  >(
-                    static_cast<MemberFnPtr&&>(member_fn_ptr));
+                    wrap<qflags::default_, std::remove_cv_t<no_ref<Pmf> > >(
+                        static_cast<Pmf&&>(p)
+                    );
             }
         };
-        
-        template<typename T>
-        constexpr fwrap_t<T> fwrap_v{};
     }
 
     template<typename T, typename... Args>
     inline constexpr auto fwrap(T&& t, Args&&... args) {
-        return detail::fwrap_v<T>(static_cast<T&&>(t), static_cast<Args&&>(args)...);
+        return detail::fwrap_t<T>{}(
+                    static_cast<T&&>(t),
+                    static_cast<Args&&>(args)...
+                );
     }
 
     template<typename T>
     inline constexpr auto fwrap(T&& t) {
-        return detail::fwrap_v<T>(static_cast<T&&>(t));
+        return detail::fwrap_t<T>{}(static_cast<T&&>(t));
     }
     
     template<qualify_flags flags, typename T>
     inline constexpr auto fwrap(T&& t) {
-        return detail::fwrap_v<detail::flags_t<flags> >(static_cast<T&&>(t));
+        return detail::fwrap_t<detail::flags_t<flags> >{}(static_cast<T&&>(t));
     }
     
     template<typename Specialization, typename T>
     inline constexpr auto fwrap(T&& t) {
-        return detail::fwrap_v<Specialization>(static_cast<T&&>(t));
+        return detail::fwrap_t<Specialization>{}(static_cast<T&&>(t));
     }
 
     template<typename T, T Value>
     inline constexpr auto fwrap() {
-        return detail::fwrap_v<T>.template slim<T, Value>();
+        return detail::fwrap_t<T>{}.template slim<T, Value>();
     }
 
     template<typename T, T Value, typename Obj>
     inline constexpr auto fwrap(Obj&& obj) {
-        return detail::fwrap_v<T>.template
+        return detail::fwrap_t<T>{}.template
             slim_bound<T, Value>(static_cast<Obj&&>(obj));
     }
 }

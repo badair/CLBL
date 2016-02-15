@@ -11,18 +11,28 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_RETURN_H
 #define CLBL_RETURN_H
 
+#include <CLBL/constraints.h>
+
 namespace clbl {
 
     template<typename Callable>
     using result_of = typename no_ref<Callable>::return_type;
 
-    template<typename ReturnType, typename Callable, std::enable_if_t<is_clbl<no_ref<Callable> >, dummy>*  = nullptr>
+    template<
+        typename ReturnType,
+        typename Callable,
+        CLBL_REQUIRES_(is_clbl<no_ref<Callable> >::value)
+    >
     static inline constexpr auto
     has_return(Callable&&) {
         return std::is_same<typename no_ref<Callable>::return_type, ReturnType>::value;
     }
 
-    template<typename ReturnType, typename T, std::enable_if_t<!is_clbl<no_ref<T> >, dummy>* = nullptr>
+    template<
+        typename ReturnType,
+        typename T,
+        CLBL_REQUIRES_(!is_clbl<no_ref<T> >::value)
+    >
     static constexpr auto
     has_return(T&&) {
         static_assert(sizeof(T) < 0,

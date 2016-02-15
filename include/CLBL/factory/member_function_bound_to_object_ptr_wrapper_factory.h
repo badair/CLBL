@@ -28,16 +28,15 @@ namespace clbl {
         template<qualify_flags Flags = qflags::default_, typename T, typename TMemberFnPtr>
         static inline constexpr auto
         wrap(TMemberFnPtr member_fn_ptr, T&& t) {
-            constexpr auto cv_qualifiers = cv_of<T> | Flags;
             using object_type = no_ref<decltype(*std::declval<T>())>;
             using ptr_type = no_ref<T>;
             using wrapper = internal::member_function_bound_to_object_ptr_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<T>::value | Flags,
                                     object_type,
                                     ptr_type,
                                     TMemberFnPtr>;
-            return wrapper{ member_fn_ptr, static_cast<T&&>(t) };
+            return wrapper{{ member_fn_ptr, static_cast<T&&>(t) }};
         }
 
         template<qualify_flags Flags = qflags::default_, typename Invocation>
@@ -56,17 +55,16 @@ namespace clbl {
                     typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv_of<T> | Flags;
                 using object_type = no_ref<decltype(*std::declval<T>())>;
                 using ptr_type = no_ref<T>;
                 using wrapper = internal::slim_member_function_bound_to_object_ptr_wrapper<
                                                 this_t, 
-                                                cv_qualifiers,
+                                                cv_of<T>::value | Flags,
                                                 object_type,
                                                 ptr_type,
                                                 TMemberFnPtr,
                                                 Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags = qflags::default_,

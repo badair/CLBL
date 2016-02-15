@@ -108,7 +108,7 @@ int main() {
     /*
     One might object, "Why would any sane programmer write logically divergent
     CV overloads, where the above scenario actually causes a problem?"
-    
+
     I don't really know the answer to that question. But we do
     have to deal with the fact that STL containers' begin() and end() member
     functions are const-overloaded - const_vector_instance.begin() returns a
@@ -155,7 +155,7 @@ int main() {
     The CV-ness of a CLBL wrapper's underlying object is embedded in the
     wrapper's type - this is referred to as "deep CV" in CLBL. Deep CV cannot
     be rescinded without resorting to hacks.
-    
+
     The CV-ness of the wrapper's own 'this' pointer is referred to as "shallow
     CV", which stacks on top of deep CV.
     */
@@ -171,16 +171,6 @@ int main() {
         //adding shallow volatile with a reference
         volatile auto& clbl_const_volatile = clbl_const;
         assert_const_volatile(clbl_const_volatile);
-
-        /*
-        shallow CV *is* removed in copy initialization. This could have been
-        avoided in CLBL by implementing custom copy constructors, but I think
-        the runtime benefits of trivial copy construction outweigh those
-        of copyable shallow CV. If there is any interest in copyable shallow
-        CV, Additional wrappers can be implemented.
-        */
-        auto volatile_copy = clbl_const_volatile;
-        assert_mutable(volatile_copy);
 
         /*
         clbl::harden has several uses for disambiguation, one of which locks
@@ -211,7 +201,7 @@ int main() {
     In case it isn't already clear, the last section of this example shows
     that CLBL stacks all CV sources to resolve the overload.
     */
- 
+
     //shallow mutable, deep const - the const overload is called.
     auto clbl_const = clbl::fwrap(const_object);
     assert_const(clbl_const);
@@ -219,8 +209,4 @@ int main() {
     //shallow volatile added to deep const copy - the const volatile overload is called.
     volatile auto clbl_const_volatile = clbl_const;
     assert_const_volatile(clbl_const_volatile);
-
-    //shallow volatile lost in copy, deep const remains - the const overload is called.
-    std::function<overload()> still_const = clbl_const_volatile;
-    assert_const(still_const);
 }

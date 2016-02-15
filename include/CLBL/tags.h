@@ -33,8 +33,13 @@ namespace clbl {
     
     struct invalid_type{};
 
-    template<typename T>
-    struct universal_reference{ universal_reference() = delete; };
+    template<typename Category, typename Arg1, typename Arg2>
+    struct key {
+        using category = Category;
+        using arg1 = Arg1;
+        using arg2 = Arg2;
+    };
+
     struct ambiguous_return { ambiguous_return() = delete; };
     struct ambiguous_args { ambiguous_args() = delete; };
 
@@ -48,7 +53,14 @@ namespace clbl {
     struct fn_obj_tag {};
     struct ambi_fn_obj_tag {};
     struct fn_obj_ptr_tag {};
-    struct ambi_fn_obj_ptr_tag {};
+    struct ambi_fn_obj_ptr_tag {}; 
+
+    //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3652.html
+    #ifdef __cpp_constexpr
+    #define CLBL_CXX14_CONSTEXPR constexpr
+    #else
+    #define CLBL_CXX14_CONSTEXPR
+    #endif
 }
 
 #endif
