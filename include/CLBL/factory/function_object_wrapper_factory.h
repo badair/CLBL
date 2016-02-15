@@ -74,10 +74,9 @@ namespace clbl {
             template<qualify_flags Flags, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv_of<no_ref<T> >::value | Flags;
                 using wrapper = internal::casted_function_object_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<no_ref<T> >::value | Flags,
                                     no_ref<T>,
                                     Pmf>;
                 return wrapper{{ static_cast<T&&>(t) }};

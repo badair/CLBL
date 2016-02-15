@@ -84,12 +84,11 @@ namespace clbl {
             template<qualify_flags Flags = qflags::default_, typename Pmf, typename T>
             static inline constexpr auto
             wrap(T&& t) {
-                constexpr auto cv_qualifiers = cv_of<T>::value | Flags;
                 using object_type = no_ref<decltype(*std::declval<no_ref<T> >())>;
                 using ptr_type = no_ref<T>;
                 using wrapper = internal::casted_function_object_ptr_wrapper<
                                     this_t,
-                                    cv_qualifiers,
+                                    cv_of<T>::value | Flags,
                                     object_type,
                                     ptr_type,
                                     Pmf>;
