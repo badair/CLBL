@@ -89,19 +89,22 @@ template<typename Abominable>
 struct harden_t {
     using dummy_mf = pmf<Abominable dummy::*>;
     using is_auto = std::is_same<typename dummy_mf::return_type, auto_>;
+    static constexpr const qualify_flags requested = dummy_mf::q_flags;
 
     template<typename Callable>
     inline constexpr auto
     operator()(Callable&& c) const {
-        constexpr qualify_flags requested = dummy_mf::q_flags;
-        constexpr qualify_flags present =
-            cv_of<Callable>::value
-            | (ref_of<Callable>::value & dummy_mf::ref_flags);
+        
+        using  present = std::integral_constant<qualify_flags,
+            cv_of<Callable>::value | (ref_of<Callable>::value & dummy_mf::ref_flags)
+        >;
 
-        constexpr qualify_flags resolved_flags = qflags::collapse_reference<
-            present | qflags::remove_reference<requested>::value,
-            qflags::remove_cv<requested>::value
-        >::value;
+        using resolved_flags = std::integral_constant<qualify_flags,
+            qflags::collapse_reference<
+                present::value | qflags::remove_reference<requested>::value,
+                qflags::remove_cv<requested>::value
+            >::value
+        >;
 
         using C = no_ref<Callable>;
         using underlying_type = typename C::underlying_type;
@@ -110,7 +113,7 @@ struct harden_t {
         std::conditional_t<
             is_auto::value,
             decltype(dummy_mf::unevaluated_invoke_with_args_declval(
-                harden_cast<resolved_flags>(static_cast<Callable&&>(c))
+                harden_cast<resolved_flags::value>(static_cast<Callable&&>(c))
             )),
             typename dummy_mf::return_type
         >;
@@ -125,7 +128,7 @@ struct harden_t {
                 disambiguate<requested_pmf_type, C, typename C::creator>;
 
         return disambiguator::template
-                wrap_data<requested | present>(c.data);
+                wrap_data<requested | present::value>(c.data);
     }
 };
 

@@ -43,26 +43,26 @@ namespace lambda {
 
         std::cout << "LAMBDA BENCHMARK" << std::endl << std::endl;
 
-        benchmark(BASE, [&](auto& j){
+        benchmark(BASE, [&](auto& j) {
             const auto f = add_to;
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
 
-        benchmark(CLBL, [&](auto& j){
+        benchmark(CLBL, [&](auto& j) {
             const auto f = clbl::fwrap(add_to);
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
 
-        benchmark(STD_INVOKE, [&](auto& j){
+        benchmark(STD_INVOKE, [&](auto& j) {
             for (int i = 0; i < iterations; ++i) std::invoke(add_to, j, 1);
         });
 
-        benchmark(STD_FUNCTION, [&](auto& j){
+        benchmark(STD_FUNCTION, [&](auto& j) {
             const auto f = std::function<void(int&, int)>{ add_to };
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
 
-        benchmark(STD_BIND, [&](auto& j){
+        benchmark(STD_BIND, [&](auto& j) {
             const auto f = std::bind(add_to, _1, _2);
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
@@ -81,30 +81,31 @@ namespace function {
 
         std::cout << "FUNCTION BENCHMARK" << std::endl << std::endl;
 
-        benchmark(BASE, [&](auto& j){
+        benchmark(BASE, [&](auto& j) {
             for (int i = 0; i < iterations; ++i) add_to(j, 1);
         });
 
-        benchmark(CLBL, [&](auto& j){
+        benchmark(CLBL, [&](auto& j) {
             const auto f = clbl::fwrap(add_to);
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
 
-        benchmark(CLBL, [&](auto& j){
+        /* MSVC doesn't like this
+        benchmark(CLBL, [&](auto& j) {
             const auto f = clbl::fwrap<decltype(add_to), add_to>();
             for (int i = 0; i < iterations; ++i) f(j, 1);
-        });
+        });*/
 
-        benchmark(STD_INVOKE, [&](auto& j){
+        benchmark(STD_INVOKE, [&](auto& j) {
             for (int i = 0; i < iterations; ++i) std::invoke(add_to, j, 1);
         });
 
-        benchmark(STD_FUNCTION, [&](auto& j){
+        benchmark(STD_FUNCTION, [&](auto& j) {
             const auto f = std::function<void(int&, int)>{ add_to };
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
 
-        benchmark(STD_BIND, [&](auto& j){
+        benchmark(STD_BIND, [&](auto& j) {
             const auto f = std::bind(add_to, _1, _2);
             for (int i = 0; i < iterations; ++i) f(j, 1);
         });
@@ -119,16 +120,11 @@ namespace member_function {
         void add_to(int& a, int b) const volatile {
             a = a + b;
         }
-
-        foo() = default;
-        foo(const foo&) = default;
-        foo(foo&&) = default;
-        foo(const volatile foo&) {}
     };
 
     //volatile removes some optimizations
-    
-    volatile auto obj = foo{};
+
+    auto obj = foo{};
     constexpr auto add_to = &foo::add_to;
 
     auto run_benchmarks = [](auto iterations) {
@@ -141,7 +137,8 @@ namespace member_function {
 
         benchmark(CLBL, [&](auto& j) {
             const auto f = clbl::fwrap(obj, add_to);
-            for (int i = 0; i < iterations; ++i) f(j, 1);
+            for (int i = 0; i < iterations; ++i) 
+                f(j, 1);
         });
 
         benchmark(CLBL, [&](auto& j) {
@@ -169,8 +166,8 @@ namespace member_function {
         });
 
         /*?? benchmark(STD_FUNCTION, [&](auto& j) {
-            const auto f = std::function<void(int&, int)>{ add_to };
-            for (int i = 0; i < iterations; ++i) f(j, 1);
+        const auto f = std::function<void(int&, int)>{ add_to };
+        for (int i = 0; i < iterations; ++i) f(j, 1);
         });*/
 
         benchmark(STD_BIND, [&](auto& j) {
@@ -182,10 +179,10 @@ namespace member_function {
     };
 }
 
-auto get_iterations = []{
+auto get_iterations = [] {
 
     //preventing const propagation optimizations
-    
+
     auto ss = std::stringstream{};
     auto iterations = std::numeric_limits<int>::max() / 1000;
 
@@ -198,7 +195,7 @@ auto get_iterations = []{
 };
 
 int main() {
-    
+
     auto iterations = get_iterations();
 
     lambda::run_benchmarks(iterations);

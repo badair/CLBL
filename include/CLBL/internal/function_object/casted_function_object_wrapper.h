@@ -62,35 +62,6 @@ struct casted_function_object_wrapper {
 
     invocation_data_type data;
 
-    inline constexpr
-    casted_function_object_wrapper(no_const_no_ref<T>&& o)
-        : data{ std::move(o) } {}
-
-    inline constexpr
-    casted_function_object_wrapper(const no_ref<T>& o)
-        : data{ o } {}
-
-    inline constexpr
-    casted_function_object_wrapper(no_const_no_ref<T>& o)
-        : data{ o } {}
-
-    inline constexpr
-    casted_function_object_wrapper(this_t& other) = default;
-
-    inline constexpr
-    casted_function_object_wrapper(const this_t& other) = default;
-    
-    inline constexpr
-    casted_function_object_wrapper(this_t&& other) = default;
-
-    inline constexpr
-    casted_function_object_wrapper(volatile this_t& other)
-        : data(other.data) {}
-
-    inline constexpr
-    casted_function_object_wrapper(const volatile this_t& other)
-        : data(other.data) {}
-
     template<typename... Fargs>
     inline CLBL_CXX14_CONSTEXPR return_type
     operator()(Fargs&&... a) {
@@ -181,7 +152,7 @@ struct casted_function_object_wrapper {
     >
     static inline constexpr auto
     copy_invocation(const this_t& c) {
-        return add_qualifiers<qflags::const_>{c.data.object};
+        return add_qualifiers<qflags::const_>{{c.data.object}};
     }
 
     template<
@@ -190,7 +161,7 @@ struct casted_function_object_wrapper {
     >
     static inline constexpr auto
     copy_invocation(volatile this_t& c) {
-        return add_qualifiers<qflags::volatile_>{c.data.object};
+        return add_qualifiers<qflags::volatile_>{{c.data.object}};
     }
 
     template<
@@ -199,7 +170,7 @@ struct casted_function_object_wrapper {
     >
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {
-        return add_qualifiers<qflags::const_ | qflags::volatile_>{c.data.object};
+        return add_qualifiers<qflags::const_ | qflags::volatile_>{{c.data.object}};
     }
 };
 
