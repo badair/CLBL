@@ -73,7 +73,7 @@ namespace clbl {
             template<qualify_flags Flags, typename Invocation>
             static inline constexpr auto
             wrap_data(Invocation&& data) {
-                return wrap<Flags>(data);
+                return wrap<Flags>(data.object_ptr);
             }
         };
 

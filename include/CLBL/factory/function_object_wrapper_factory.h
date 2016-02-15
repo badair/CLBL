@@ -57,13 +57,13 @@ namespace clbl {
                                     this_t,
                                     cv_of<FunctionObject>::value | Flags,
                                     no_ref<FunctionObject> >;
-                return wrapper{ static_cast<FunctionObject&&>(f) };
+                return wrapper{{ static_cast<FunctionObject&&>(f) }};
             }
 
             template<qualify_flags Flags, typename Data>
             static inline constexpr auto
             wrap_data(Data&& data) {
-                return wrap<Flags>(data);
+                return wrap<Flags>(data.object);
             }
         };
 
@@ -80,7 +80,7 @@ namespace clbl {
                                     cv_qualifiers,
                                     no_ref<T>,
                                     Pmf>;
-                return wrapper{ static_cast<T&&>(t) };
+                return wrapper{{ static_cast<T&&>(t) }};
             }
 
             template<qualify_flags Flags, typename Data>

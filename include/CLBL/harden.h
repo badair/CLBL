@@ -51,7 +51,7 @@ namespace detail {
         static inline constexpr auto
         wrap_data(Invocation&& data) {
             return function_object_ptr_wrapper_factory::casted::template 
-                wrap<Flags, Pmf>(data);
+                wrap<Flags, Pmf>(data.object_ptr);
         }
     };
 
@@ -71,7 +71,7 @@ namespace detail {
         static inline constexpr auto
             wrap_data(Invocation&& data) {
             return function_object_wrapper_factory::casted::template 
-                wrap<Flags, Pmf>(data);
+                wrap<Flags, Pmf>(data.object);
         }
     };
 

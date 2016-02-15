@@ -27,7 +27,10 @@ struct ambiguous_function_object_ptr_wrapper {
     using creator = Creator;
     using forwarding_glue = ambiguous_return(ambiguous_args);
 
-    using invocation_data_type = FunctionObjectPtr;
+    struct invocation_data_type {
+        FunctionObjectPtr object_ptr;
+    };
+
     using this_t = ambiguous_function_object_ptr_wrapper<Creator, QFlags, FunctionObjectPtr>;
     using return_type = ambiguous_return;
     using type = ambiguous_return(ambiguous_args);
@@ -46,28 +49,28 @@ struct ambiguous_function_object_ptr_wrapper {
     inline  CLBL_CXX14_CONSTEXPR auto
     operator()(Fargs&&... a) {
         return harden_cast<q_flags>
-                (*data)(static_cast<Fargs&&>(a)...);
+                (*data.object_ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
     inline constexpr auto
     operator()(Fargs&&... a) const {
         return harden_cast<qflags::const_ | q_flags>
-                (*data)(static_cast<Fargs&&>(a)...);
+                (*data.object_ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
     inline CLBL_CXX14_CONSTEXPR auto
     operator()(Fargs&&... a) volatile {
         return harden_cast<qflags::volatile_ | q_flags>
-                (*data)(static_cast<Fargs&&>(a)...);
+                (*data.object_ptr)(static_cast<Fargs&&>(a)...);
     }
 
     template<typename... Fargs>
     inline constexpr auto
     operator()(Fargs&&... a) const volatile {
         return harden_cast<qflags::const_ | qflags::volatile_ | q_flags>
-                (*data)(static_cast<Fargs&&>(a)...);
+                (*data.object_ptr)(static_cast<Fargs&&>(a)...);
     }
 
     static inline constexpr auto
@@ -77,17 +80,17 @@ struct ambiguous_function_object_ptr_wrapper {
 
     static inline constexpr auto
     copy_invocation(const this_t& c) {
-        return add_qualifiers<qflags::const_>{c.data};
+        return add_qualifiers<qflags::const_>{{c.data.object_ptr}};
     }
 
     static inline constexpr auto
     copy_invocation(volatile this_t& c) {
-        return add_qualifiers<qflags::volatile_>{c.data};
+        return add_qualifiers<qflags::volatile_>{{c.data.object_ptr}};
     }
 
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {
-        return add_qualifiers<qflags::const_ | qflags::volatile_>{c.data};
+        return add_qualifiers<qflags::const_ | qflags::volatile_>{{c.data.object_ptr}};
     }
 };
 
