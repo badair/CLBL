@@ -58,10 +58,9 @@ struct member_function_bound_to_object_wrapper_factory {
             typename T>
         static inline constexpr auto
         wrap(T&& t) {
-            constexpr auto cv_qualifiers = cv_of<no_ref<T> >::value | Flags;
             using wrapper = internal::slim_member_function_bound_to_object_wrapper<
                                 this_t, 
-                                cv_qualifiers,
+                                cv_of<no_ref<T> >::value | Flags,
                                 no_ref<T>,
                                 Pmf,
                                 Value>;
