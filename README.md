@@ -6,7 +6,7 @@
 
 <!--</a> <a target="_blank" href="http://melpon.org/wandbox/permlink/TlioDiz6yYNxZFnv">![Try it online][badge.wandbox]</a>-->
 
-CLBL is a standalone C++14 header-only library for callable types, intended to supersede `std::bind`, `std::mem_fn`, `std::invoke`, `std::result_of`, and `boost::function_traits` in one fell swoop. Instead of providing drop-in replacements for these tools, CLBL intends to provide a unified, exhaustive interface for interacting with C++ callable types. This library is intended primarily for C++ template metaprogrammers.
+CLBL is a standalone C++14 header-only library for callable types, intended to supersede `std::bind`, `std::mem_fn`, `std::invoke`, `std::result_of`, and `boost::function_traits` in one fell swoop. Instead of providing drop-in replacements for these tools, CLBL intends to provide a unified, exhaustive interface for interacting with C++ callable types. This library is intended primarily for C++ template metaprogrammers and library writers.
 
 I will not revisit documentation until the library meets its aforementioned goals and passes comprehensive test coverage. Feel free to browse some of my previous documentation attempts. I'll answer any questions posted to the issue list or Gitter.
 
