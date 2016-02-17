@@ -10,7 +10,7 @@ CLBL is a standalone C++14 header-only library for callable types, intended to s
 
 I will not revisit documentation until the library meets its aforementioned goals and passes comprehensive test coverage. My previous documentation attempts reflect neither the current state of this repository, nor the current goals thereof. I'll answer any questions posted to the issue list or Gitter.
 
-CLBL/include/CLBL/fwrap.h currently serves as the conceptual entry point for the library, via `clbl::fwrap` (names subject to change - I'm sticking with easy-to-grep ones for now).
+CLBL/include/CLBL/fwrap.h currently serves as the conceptual entry point for the library, via `clbl::fwrap` (names subject to change - I'm sticking with easy-to-grep ones for now). `pmf.h` also contains some code that is central to the library.
 
 Projected v0.1 release: May 1, 2016
 
