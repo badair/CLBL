@@ -16,7 +16,7 @@ Projected v0.1 release: May 1, 2016
 
 Code notes:
 
-- [fwrap.h] and [pmf.h] contain perhaps the important code in the library.
+- [fwrap.h] and [pmf.h] contain perhaps the most important code in the library.
 
 - [harden.h] contains the code used to perform overload resolution.
 
