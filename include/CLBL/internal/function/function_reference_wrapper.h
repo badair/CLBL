@@ -11,6 +11,8 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FUNCTION_REFERENCE_WRAPPER_H
 #define CLBL_FUNCTION_REFERENCE_WRAPPER_H
 
+#include <CLBL/internal/bind/bind.h>
+
 namespace clbl { namespace internal {
 
 template<typename, typename Failure>
@@ -59,6 +61,12 @@ struct function_reference_wrapper<Creator, Return(Args...)> {
     static inline constexpr auto
     copy_invocation(const volatile this_t& c) {
         return c.data;
+    }
+
+    template<typename... Args>
+    decltype(auto) bind(Args... args) {
+        using list_type = typename detail::wrapped_args_tuple<Args...>::type;
+        return detail::binding_wrapper<this_t, list_type>{*this, list_type{ args... }};
     }
 };
 
