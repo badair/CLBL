@@ -18,13 +18,13 @@ QUIET                   = YES
 # Resources
 OUTPUT_DIRECTORY        =
 INPUT                   = C:/Users/barre/Documents/GitHub/CLBL/include \
-                          C:/Users/barre/Documents/GitHub/CLBL/doc/tutorial.h
+                          C:/Users/barre/Documents/GitHub/CLBL/doc/tutorial.hpp
 FILE_PATTERNS           = *.h
 RECURSIVE               = YES
 EXCLUDE                 =
 EXCLUDE_PATTERNS        = *.erb*
 EXAMPLE_PATH            = C:/Users/barre/Documents/GitHub/CLBL/example \
-                          C:/Users/barre/Documents/GitHub/CLBL/tests
+                          C:/Users/barre/Documents/GitHub/CLBL/test
 EXAMPLE_RECURSIVE       = YES
 WARN_IF_UNDOCUMENTED    = NO
 

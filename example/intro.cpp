@@ -11,7 +11,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <memory>
 #include <string>
 #include <cstddef>
-#include <CLBL/clbl.h>
+#include <CLBL/clbl.hpp>
 
 /*
 In this example, and throughout CLBL code, "CV" refers to "const" and "volatile".
