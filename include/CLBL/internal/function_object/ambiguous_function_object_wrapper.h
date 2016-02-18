@@ -91,6 +91,12 @@ struct ambiguous_function_object_wrapper {
     copy_invocation(const volatile this_t& c) {
         return add_qualifiers<qflags::const_ | qflags::volatile_ | q_flags>{{c.data.object}};
     }
+
+    template<typename... Args>
+    decltype(auto) bind(Args... args) {
+        using list_type = typename detail::wrapped_args_tuple<no_ref<Args>...>::type;
+        return detail::binding_wrapper<this_t, list_type>{*this, list_type{ args... }};
+    }
 };
 
 }}

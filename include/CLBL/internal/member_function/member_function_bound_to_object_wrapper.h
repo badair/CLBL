@@ -161,6 +161,12 @@ struct member_function_bound_to_object_wrapper {
             {c.data.pmf, c.data.object}
         };
     }
+
+    template<typename... Fargs>
+    decltype(auto) bind(Fargs... args) {
+        using list_type = typename detail::wrapped_args_tuple<no_ref<Fargs>...>::type;
+        return detail::binding_wrapper<this_t, list_type>{*this, list_type{ args... }};
+    }
 };
 
 }}

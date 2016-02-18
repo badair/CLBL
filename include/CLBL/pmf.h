@@ -27,6 +27,9 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_QVAL(name) qflags::name
 #define CLBL_APPLY_PMF_QUALIFIERS_STRUCT CLBL_PP_CAT(apply_pmf_qualifiers_, __LINE__)
 
+//todo - get rid of unused template aliases in clbl::pmf - most of it isn't used, 
+//and a lot of it doesn't even make sense
+
 #define CLBL_SPCLZ_APPLY_PMF_QUAL_1(QUAL, NAME1)                                     \
 template<>                                                                           \
 struct CLBL_APPLY_PMF_QUALIFIERS_STRUCT <CLBL_QVAL(NAME1)> {                         \

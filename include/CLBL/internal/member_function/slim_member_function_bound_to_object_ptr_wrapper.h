@@ -117,6 +117,12 @@ namespace clbl { namespace internal {
         copy_invocation(const volatile this_t& c) {
             return add_qualifiers<qflags::const_ | qflags::volatile_>{c};
         }
+
+        template<typename... Fargs>
+        decltype(auto) bind(Fargs... args) {
+            using list_type = typename detail::wrapped_args_tuple<no_ref<Fargs>...>::type;
+            return detail::binding_wrapper<this_t, list_type>{*this, list_type{ args... }};
+        }
     };
 }}
 

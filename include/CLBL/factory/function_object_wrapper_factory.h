@@ -18,6 +18,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.h>
 #include <CLBL/harden_cast.h>
 #include <CLBL/qflags.h>
+#include <CLBL/internal/bind/binding_wrapper.h>
 #include <CLBL/internal/member_function/slim_member_function_bound_to_object_wrapper.h>
 #include <CLBL/internal/function_object/ambiguous_function_object_wrapper.h>
 #include <CLBL/internal/function_object/casted_function_object_wrapper.h>

@@ -68,6 +68,12 @@ struct slim_function_ptr_wrapper<Creator, Return(Args...), FunctionPtr> {
     copy_invocation(const volatile this_t& c) {
         return c;
     }
+
+    template<typename... Fargs>
+    decltype(auto) bind(Fargs... args) {
+        using list_type = typename detail::wrapped_args_tuple<no_ref<Fargs>...>::type;
+        return detail::binding_wrapper<this_t, list_type>{*this, list_type{ args... }};
+    }
 };
 
 }}

@@ -20,6 +20,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/qflags.h>
 #include <CLBL/forward.h>
 #include <CLBL/harden_cast.h>
+#include <CLBL/internal/bind/binding_wrapper.h>
 #include <CLBL/internal/function/function_ptr_wrapper.h>
 #include <CLBL/internal/function/slim_function_ptr_wrapper.h>
 
