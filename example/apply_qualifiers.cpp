@@ -7,7 +7,7 @@ Distributed under the Boost Software License, Version 1.0.
 */
 
 #include <type_traits>
-#include <CLBL/clbl.h>
+#include <CLBL/clbl.hpp>
 
 using namespace clbl::qflags;
 int main() {

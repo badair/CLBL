@@ -10,7 +10,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <memory>
 #include <cassert>
 
-#include <CLBL/clbl.h>
+#include <CLBL/clbl.hpp>
 
 struct foo {
     void add_ten(int& i) {

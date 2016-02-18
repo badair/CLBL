@@ -12,7 +12,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <memory>
 #include <utility>
 
-#include <CLBL/clbl.h>
+#include <CLBL/clbl.hpp>
 
 enum class overload { mutable_, const_, volatile_, const_volatile_ };
 

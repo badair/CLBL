@@ -134,7 +134,7 @@ add_custom_target(check
 add_subdirectory(doc)
 add_subdirectory(example)
 #add_subdirectory(experimental)
-add_subdirectory(tests)
+add_subdirectory(test)
 
 
 ##############################################################################

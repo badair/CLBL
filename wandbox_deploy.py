@@ -59,7 +59,7 @@ def headers(path):
     return [
         os.path.join(dir, file)
             for (dir, _, files) in os.walk(path)
-                for file in fnmatch.filter(files, "*.h")
+                for file in fnmatch.filter(files, "*.hpp")
     ]
 
 cpp = os.path.abspath(main)
