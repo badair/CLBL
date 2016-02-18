@@ -33,10 +33,10 @@ namespace clbl { namespace internal {
         public:
 
             bind_value(typename std::decay<T>::type const & t)
-                : t_{ t } {}
+                : t_( t ) {}
 
             bind_value(const typename std::decay<T>::type && t)
-                : t_{ t } {}
+                : t_( t ) {}
 
             T & get() { return t_; }
 
