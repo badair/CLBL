@@ -66,7 +66,7 @@ int main() {
     BIND_TEST(clbl::fwrap(std::make_shared<quum>()))
     BIND_TEST(clbl::fwrap(foo{}, &foo::to_string))
     BIND_TEST(clbl::fwrap(std::make_shared<foo>(), &foo::to_string))
-    BIND_TEST(clbl::fwrap<decltype(&foo::to_string), &foo::to_string>().bind(std::make_shared<foo>(), _1, _2, _3, _4))
+    BIND_TEST(clbl::fwrap<decltype(&foo::to_string), &foo::to_string>().bind(foo{}, _1, _2, _3, _4))
     BIND_TEST(clbl::fwrap<decltype(&foo::to_string), &foo::to_string>(std::make_shared<foo>()))
     BIND_TEST(clbl::fwrap<decltype(&foo::to_string), &foo::to_string>(foo{}))
     BIND_TEST(clbl::fwrap(ugly{}).bind('u', _2, 'g', _1, 'l', _4, 'y', _3))
