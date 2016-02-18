@@ -26,7 +26,9 @@ Code notes:
 
 - The [qflags.h] file contains bit flags that represent C++ value categories and qualifiers, which are integral to CLBL's implementation (see also [qualified_type.h]).
 
-I ultimately plan to propose this project as an addition to Boost. Please contact me if you are interested in contributing to this project -- I'll be more than happy to catch you up to speed. I'm eager to hear any feedback you might have as well. 
+- Note that compile-time performance affects design decisions. Code duplication is favored where the alternatives [are assumed to] compile slower. There is more work to do along these lines, as well.
+
+I ultimately plan to propose this project as an addition to [Boost](http://www.boost.org/). Please contact me if you are interested in contributing to this project -- I'll be more than happy to catch you up to speed. I'm eager to hear any feedback you might have as well. 
 
 I'm actively updating the issues list for planned features and current problems.
 
