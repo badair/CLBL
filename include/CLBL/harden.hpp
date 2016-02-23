@@ -32,9 +32,9 @@ struct harden_t {
 
     //callable_wrapper<function_object_wrapper_base<cv_of<T>::value, Generalized>>
     //callable_wrapper<ambiguous_function_object_wrapper_base<cv_of<T>::value, Generalized>>
-    template<typename Callable, template<qualify_flags, class, class> class Base, qualify_flags Flags, typename GeneralizedObject, typename Pmf>
+    template<typename Callable>
     inline constexpr auto
-    operator()(Callable&& c, const internal::callable_wrapper<Base<Flags, GeneralizedObject, Pmf>>&) const {
+    operator()(Callable&& c) const {
         
         using  present = std::integral_constant<qualify_flags,
             cv_of<Callable>::value | (ref_of<Callable>::value & dummy_mf::ref_flags)
@@ -65,10 +65,19 @@ struct harden_t {
         using requested_pmf_type = typename actual_dummy_mf::template
                 apply_class<underlying_type>;
 
+        using generalized_type = typename C::generalized_object;
+        using data_type = typename generalized_type::original_type;
+
         return internal::callable_wrapper<
             internal::function_object_wrapper_base<
-                Flags | requested | present::value,
-                GeneralizedObject,
+                requested | present::value,
+                qualified_type<
+                    generalized_object<
+                        qualified_type<data_type,
+                        requested | present::value>
+                    >,
+                    requested | present::value
+                >,
                 requested_pmf_type
             >
         >{c.data};
@@ -99,9 +108,7 @@ template<
 >
 inline constexpr decltype(auto)
 harden(Callable&& c) {
-    return detail::harden_t<AbominableFunctionType>{}(
-        static_cast<Callable&&>(c), static_cast<Callable&&>(c)
-    );
+    return detail::harden_t<AbominableFunctionType>{}(static_cast<Callable&&>(c));
 }
 
 template<
@@ -131,19 +138,6 @@ inline constexpr decltype(auto)
 harden(Callable&& c) {
     return harden_cast<QFlags | cv_of<Callable>::value>(static_cast<Callable&&>(c));
 }
-
-/*
-template<qualify_flags HardenFlags, qualify_flags FlagsPresent, typename GeneralizedObject, typename Pmf>
-inline constexpr decltype(auto)
-harden(const internal::callable_wrapper<
-    ambiguous_function_object_wrapper_base<FlagsPresent, GeneralizedObject, Pmf>
->& c) {
-    return internal::callable_wrapper<
-        function_object_wrapper_base<
-            Flags | HardenFlags, 
-            GeneralizedObject
-        >
-}*/
 
 }
 

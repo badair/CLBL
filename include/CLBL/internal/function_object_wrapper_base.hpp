@@ -18,6 +18,8 @@ class callable_wrapper;
 template<qualify_flags QFlags, typename GeneralizedObject, typename Pmf = dummy>
 struct ambiguous_function_object_wrapper_base {
 
+    using pmf_type = Pmf;
+    using generalized_object = GeneralizedObject;
     using arg_types = ambiguous_args;
     using return_type = ambiguous_return;
     using forwarding_glue = ambiguous_return(ambiguous_args);
@@ -44,15 +46,15 @@ struct ambiguous_function_object_wrapper_base {
     ambiguous_function_object_wrapper_base(ambiguous_function_object_wrapper_base&&) = default;
 
     inline constexpr
-    ambiguous_function_object_wrapper_base(invocation_data_type&& t)
-        : data{static_cast<invocation_data_type&&>(t)} {}
+    ambiguous_function_object_wrapper_base(unqualified<invocation_data_type>&& t)
+        : data{static_cast<unqualified<invocation_data_type>&&>(t)} {}
 
     inline constexpr
-    ambiguous_function_object_wrapper_base(const invocation_data_type& t)
+    ambiguous_function_object_wrapper_base(unqualified<invocation_data_type> const & t)
         : data{t} {}
 
     inline constexpr
-    ambiguous_function_object_wrapper_base(const volatile invocation_data_type& t)
+    ambiguous_function_object_wrapper_base(unqualified<invocation_data_type> const volatile & t)
         : data{t} {}
 
     template<typename... Args>
@@ -90,6 +92,8 @@ template<
 struct function_object_wrapper_base 
     : public pmf<Pmf> {
 
+    using pmf_type = Pmf;
+    using generalized_object = GeneralizedObject;
     using base = pmf<Pmf>;
     using this_t = function_object_wrapper_base;
 
@@ -135,16 +139,14 @@ struct function_object_wrapper_base
     function_object_wrapper_base(const volatile function_object_wrapper_base& w)
         : data{w.data}{}
 
-    function_object_wrapper_base(const invocation_data_type & d)
+    function_object_wrapper_base(unqualified<invocation_data_type> const & d)
         : data{d}{};
 
-    function_object_wrapper_base(const volatile invocation_data_type& d)
+    function_object_wrapper_base(unqualified<invocation_data_type> const volatile & d)
         : data{d}{};
 
-    function_object_wrapper_base(invocation_data_type&& d)
-        : data{static_cast<invocation_data_type&&>(d)}{};
-
-
+    function_object_wrapper_base(unqualified<invocation_data_type>&& d)
+        : data{static_cast<unqualified<invocation_data_type>&&>(d)}{};
 
     template<typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)

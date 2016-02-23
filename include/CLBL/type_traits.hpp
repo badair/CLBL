@@ -28,6 +28,12 @@ using no_const_no_ref =
     >::type;
 
 template<typename T>
+using unqualified = 
+    typename std::remove_cv<
+        typename std::remove_reference<T>::type
+    >::type;
+
+template<typename T>
 using no_volatile = typename std::remove_volatile<T>::type;
 
 template<typename T>

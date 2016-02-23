@@ -23,9 +23,8 @@ struct bar {
     semantics are a part of this example, so I must define these constructors
     */
     bar() = default;
-    bar(const bar&) = default;
-    bar(bar&&) = default;
-    bar(const volatile bar&) {}
+    template<typename T>
+    bar(T&&) {}
 
     auto operator()() { return overload::mutable_; }
     auto operator()() const { return overload::const_; }

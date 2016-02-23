@@ -26,6 +26,41 @@ struct generalized_object_t {
 
     T object;
     using type = T;
+    using original_type = T;
+
+    generalized_object_t(generalized_object_t const &) = default;
+    generalized_object_t(generalized_object_t&&) = default;
+
+    inline constexpr
+    generalized_object_t(generalized_object_t const volatile & t)
+        : object{t.object}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T> const & t)
+        : object{t}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T> const volatile & t)
+        : object{t}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T>&& t)
+        : object{static_cast<T&&>(t)}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy> const & t)
+        : object{t.object}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy> const volatile & t)
+        : object{t.object}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy>&& t)
+        : object{static_cast<generalized_object_t<U, dummy>&&>(t).object}{}
 
     template<qualify_flags QFlags = qflags::default_>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
@@ -57,6 +92,41 @@ struct generalized_object_t<DereferenceableObject<T>, dummy> {
 
     T object_ptr;
     using type = no_ref<decltype(*object_ptr)>;
+    using original_type = T;
+
+    generalized_object_t(generalized_object_t const &) = default;
+    generalized_object_t(generalized_object_t&&) = default;
+
+    inline constexpr
+    generalized_object_t(generalized_object_t const volatile & t)
+        : object_ptr{t.object_ptr}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T> const & t)
+        : object_ptr{t}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T> const volatile & t)
+        : object_ptr{t}{}
+
+    inline constexpr
+    generalized_object_t(unqualified<T>&& t)
+        : object_ptr{static_cast<unqualified<T>&&>(t)}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy> const & t)
+        : object_ptr{t.object_ptr}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy> const volatile & t)
+        : object_ptr{t.object_ptr}{}
+
+    template<typename U>
+    inline constexpr
+    generalized_object_t(generalized_object_t<U, dummy>&& t)
+        : object_ptr{static_cast<generalized_object_t<U, dummy>&&>(t).object_ptr}{}
 
     template<qualify_flags QFlags = qflags::default_>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
@@ -88,6 +158,33 @@ struct generalized_object_t<std::reference_wrapper<T>, dummy> {
 
     std::reference_wrapper<T> ref_wrapped_object;
     using type = T;
+    using original_type = std::reference_wrapper<T>;
+
+    generalized_object_t(generalized_object_t const &) = default;
+    generalized_object_t(generalized_object_t&&) = default;
+
+    inline constexpr
+    generalized_object_t(generalized_object_t const volatile & t)
+        : ref_wrapped_object{t.ref_wrapped_object}{}
+
+    inline constexpr
+    generalized_object_t(std::reference_wrapper<T> t)
+        : ref_wrapped_object{t}{}
+
+    template<typename U>
+    inline constexpr
+        generalized_object_t(generalized_object_t<U, dummy> const & t)
+        : ref_wrapped_object{ t.ref_wrapped_object } {}
+
+    template<typename U>
+    inline constexpr
+        generalized_object_t(generalized_object_t<U, dummy> const volatile & t)
+        : ref_wrapped_object{ t.ref_wrapped_object } {}
+
+    template<typename U>
+    inline constexpr
+        generalized_object_t(generalized_object_t<U, dummy>&& t)
+        : ref_wrapped_object{ static_cast<generalized_object_t<U, dummy>&&>(t).ref_wrapped_object } {}
 
     template<qualify_flags QFlags = qflags::default_>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)

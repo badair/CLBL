@@ -12,6 +12,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 #include <CLBL/tags.hpp>
+#include <CLBL/is_clbl.hpp>
 #include <CLBL/can_dereference.hpp>
 #include <CLBL/is_reference_wrapper.hpp>
 #include <CLBL/has_normal_call_operator.hpp>
@@ -94,6 +95,12 @@ using DefaultNormalCallable = typename std::conditional<
     T,
     callable_dummy
 >::type;
+
+template<
+    typename T,
+    CLBL_REQUIRES_(is_clbl<T>::value)
+>
+using CallableWrapper = T;
 
 }
 
