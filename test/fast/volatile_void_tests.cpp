@@ -17,12 +17,12 @@ using namespace clbl;
 
 int main() {
     volatile_void_struct volatile_void_object{};
-    
+
     auto f = fwrap(&volatile_void_object);
-    auto g = fwrap(&volatile_void_object, &volatile_void_struct::func);
+    auto g = fwrap(&volatile_void_struct::func, &volatile_void_object);
     auto h = fwrap(volatile_void_object);
-    auto i = fwrap(volatile_void_object, &volatile_void_struct::func);
-    
+    auto i = fwrap(&volatile_void_struct::func, volatile_void_object);
+
     run_basic_tests(f, test_id::volatile_void_struct_op);
     run_basic_tests(g, test_id::volatile_void_struct_func);
     run_basic_tests(h, test_id::volatile_void_struct_op);

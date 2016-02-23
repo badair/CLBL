@@ -28,6 +28,11 @@ namespace clbl {
     dummy is used whenever we need a type, but don't care what it is
     */
     struct dummy {};
+
+    struct callable_dummy {
+        void operator()(){}
+    };
+
     struct auto_ {};
     struct copy_ {};
     
@@ -54,6 +59,10 @@ namespace clbl {
     struct ambi_fn_obj_tag {};
     struct fn_obj_ptr_tag {};
     struct ambi_fn_obj_ptr_tag {}; 
+
+    struct function_wrapper_tag{};
+    struct function_object_wrapper_tag {};
+    struct bound_pmf_tag{};
 
     //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3652.html
     #ifdef __cpp_constexpr

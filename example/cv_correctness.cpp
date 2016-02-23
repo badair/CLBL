@@ -181,8 +181,8 @@ int main() {
         Note: other uses of clbl::harden are discussed elsewhere.
         */
         {
-            auto still_const_volatile = clbl::harden(clbl_const_volatile);
-            assert_const_volatile(still_const_volatile);
+            //TODO? auto still_const_volatile = clbl::harden(clbl_const_volatile);
+            //TODO? assert_const_volatile(still_const_volatile);
         }
         /*
         clbl::fwrap can also be used to lock in the CV-ness of a CLBL wrapper.
@@ -192,8 +192,8 @@ int main() {
         Matryoshka doll madness, CLBL makes compilers and debuggers happy.
         */
         {
-            auto still_const_volatile = clbl::fwrap(clbl_const_volatile);
-            assert_const_volatile(still_const_volatile);
+            //TODO? auto still_const_volatile = clbl::fwrap(clbl_const_volatile);
+            //TODO? assert_const_volatile(still_const_volatile);
         }
     }
 

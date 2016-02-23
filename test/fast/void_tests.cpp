@@ -22,12 +22,12 @@ int main() {
 
     auto f = fwrap(&void_object);
     auto g = fwrap(&void_func);
-    auto h = fwrap(&void_object, &void_struct::func);
+    auto h = fwrap(&void_struct::func, &void_object);
     auto i = fwrap(void_func);
-    auto j = fwrap(void_object, &void_struct::func);
-    auto k = fwrap(std::ref(void_object), &void_struct::func);
+    auto j = fwrap(&void_struct::func, void_object);
+    auto k = fwrap(&void_struct::func, std::ref(void_object));
     auto l = fwrap(std::ref(void_object));
-    
+
     run_basic_tests(f, test_id::void_struct_op);
     run_basic_tests(g, test_id::void_func);
     run_basic_tests(h, test_id::void_struct_func);

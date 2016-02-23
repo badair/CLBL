@@ -17,7 +17,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/ph.hpp>
 
 //todo - split into multiple files
-//todo - rename
+
 namespace clbl { namespace internal {
 
     template<typename Callable, typename ArgsTuple>

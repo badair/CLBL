@@ -1,4 +1,4 @@
- /*
+/*
 
 Copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
@@ -92,19 +92,19 @@ void test_foo_wrapper_copy(FooWrapper&& f, foo& my_foo) {
 int main() {
     {
         auto my_foo = foo{};
-        auto f = fwrap(&my_foo, &foo::add);
+        auto f = fwrap(&foo::add, &my_foo);
         test_foo_wrapper_indirect(f, my_foo);
     }
 
     {
         auto my_foo = foo{};
-        auto f = fwrap(std::ref(my_foo), &foo::add);
+        auto f = fwrap(&foo::add, std::ref(my_foo));
         test_foo_wrapper_indirect(f, my_foo);
     }
 
     {
         auto my_foo = foo{};
-        auto f = fwrap(my_foo, &foo::add);
+        auto f = fwrap(&foo::add, my_foo);
         test_foo_wrapper_copy(f, my_foo);
     }
 }

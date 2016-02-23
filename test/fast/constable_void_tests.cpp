@@ -21,9 +21,9 @@ int main() {
 
     auto f = fwrap(&constable_void_object);
     auto g = fwrap(&void_func);
-    auto h = fwrap(&constable_void_object, &const_void_struct::func);
+    auto h = fwrap(&const_void_struct::func, &constable_void_object);
     auto i = fwrap(void_func);
-    auto j = fwrap(constable_void_object, &const_void_struct::func);
+    auto j = fwrap(&const_void_struct::func, constable_void_object);
     run_basic_tests(f, test_id::const_void_struct_op);
     run_basic_tests(g, test_id::void_func);
     run_basic_tests(h, test_id::const_void_struct_func);

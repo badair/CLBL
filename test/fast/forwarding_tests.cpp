@@ -40,14 +40,14 @@ confirm that arguments passing through CLBL are
 not copied superfluously
 */
 void take_copy(copy_counter) {}
-    
+
 /*
-we will use this to test something that forwards what 
+we will use this to test something that forwards what
 we're forwarding
 */
 auto forwarder = [](auto&& t) {return take_copy(t);};
 
-struct copy_taker{
+struct copy_taker {
     void take_copy(copy_counter) const {}
 };
 
@@ -146,7 +146,7 @@ int main() {
         copy_counter::reset();
         copy_counter obj{};
 
-        const auto f = fwrap(copy_taker{}, &copy_taker::take_copy);
+        const auto f = fwrap(&copy_taker::take_copy, copy_taker{});
         const auto hardened = harden<void(copy_counter) const>(f);
 
         hardened(obj);
@@ -162,7 +162,7 @@ int main() {
         static_assert(!std::is_trivially_copyable<copy_counter>::value, "");
 
         copy_counter::reset();
-        auto f = fwrap(copy_returner{}, &copy_returner::return_copy);
+        auto f = fwrap(&copy_returner::return_copy, copy_returner{});
         auto hardened = harden<copy_counter()>(f);
         auto std_func = convert_to<std::function>(f);
         auto std_func2 = convert_to<std::function>(hardened);
@@ -185,7 +185,7 @@ int main() {
 
         copy_counter::reset();
         auto obj = copy_returner{};
-        auto f = fwrap(&obj, &copy_returner::return_copy);
+        auto f = fwrap(&copy_returner::return_copy, &obj);
         auto hardened = harden<copy_counter()>(f);
         auto std_func = convert_to<std::function>(f);
         auto std_func2 = convert_to<std::function>(hardened);

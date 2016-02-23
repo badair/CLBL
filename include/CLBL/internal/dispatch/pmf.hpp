@@ -17,6 +17,10 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/harden_cast.hpp>
 #include <CLBL/constraints.hpp>
 #include <CLBL/qflags.hpp>
+#include <CLBL/type_traits.hpp>
+#include <CLBL/can_dereference.hpp>
+#include <CLBL/has_normal_call_operator.hpp>
+#include <CLBL/generalized_object.hpp>
 
 #define CLBL_QTOK_default_
 #define CLBL_QTOK_lvalue_reference_ &
@@ -105,23 +109,35 @@ CLBL_APPLY_PMF_QUAL(QUAL);                                                      
                                                                                      \
 template<typename Return, typename T, typename... Args>                              \
 struct pmf<Return(T::*)(Args...) QUAL> {                                             \
-    static constexpr auto cv_flags = cv_of<dummy QUAL>::value;                       \
-    static constexpr auto ref_flags = ref_of<dummy QUAL>::value;                     \
-    static constexpr auto q_flags = cv_flags | ref_flags;                            \
-    static constexpr bool is_ref_qualified = !(ref_flags | qflags::default_);        \
+    static constexpr const auto cv_flags = cv_of<dummy QUAL>::value;                 \
+    static constexpr const auto ref_flags = ref_of<dummy QUAL>::value;               \
+    static constexpr const auto q_flags = cv_flags | ref_flags;                      \
+    static constexpr const bool is_ref_qualified = !(ref_flags | qflags::default_);  \
+    static constexpr const bool is_valid = true;                                     \
+    static constexpr const bool value = is_valid;                                    \
+    static constexpr const bool has_varargs = false;                                 \
+    static constexpr const bool is_ambiguous = false;                                \
     using return_type = Return;                                                      \
     using arg_types = std::tuple<Args...>;                                           \
     using type = Return(T::*)(Args...) QUAL;                                         \
+    using constructor_type = type;                                                   \
     using decay_type = Return(T::*)(Args...);                                        \
     using decay_to_function = Return(Args...);                                       \
     using abominable_type = Return(Args...) QUAL;                                    \
     using forwarding_glue = Return(forward<Args>...);                                \
     using class_type = T;                                                            \
+    using dispatch_type = pmf;                                                       \
     using invoke_type =                                                              \
             qualified_type<T, qflags::guarantee_reference<cv_flags>::value>;         \
                                                                                      \
+    template<typename T>                                                             \
+    using can_invoke_with = std::is_convertible<                                     \
+        typename std::remove_pointer<T>::type,                                       \
+        invoke_type                                                                  \
+    >;                                                                               \
+                                                                                     \
     template<qualify_flags Applied>                                                  \
-    using apply_qualifiers = typename CLBL_APPLY_PMF_QUALIFIERS_STRUCT<              \
+    using add_qualifiers = typename CLBL_APPLY_PMF_QUALIFIERS_STRUCT<                \
         Applied>::template type<q_flags, Return, T, Args...>;                        \
                                                                                      \
     template<typename Callable>                                                      \
@@ -146,17 +162,17 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     template<template<class...> class U, typename... PrependArgs>                    \
     using prepend_args = U<PrependArgs..., Args...>;                                 \
                                                                                      \
-    template<template<class...> class U, template<class> class K, typename... P>     \
-    using prepend_args_on = U<P..., forward<Args>...>;                               \
+    template<typename... PrependArgs>                                                \
+    using prepend_args_to_function = Return(PrependArgs..., Args...);                \
                                                                                      \
-    template<typename AdaptReturn, typename... PrependArgs>                          \
-    using prepend_args_to_function = AdaptReturn(PrependArgs..., Args...);           \
+    template<typename... PrependArgs>                                                \
+    using prepend_arg_to_function = Return(PrependArgs..., Args...);                 \
                                                                                      \
-    template<typename Ret, typename Pre>                                             \
-    using prepend_arg_to_forward_function = Ret(Pre, forward<Args>...);              \
+    template<typename Pre>                                                           \
+    using prepend_arg_to_forward_function = Return(Pre, forward<Args>...);           \
                                                                                      \
-    template<typename Ret, typename... Pre>                                          \
-    using prepend_args_to_forward_function = Ret(Pre..., forward<Args>...);          \
+    template<typename... Pre>                                                        \
+    using prepend_args_to_forward_function = Return(Pre..., forward<Args>...);       \
                                                                                      \
     template<typename AdaptReturn>                                                   \
     using unpack_args_to_function = AdaptReturn(Args...);                            \
@@ -166,6 +182,11 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
                                                                                      \
     template<typename AdaptReturn, typename AdaptClass>                              \
     using unpack_args_to_member_function = AdaptReturn(AdaptClass::*)(Args...);      \
+};                                                                                   \
+                                                                                     \
+template<typename Return, typename T, typename... Args>                              \
+struct pmf<Return(T::*)(Args..., ...) QUAL> : public pmf<Return(T::*)(Args...)>{     \
+    static constexpr const bool has_varargs = true;                                  \
 }                                                                                    \
 /**/
 
@@ -173,7 +194,13 @@ namespace clbl {
 
 template<typename T>
 struct pmf {
-    static_assert(sizeof(T) < 0, "invalid member function type");  
+    static constexpr const bool is_valid = false;
+    static constexpr const bool value = is_valid;
+    static constexpr const bool is_ambiguous = true;
+    using dispatch_type = pmf;
+    using return_type = dummy;
+    static constexpr auto q_flags = qflags::default_;
+    static constexpr auto ref_flags = qflags::default_;
 };
 
 CLBL_SPECIALIZE_PMF(CLBL_NO_CV);
@@ -188,6 +215,13 @@ CLBL_SPECIALIZE_PMF(const volatile &);
 CLBL_SPECIALIZE_PMF(const &&);
 CLBL_SPECIALIZE_PMF(volatile &&);
 CLBL_SPECIALIZE_PMF(const volatile &&);
+
+template<typename T, T Value>
+struct pmf<std::integral_constant<T, Value> >
+    : public pmf<T> {
+    using constructor_type = std::integral_constant<T, Value>;
+    using dispatch_type = pmf;
+};
 
 }
 
