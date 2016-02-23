@@ -1,4 +1,4 @@
-
+ 
 # Copyright Louis Dionne 2015
 # Modified Work Copyright Barrett Adair 2015
 # Distributed under the Boost Software License, Version 1.0.
@@ -39,29 +39,17 @@ matrix:
     # speed up Travis builds.
     ##########################################################################
 
-    # Clang 3.6
-    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
-      addons: &clang36
+    # Clang 3.7
+    - env: UNIT_TESTS=true COMPILER=clang++-3.7 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      addons: &clang37
         apt:
-          packages: ["clang-3.6", "valgrind"]
+          packages: ["clang-3.7", "valgrind"]
           sources: &sources
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
             - llvm-toolchain-precise-3.6
             - llvm-toolchain-precise-3.7
             - llvm-toolchain-precise
-
-    # Clang 3.7
-    - env: UNIT_TESTS=true COMPILER=clang++-3.7 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
-      addons: &clang37
-        apt:
-          packages: ["clang-3.7", "valgrind"]
-          sources: *sources
-
-    # Xcode 6.4
-    - os: osx
-      env: UNIT_TESTS=true COMPILER=clang++
-      osx_image: xcode6.4
 
     # Xcode 7
     - os: osx
@@ -90,16 +78,62 @@ matrix:
           packages: ["clang-3.8"]
           sources: *sources
 
+    # Clang 3.6
+    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      addons: &clang36
+        apt:
+          packages: ["clang-3.6", "valgrind"]
+          sources: *sources
+
+    # Xcode 6.4
+    - os: osx
+      env: UNIT_TESTS=true COMPILER=clang++
+      osx_image: xcode6.4
+
     # Xcode 7.2 beta 1
     - os: osx
       env: UNIT_TESTS=true COMPILER=clang++
       osx_image: xcode7.2b1
+      
+    # GCC 5 - C++11
+    - env: UNIT_TESTS=true CPP=11 COMPILER=g++ STDLIB=libstdc++ GCC_VERSION=5 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      compiler: g++
+      addons: &gcc5
+        apt:
+          packages:
+            - g++-5
+            - gcc-5
+            - valgrind
+          sources:
+            - ubuntu-toolchain-r-test
 
-
+    # GCC 5 - C++14
+    - env: UNIT_TESTS=true CPP=14 COMPILER=g++ STDLIB=libstdc++ GCC_VERSION=5 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      compiler: g++
+      addons: &gcc5
+        apt:
+          packages:
+            - g++-5
+            - gcc-5
+            - valgrind
+          sources:
+            - ubuntu-toolchain-r-test
+            
   allow_failures:
     - env: UNIT_TESTS=true COMPILER=clang++-3.8
+    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+    - env: UNIT_TESTS=true CPP=11 COMPILER=g++ STDLIB=libstdc++ GCC_VERSION=5 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+    - env: UNIT_TESTS=true CPP=14 COMPILER=g++ STDLIB=libstdc++ GCC_VERSION=5 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
     - osx_image: xcode7.2b1
+    - osx_image: xcode6.4
+    
+before_install:
 
+  - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
+  - which $CXX
+  - which $CC
+  - if [ -z "$CPP" ]; then export CPP="14"; fi
+  
 install:
   ############################################################################
   # All the dependencies are installed in ${TRAVIS_BUILD_DIR}/deps/
@@ -163,7 +197,7 @@ before_script:
   # Go back to the root of the project and setup the build directory
   ############################################################################
   - cd ${TRAVIS_BUILD_DIR}
-  - (mkdir build && cd build && cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCLBL_ENABLE_WERROR=ON ${CMAKE_OPTIONS})
+  - (mkdir build && cd build && cmake .. -DCMAKE_CXX_COMPILER=${COMPILER} -DCLBL_CXX_STD=$CPP -DCLBL_ENABLE_WERROR=ON ${CMAKE_OPTIONS})
 
 
 script:

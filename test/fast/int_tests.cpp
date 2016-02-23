@@ -21,12 +21,12 @@ int main() {
 
     auto f = fwrap(&int_object);
     auto g = fwrap(&int_func);
-    auto h = fwrap(&int_object, &int_struct::func);
+    auto h = fwrap(&int_struct::func, &int_object);
     auto i = fwrap(int_func);
-    auto j = fwrap(int_object, &int_struct::func);
+    auto j = fwrap(&int_struct::func, int_object);
     auto k = fwrap(int_object);
     auto l = fwrap(std::ref(int_object));
-    auto m = fwrap(std::ref(int_object), &int_struct::func);
+    auto m = fwrap(&int_struct::func, std::ref(int_object));
 
     auto hardened_f = harden<auto_(int)>(f);
     auto hardened_g = harden<auto_(int)>(g);

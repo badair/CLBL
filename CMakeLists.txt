@@ -15,8 +15,15 @@ enable_testing()
 # Perform checks to make sure we support the current compiler
 include(CheckCxxCompilerSupport)
 
+if(CLBL_CXX_STD)
+else()
+  # Defaults to C++14 if not set:
+  set(CLBL_CXX_STD 14) 
+endif()
 
-##############################################################################
+set (CMAKE_CXX_STANDARD ${CLBL_CXX_STD})
+
+###############################################################################
 # Setup CMake options
 ##############################################################################
 option(CLBL_ENABLE_WERROR   "Fail and stop if a warning is triggered." OFF)
@@ -78,7 +85,6 @@ endif()
 #        "The Boost library headers were not found; targets depending "
 #        "on Boost won't be available.")
 #endif()
-
 
 ##############################################################################
 # Setup custom functions to ease the creation of targets

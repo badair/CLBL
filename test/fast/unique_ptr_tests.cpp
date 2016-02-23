@@ -44,7 +44,7 @@ int main() {
 
         {
             auto ptr = std::make_unique<scope_test>(ss);
-            auto f = fwrap(std::move(ptr), &scope_test::func);
+            auto f = fwrap(&scope_test::func, std::move(ptr));
             f(1);
         }
 

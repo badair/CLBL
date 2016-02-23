@@ -49,7 +49,7 @@ int main() {
     {
         //testing object reference preservation when converted to std::function
         auto mutable_object = mutable_struct{ 0 };
-        auto f = fwrap(&mutable_object, &mutable_struct::increment);
+        auto f = fwrap(&mutable_struct::increment, &mutable_object);
         auto stdf = convert_to<std::function>(f);
 
         f(0);

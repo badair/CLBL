@@ -1,6 +1,6 @@
 /*!
 @file
-Defines `clbl::has_normal_call_operator` and `clbl::ptr_has_normal_call_operator`.
+Defines `clbl::has_normal_call_operator`.
 
 @copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
@@ -25,7 +25,7 @@ namespace clbl {
         template<typename N, N Value> struct check{ check(std::nullptr_t){} };
 
         template<typename U>
-        static std::int8_t test(check<decltype(&no_ref<U>::operator()), &no_ref<U>::operator()>);
+        static std::int8_t test(check<decltype(&U::operator()), &U::operator()>);
 
         template<typename>
         static std::int16_t test(...);
@@ -33,25 +33,6 @@ namespace clbl {
         static constexpr const bool value = 
             sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
     };
-
-    template<typename T>
-    struct ptr_has_normal_call_operator
-    {
-        template<typename N, N Value> struct check { check(std::nullptr_t){} };
-
-        template<typename U>
-        static std::int8_t test(check<
-                                    decltype(&no_ref<decltype(*std::declval<U>())>::operator()),
-                                    &no_ref<decltype(*std::declval<U>())>::operator()
-                                >);
-
-        template<typename U>
-        static std::int16_t test(...);
-
-        static constexpr const bool value = 
-            sizeof(test<T>(nullptr)) == sizeof(std::int8_t);
-    };
-
 }
 
 #endif

@@ -21,7 +21,7 @@ int main() {
 
     auto f = fwrap(&constable_int_char_object);
     auto g = fwrap(&int_char_func);
-    auto h = fwrap(&constable_int_char_object, &const_int_char_struct::func);
+    auto h = fwrap(&const_int_char_struct::func, &constable_int_char_object);
     auto i = fwrap(int_char_func);
 
     run_basic_tests(f, test_id::const_int_char_struct_op, 1, 'c');

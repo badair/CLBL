@@ -16,7 +16,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/tags.hpp>
 #include <CLBL/type_traits.hpp>
 #include <CLBL/harden.hpp>
-#include <CLBL/qflags.hpp>
+#include <quali/quali.hpp>
 #include <CLBL/invocation_copy.hpp>
 #include <CLBL/forwarding_glue.hpp>
 
@@ -53,7 +53,7 @@ namespace clbl {
     template<typename GlueType, typename Callable>
     constexpr inline auto apply_glue(Callable&& c) {
         using C = no_ref<Callable>;
-        return detail::apply_glue_t<C, GlueType>{C::copy_invocation(c)};
+        return detail::apply_glue_t<C, GlueType>{C::copy_wrapper(static_cast<Callable&&>(c))};
     }
 
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>

@@ -20,12 +20,12 @@ int main() {
 
     const auto const_int_object = const_int_struct{};
 
-    
+
     auto f = fwrap(&const_int_object);
     auto g = fwrap(&int_func);
-    auto h = fwrap(&const_int_object, &const_int_struct::func);
+    auto h = fwrap(&const_int_struct::func, &const_int_object);
     auto i = fwrap(int_func);
-    auto j = fwrap(const_int_object, &const_int_struct::func);
+    auto j = fwrap(&const_int_struct::func, const_int_object);
     auto hardened_f = harden<std::string(int)>(f);
     auto hardened_g = harden<std::string(int)>(g);
     auto hardened_h = harden<std::string(int)>(h);
@@ -36,7 +36,7 @@ int main() {
     auto default_hardened_h = harden(h);
     auto default_hardened_i = harden(i);
     auto default_hardened_j = harden(j);
-    
+
     run_basic_tests(f, test_id::const_int_struct_op, 1);
     run_basic_tests(g, test_id::int_func, 1);
     run_basic_tests(h, test_id::const_int_struct_func, 1);
@@ -52,6 +52,6 @@ int main() {
     run_basic_tests(default_hardened_h, test_id::const_int_struct_func, 1);
     run_basic_tests(default_hardened_i, test_id::int_func, 1);
     run_basic_tests(default_hardened_j, test_id::const_int_struct_func, 1);
-        
+
     return 0;
 }
