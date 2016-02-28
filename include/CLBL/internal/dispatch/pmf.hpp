@@ -130,9 +130,9 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     using invoke_type =                                                              \
             qualified_type<T, qflags::guarantee_reference<cv_flags>::value>;         \
                                                                                      \
-    template<typename T>                                                             \
+    template<typename U>                                                             \
     using can_invoke_with = std::is_convertible<                                     \
-        typename std::remove_pointer<T>::type,                                       \
+        typename std::remove_pointer<U>::type,                                       \
         invoke_type                                                                  \
     >;                                                                               \
                                                                                      \
