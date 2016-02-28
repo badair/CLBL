@@ -39,29 +39,17 @@ matrix:
     # speed up Travis builds.
     ##########################################################################
 
-    # Clang 3.6
-    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
-      addons: &clang36
+    # Clang 3.7
+    - env: UNIT_TESTS=true COMPILER=clang++-3.7 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      addons: &clang37
         apt:
-          packages: ["clang-3.6", "valgrind"]
+          packages: ["clang-3.7", "valgrind"]
           sources: &sources
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
             - llvm-toolchain-precise-3.6
             - llvm-toolchain-precise-3.7
             - llvm-toolchain-precise
-
-    # Clang 3.7
-    - env: UNIT_TESTS=true COMPILER=clang++-3.7 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
-      addons: &clang37
-        apt:
-          packages: ["clang-3.7", "valgrind"]
-          sources: *sources
-
-    # Xcode 6.4
-    - os: osx
-      env: UNIT_TESTS=true COMPILER=clang++
-      osx_image: xcode6.4
 
     # Xcode 7
     - os: osx
@@ -90,15 +78,29 @@ matrix:
           packages: ["clang-3.8"]
           sources: *sources
 
+    # Clang 3.6
+    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
+      addons: &clang36
+        apt:
+          packages: ["clang-3.6", "valgrind"]
+          sources: *sources
+
+    # Xcode 6.4
+    - os: osx
+      env: UNIT_TESTS=true COMPILER=clang++
+      osx_image: xcode6.4
+
     # Xcode 7.2 beta 1
     - os: osx
       env: UNIT_TESTS=true COMPILER=clang++
       osx_image: xcode7.2b1
 
-
   allow_failures:
     - env: UNIT_TESTS=true COMPILER=clang++-3.8
+    - env: UNIT_TESTS=true COMPILER=clang++-3.6 CMAKE_OPTIONS="-DCLBL_ENABLE_MEMCHECK=ON"
     - osx_image: xcode7.2b1
+    - osx_image: xcode6.4
+    
 
 install:
   ############################################################################
