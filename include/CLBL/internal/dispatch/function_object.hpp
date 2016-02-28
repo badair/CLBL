@@ -22,14 +22,14 @@ struct function_object
         has_normal_call_operator<typename GeneralizedObject::type>::value,
         pmf<
             std::integral_constant<
-                decltype(&DefaultNormalCallable<typename GeneralizedObject::type>::operator()),
-                &DefaultNormalCallable<typename GeneralizedObject::type>::operator()
+                decltype(&default_normal_callable<typename GeneralizedObject::type>::operator()),
+                &default_normal_callable<typename GeneralizedObject::type>::operator()
             >
         >,
         function_object_detail::empty_base
     >::type
 {
-    static constexpr const bool is_valid = true;
+    static constexpr const bool is_valid = !is_clbl<typename GeneralizedObject::type>::value;
     static constexpr const bool value = is_valid;
     using general_type = typename GeneralizedObject::type;
     static constexpr auto is_clbl = clbl::is_clbl<general_type>::value;
@@ -49,6 +49,20 @@ template<typename T, T Value>
 struct function_object<generalized_object_t<std::integral_constant<T, Value>, dummy>> {
     static constexpr const bool is_valid = false;
     static constexpr const bool value = is_valid;
+};
+
+template<typename T>
+struct wrapper_object {
+    static constexpr const bool is_valid = is_clbl<T>::value;
+    static constexpr const bool value = is_valid;
+    using dispatch_type = wrapper_object;
+};
+
+template<typename T>
+struct wrapper_object <std::reference_wrapper<T>> {
+    static constexpr const bool is_valid = is_clbl<T>::value;
+    static constexpr const bool value = is_valid;
+    using dispatch_type = wrapper_object;
 };
 
 }

@@ -58,7 +58,6 @@ public:
     
     using base = pmf_wrapper_data<typename Dispatch::constructor_type>;
     using base::base;
-
     using underlying_type = typename Dispatch::invoke_type;
     using arg_types = typename Dispatch::template prepend_args<std::tuple, underlying_type>;
     using clbl_tag = pmf_tag;

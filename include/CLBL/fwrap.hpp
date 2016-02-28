@@ -20,7 +20,8 @@ using dispatch = disjunction<
     function_reference<T>,
     function_ptr<no_ref<T>>,
     function_object<generalized_object<no_ref<T>>>,
-    pmf<no_ref<T>>
+    pmf<no_ref<T>>,
+    wrapper_object<generalized_object<no_ref<T>>>
 >;
 
 template<typename T>
@@ -39,15 +40,6 @@ fwrap(T&& t, Args&&... args) {
         static_cast<Args&&>(args)...
     );
 }
-
-/* TODO
-template<typename T>
-inline constexpr decltype(auto)
-fwrap(CallableWrapper<T&&> t) {
-    using wrapper = no_ref<T>;
-    using dispatch_type = typename dispatch<wrapper::>::dispatch_type;
-    return internal::dispatcher<dispatch_type, T&&>{}(static_cast<T&&>(t));
-}*/
 
 }
 

@@ -57,20 +57,79 @@ public:
 
     template<
         typename T,
-        CLBL_REQUIRES_(std::is_same<typename no_ref<T>::clbl_tag, function_object_wrapper_tag>::value)
+        CLBL_REQUIRES_(
+            std::is_same<
+                typename no_ref<T>::clbl_tag,
+                function_object_wrapper_tag
+            >::value
+        )
     >
     static inline constexpr auto
-        copy_invocation(T&& t) {
-        return typename no_ref<T>::template add_qualifiers<Base::q_flags | cv_of<T>::value>{t.data};
+    copy_wrapper(T&& t) {
+        return typename Base::template
+                add_qualifiers<Base::q_flags | cv_of<T>::value>{t.data};
     }
 
     template<
         typename T,
-        CLBL_REQUIRES_(!std::is_same<typename no_ref<T>::clbl_tag, function_object_wrapper_tag>::value)
+        CLBL_REQUIRES_(
+            !std::is_same<
+                typename no_ref<T>::clbl_tag,
+                function_object_wrapper_tag
+            >::value
+        )
     >
     static inline constexpr auto
-        copy_invocation(T&& t) {
+    copy_wrapper(T&& t) {
         return harden_cast<cv_of<T>::value>(static_cast<T&&>(t));
+    }
+
+    template<
+        typename T,
+        CLBL_REQUIRES_(
+            std::is_same<
+                typename no_ref<T>::clbl_tag,
+                function_object_wrapper_tag
+            >::value
+        )
+    >
+    static inline constexpr decltype(auto)
+    move_wrapper(T&& t) {
+        return typename Base::template
+            add_qualifiers<Base::q_flags | cv_of<T>::value>{
+                static_cast<no_ref<T>&&>(t).data
+            };
+    }
+
+    template<
+        typename T,
+        CLBL_REQUIRES_(
+            !std::is_same<
+                typename no_ref<T>::clbl_tag,
+                function_object_wrapper_tag
+            >::value
+        )
+    >
+    static inline constexpr decltype(auto)
+    move_wrapper(T&& t) {
+        return static_cast<
+                qualified_type<
+                    no_ref<T>,
+                    qflags::rvalue_reference_ | cv_of<T>::value
+                >
+            >(static_cast<T&&>(t));
+    }
+
+    template<typename T>
+    static inline constexpr decltype(auto)
+    transform(T& t){
+        return copy_wrapper(t);
+    }
+
+    template<typename T>
+    static inline constexpr decltype(auto)
+    transform(T&& t){
+        return move_wrapper(static_cast<T&&>(t));
     }
 };
 

@@ -89,7 +89,6 @@ struct bound_pmf_wrapper_base
 
     using base = bound_pmf_wrapper_data<BoundObject, typename Dispatch::constructor_type>;
     using base::base;
-
     using arg_types = typename Dispatch::arg_types;
     using clbl_tag = bound_pmf_tag;
     using forwarding_glue = typename Dispatch::forwarding_glue;

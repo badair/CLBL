@@ -12,9 +12,6 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl { namespace internal {
 
-template<typename Base>
-class callable_wrapper;
-
 template<qualify_flags QFlags, typename GeneralizedObject, typename Pmf = dummy>
 struct ambiguous_function_object_wrapper_base {
 
@@ -33,11 +30,14 @@ struct ambiguous_function_object_wrapper_base {
     static constexpr auto is_ambiguous = true;
 
     template<qualify_flags Flags>
-    using add_qualifiers = callable_wrapper<ambiguous_function_object_wrapper_base<
-        qflags::collapse_reference<QFlags, Flags>::value,
-        GeneralizedObject,
-        Pmf
-    >>;
+    using add_qualifiers = 
+    callable_wrapper<
+        ambiguous_function_object_wrapper_base<
+            qflags::collapse_reference<QFlags, Flags>::value,
+            GeneralizedObject,
+            Pmf
+        >
+    >;
 
     invocation_data_type data;
 
@@ -87,7 +87,7 @@ struct ambiguous_function_object_wrapper_base {
 template<
     qualify_flags QFlags,
     typename GeneralizedObject,
-    typename Pmf = call_operator<typename GeneralizedObject::type>
+    typename Pmf = call_operator<default_normal_callable<typename GeneralizedObject::type>>
 >
 struct function_object_wrapper_base 
     : public pmf<Pmf> {
@@ -99,7 +99,7 @@ struct function_object_wrapper_base
 
     static constexpr const qualify_flags q_flags = 
         qflags::collapse_reference<
-            base::q_flags | pmf<decltype(&DefaultNormalCallable<typename GeneralizedObject::type>::operator())>::q_flags,
+            base::q_flags | pmf<decltype(&default_normal_callable<typename GeneralizedObject::type>::operator())>::q_flags,
             QFlags
         >::value;
 
@@ -117,11 +117,14 @@ struct function_object_wrapper_base
     };
 
     template<qualify_flags Flags>
-    using add_qualifiers = callable_wrapper<function_object_wrapper_base<
-        qflags::collapse_reference<QFlags, Flags>::value,
-        GeneralizedObject,
-        typename base::template add_qualifiers<qflags::collapse_reference<QFlags, Flags>::value>
-    >>;
+    using add_qualifiers =
+        callable_wrapper<
+            function_object_wrapper_base<
+            qflags::collapse_reference<QFlags, Flags>::value,
+            GeneralizedObject,
+            typename base::template add_qualifiers<qflags::collapse_reference<QFlags, Flags>::value>
+        >
+    >;
 
     using invocation_data_type = GeneralizedObject;
     using type = typename base::decay_to_function;

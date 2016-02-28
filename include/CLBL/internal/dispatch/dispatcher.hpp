@@ -28,8 +28,8 @@ struct dispatcher {
 };
 
 //todo - pass dispatch result down
-template<typename U, typename T>
-struct dispatcher<function_ptr<U>, T> {
+template<typename U, typename ForwardingReference>
+struct dispatcher<function_ptr<U>, ForwardingReference> {
 
     using dispatch_info = function_ptr<U>;
     using result = callable_wrapper<function_wrapper_base<dispatch_info>>;
@@ -46,8 +46,8 @@ struct dispatcher<function_ptr<U>, T> {
     }
 };
 
-template<typename U, typename T>
-struct dispatcher<function_reference<U>, T> {
+template<typename U, typename ForwardingReference>
+struct dispatcher<function_reference<U>, ForwardingReference> {
 
     using dispatch_info = function_reference<U>;
     using result = callable_wrapper<function_wrapper_base<dispatch_info>>;
@@ -64,8 +64,8 @@ struct dispatcher<function_reference<U>, T> {
     }
 };
 
-template<typename U, typename T>
-struct dispatcher<pmf<U>, T> {
+template<typename U, typename ForwardingReference>
+struct dispatcher<pmf<U>, ForwardingReference> {
 
     using dispatch_info = pmf<U>;
     using pmf_type = typename dispatch_info::constructor_type;
@@ -92,25 +92,36 @@ struct dispatcher<pmf<U>, T> {
     }
 };
 
-template<typename Generalized, typename T>
-struct dispatcher<function_object<Generalized>, T> {
+template<typename Generalized, typename ForwardingReference>
+struct dispatcher<function_object<Generalized>, ForwardingReference> {
 
     using dispatch_info = function_object<Generalized>;
 
-    CLBL_REQUIRES(!dispatch_info::is_ambiguous)
-    inline constexpr decltype(auto)
-    operator()(T t) const {
-        return callable_wrapper<
-            function_object_wrapper_base<cv_of<T>::value, Generalized>
-        > {{static_cast<T>(t)}};
-    }
+    template<qualify_flags Flags>
+    using callable_base = typename std::conditional<
+        dispatch_info::is_ambiguous,
+        ambiguous_function_object_wrapper_base<Flags, Generalized>,
+        function_object_wrapper_base<Flags, Generalized>
+    >::type;
 
-    CLBL_REQUIRES(dispatch_info::is_ambiguous)
+    template<qualify_flags Flags>
+    using result = callable_wrapper<callable_base<Flags>>;
+
     inline constexpr decltype(auto)
-    operator()(T t) const {
-        return callable_wrapper<
-            ambiguous_function_object_wrapper_base<cv_of<T>::value, Generalized>
-        >{{static_cast<T>(t)}};
+    operator()(ForwardingReference t) const {
+        return result<cv_of<ForwardingReference>::value>
+            {static_cast<ForwardingReference>(t)};
+    }
+};
+
+template<typename GeneralizedWrapper, typename ForwardingReference>
+struct dispatcher<wrapper_object<GeneralizedWrapper>, ForwardingReference> {
+
+    using wrapper = typename unqualified<GeneralizedWrapper>::type;
+
+    inline constexpr decltype(auto)
+    operator()(ForwardingReference t) const {
+        return wrapper::transform(generalize(static_cast<ForwardingReference>(t)));
     }
 };
 

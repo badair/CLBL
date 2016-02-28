@@ -112,7 +112,7 @@ struct partial_wrapper<std::index_sequence<n...>, Base, X...>
 
     template<typename Wrapper>
     static inline constexpr auto
-    copy_invocation(Wrapper const & w) {
+    copy_wrapper(Wrapper const & w) {
         return w;
     }
 };

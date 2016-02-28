@@ -72,15 +72,30 @@ struct harden_t {
             internal::function_object_wrapper_base<
                 requested | present::value,
                 qualified_type<
-                    generalized_object<
-                        qualified_type<data_type,
-                        requested | present::value>
+                    generalized_object_t<
+                        qualified_type<data_type, requested | present::value>,
+                        dummy
                     >,
                     requested | present::value
                 >,
                 requested_pmf_type
             >
-        >{c.data};
+        >::transform(static_cast<Callable&&>(c));
+
+        /*
+        return internal::callable_wrapper<
+            internal::function_object_wrapper_base<
+                requested | present::value,
+                qualified_type<
+                    generalized_object_t<
+                        qualified_type<data_type, requested | present::value>,
+                        dummy
+                    >,
+                    requested | present::value
+                >,
+                requested_pmf_type
+            >
+        >{c.data};*/
     }
 };
 
@@ -104,7 +119,9 @@ struct harden_t {
 template<
     typename AbominableFunctionType,
     typename Callable,
-    CLBL_REQUIRES_(std::is_same<typename no_ref<Callable>::clbl_tag, function_object_wrapper_tag>::value)
+    CLBL_REQUIRES_(
+        std::is_same<typename no_ref<Callable>::clbl_tag, function_object_wrapper_tag>::value
+    )
 >
 inline constexpr decltype(auto)
 harden(Callable&& c) {
@@ -112,9 +129,11 @@ harden(Callable&& c) {
 }
 
 template<
-    typename AbominableFunctionType,
+    typename TODO,
     typename Callable,
-    CLBL_REQUIRES_(!std::is_same<typename no_ref<Callable>::clbl_tag, function_object_wrapper_tag>::value)
+    CLBL_REQUIRES_(
+        !std::is_same<typename no_ref<Callable>::clbl_tag, function_object_wrapper_tag>::value
+    )
 >
 inline constexpr decltype(auto)
 harden(Callable&& c) {

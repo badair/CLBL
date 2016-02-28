@@ -53,7 +53,7 @@ namespace clbl {
     template<typename GlueType, typename Callable>
     constexpr inline auto apply_glue(Callable&& c) {
         using C = no_ref<Callable>;
-        return detail::apply_glue_t<C, GlueType>{C::copy_invocation(static_cast<Callable&&>(c))};
+        return detail::apply_glue_t<C, GlueType>{C::copy_wrapper(static_cast<Callable&&>(c))};
     }
 
     template<template<class> class TypeErasedFunctionTemplate, typename Callable>

@@ -241,6 +241,32 @@ struct generalize_t<std::reference_wrapper<T>, dummy> {
     }
 };
 
+template<typename T>
+inline constexpr decltype(auto)
+generalize(T&& t) {
+    return generalize_t<no_ref<T>>{}(static_cast<T&&>(t));
+}
+
+namespace detail {
+    template<typename T>
+    struct unwrap_generalized_object {
+        using type = T;
+    };
+
+    template<typename T>
+    struct unwrap_generalized_object<generalized_object_t<T, dummy>> {
+        using type = typename generalized_object_t<T, dummy>::type;
+    };
+}
+
+template<typename T>
+using general_object_type = typename detail::unwrap_generalized_object<T>::type;
+
+template<typename T>
+using default_general_callable = generalized_object<
+        default_normal_callable<general_object_type<T>>
+>;
+
 }
 
 #endif

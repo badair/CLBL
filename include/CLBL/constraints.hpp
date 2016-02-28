@@ -28,8 +28,8 @@ Distributed under the Boost Software License, Version 1.0.
     int CLBL_PP_CAT(clbl_requires_, __LINE__) = 42,                                 \
     typename std::enable_if<                                                        \
         (CLBL_PP_CAT(clbl_requires_, __LINE__) == 43) || (__VA_ARGS__),             \
-        int                                                                         \
-    >::type = 0                                                                     \
+        bool                                                                        \
+    >::type constraint_success = true                                               \
 /**/
 
 #define CLBL_REQUIRES(...)                                                          \
@@ -37,8 +37,8 @@ Distributed under the Boost Software License, Version 1.0.
         int CLBL_PP_CAT(clbl_requires_, __LINE__) = 42,                             \
         typename std::enable_if<                                                    \
             (CLBL_PP_CAT(clbl_requires_, __LINE__) == 43) || (__VA_ARGS__),         \
-            int                                                                     \
-        >::type = 0>                                                                \
+            bool                                                                    \
+        >::type constraint_success = true>                                          \
 /**/
 
 namespace clbl {
@@ -90,17 +90,14 @@ template<
 using GenerallyConvertibleObject = T;
 
 template<typename T>
-using DefaultNormalCallable = typename std::conditional<
+using CallableWrapper = typename std::enable_if<is_clbl<T>::value, T>::type;
+
+template<typename T>
+using default_normal_callable = typename std::conditional<
     has_normal_call_operator<T>::value,
     T,
     callable_dummy
 >::type;
-
-template<
-    typename T,
-    CLBL_REQUIRES_(is_clbl<T>::value)
->
-using CallableWrapper = T;
 
 }
 

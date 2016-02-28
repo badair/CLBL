@@ -17,10 +17,10 @@ namespace clbl {
 
     /*
     clbl::invocation_copy get's the return type of a CLBL wrapper's
-    copy_invocation function
+    copy_wrapper function
     */
     template<typename Callable>
-    using invocation_copy = decltype(Callable::copy_invocation(std::declval<std::add_lvalue_reference_t<Callable> >()));
+    using invocation_copy = decltype(Callable::copy_wrapper(std::declval<std::add_lvalue_reference_t<Callable> >()));
 }
 
 #endif

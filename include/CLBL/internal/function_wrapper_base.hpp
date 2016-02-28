@@ -50,7 +50,6 @@ class function_wrapper_base
     : public Dispatch, function_wrapper_data<typename Dispatch::constructor_type> {
 
 public:
-
     using base = function_wrapper_data<typename Dispatch::constructor_type>;
     using base::base;
     using clbl_tag = function_wrapper_tag;
