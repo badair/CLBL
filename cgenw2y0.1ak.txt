@@ -1,0 +1,22 @@
+﻿s 258c24a new yml based on range-v3's
+s c837527 using libc++ install script from range-v3
+s 8f4fdb8 adding gcc-5 build
+s 7710f8c gcc-5
+s 0498cd0 Update .travis.yml
+s 0f829b5 std=c++14
+s 682008f Update CMakeLists.txt
+s 3f86d2a Update CMakeLists.txt
+s 4eba840 Update CMakeLists.txt
+s 6bc7b03 Update CMakeLists.txt
+s 3b7522f Update .travis.yml
+s 4387fc4 Update .travis.yml
+s de00469 Update .travis.yml
+s 62d4327 Update .travis.yml
+s 300d2d5 Update CMakeLists.txt
+s ba824cd Update CMakeLists.txt
+s 8d263ef Update CMakeLists.txt
+s 5183277 Update .travis.yml
+s d3fc2f8 Update .travis.yml
+s 2a870df removing extra semicolon
+s bda137d adding build scripts for MinGW
+

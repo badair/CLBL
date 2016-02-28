@@ -114,7 +114,7 @@ struct function_object_wrapper_base
                 qflags::collapse_reference<this_t::q_flags, Flags>::value
             >
         >(&underlying_type::operator());
-    };
+    }
 
     template<qualify_flags Flags>
     using add_qualifiers =
