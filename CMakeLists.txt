@@ -28,6 +28,7 @@ set (CMAKE_CXX_STANDARD ${CLBL_CXX_STD})
 ##############################################################################
 option(CLBL_ENABLE_WERROR   "Fail and stop if a warning is triggered." OFF)
 option(CLBL_ENABLE_MEMCHECK "Run the unit tests and examples under Valgrind if it is found." OFF)
+option(CLBL_ENABLE_LCOV "Build the unit tests for lcov" OFF)
 #option(CLBL_ENABLE_CONCEPT_CHECKS "Enable concept checking in the interface methods." ON)
 
 ##############################################################################
@@ -62,7 +63,6 @@ clbl_append_flag(CLBL_HAS_WEXTRA                     -Wextra)
 clbl_append_flag(CLBL_HAS_WNO_UNUSED_LOCAL_TYPEDEFS  -Wno-unused-local-typedefs)
 clbl_append_flag(CLBL_HAS_WWRITE_STRINGS             -Wwrite-strings)
 
-
 ##############################################################################
 # Search for packages.
 #
@@ -74,10 +74,17 @@ find_package(Doxygen)
 #find_package(Meta)
 #find_package(MPL11)
 find_package(PythonInterp 2.7)
+find_package(Lcov)
 #find_package(Ruby 2.1)
 
 if (CLBL_ENABLE_MEMCHECK)
     find_package(Valgrind REQUIRED)
+endif()
+
+if(CLBL_ENABLE_LCOV)
+    find_package(Lcov REQUIRED)
+    add_compile_options(-g -fprofile-arcs -ftest-coverage)
+    SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-coverage --coverage -lgcov")
 endif()
 
 #if (NOT ${Boost_FOUND})
@@ -124,6 +131,7 @@ function(clbl_add_test name)
 endfunction()
 
 
+
 ##############################################################################
 # Setup the `check` target to build and then run all the tests and examples.
 ##############################################################################
@@ -132,6 +140,22 @@ add_custom_target(check
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     COMMENT "Build and then run all the tests and examples.")
 
+if (HANA_ENABLE_LCOV)
+
+    add_custom_target(coverage_gather
+        COMMAND ${Lcov_EXECUTABLE} -c -d . -o coverage.info
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Gathering test coverage data") 
+    add_dependencies(coverage_gather check)
+    
+        add_custom_target(coverage
+      COMMAND ${Genhtml_EXECUTABLE} -q --title CLBL
+        -o coverage coverage.info
+      COMMENT "Generating coverage report in ${CMAKE_CURRENT_BINARY_DIR}/coverage/index.html"
+      WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+    add_dependencies(coverage coverage_gather)
+    
+endif()
 
 ##############################################################################
 # Setup subdirectories

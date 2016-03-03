@@ -8,7 +8,6 @@
 # Setup custom functions and master targets for the unit tests
 ##############################################################################
 add_custom_target(tests COMMENT "Build all the unit tests.")
-add_dependencies(check tests)
 
 add_custom_target(tests.quick COMMENT "Build a subset of all the unit tests to finish faster.")
 
@@ -88,3 +87,22 @@ foreach(_file IN LISTS UNIT_TESTS)
         clbl_add_unit_test(${_target} ${CMAKE_CURRENT_BINARY_DIR}/${_target})
     endif()
 endforeach()
+
+if (CLBL_ENABLE_LCOV)
+
+    add_custom_target(coverage_clean
+        COMMAND ${Lcov_EXECUTABLE} -q -d . --zerocounters
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Zeroing coverage counters")
+    add_dependencies(coverage_clean tests)
+    
+    add_custom_target(coverage_prepare
+        COMMAND ${Lcov_EXECUTABLE} -c -d . -o coverage.info -i
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        COMMENT "Gathering test coverage data") 
+    add_dependencies(coverage_prepare coverage_clean)
+    add_dependencies(check coverage_prepare)
+    
+else()
+    add_dependencies(check tests)
+endif()

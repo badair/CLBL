@@ -12,11 +12,8 @@ Distributed under the Boost Software License, Version 1.0.
 #define QUALI_CAST_HPP
 
 namespace quali {
-    
-    template<typename T>
-    struct cv_of;
 
-    template<quali::flags QFlags, typename Object>
+    template<flags QFlags, typename Object>
     inline constexpr qualified_type<
                 typename std::remove_reference<Object>::type,
                 guarantee_reference<QFlags>::value

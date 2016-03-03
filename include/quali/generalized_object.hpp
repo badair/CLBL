@@ -19,6 +19,9 @@ struct generalized_object {
     using type = T;
     using original_type = T;
 
+    static constexpr const quali::flags q_flags =
+        quali::cv_of<type>::value | ref_of<type>::value;
+
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
 
@@ -75,7 +78,7 @@ struct generalized_object {
     }
 
     template<flags QFlags = default_>
-    inline constexpr decltype(auto)
+    inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
         return cast<QFlags | volatile_>(object);
     }
@@ -93,6 +96,8 @@ struct generalized_object<dereferenceable_object<T>, void> {
     T object_ptr;
     using type = typename std::remove_reference<decltype(*object_ptr)>::type;
     using original_type = T;
+    static constexpr const quali::flags q_flags =
+        quali::cv_of<type>::value | ref_of<decltype(*object_ptr)>::value;
 
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
@@ -153,7 +158,7 @@ struct generalized_object<dereferenceable_object<T>, void> {
     }
 
     template<flags QFlags = default_>
-    inline constexpr decltype(auto)
+    inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
         return cast<QFlags | volatile_>(*object_ptr);
     }
@@ -171,6 +176,9 @@ struct generalized_object<std::reference_wrapper<T>, void> {
     std::reference_wrapper<T> ref_wrapped_object;
     using type = T;
     using original_type = std::reference_wrapper<T>;
+
+    static constexpr const quali::flags q_flags =
+        quali::cv_of<type>::value | ref_of<type>::value;
 
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
@@ -211,7 +219,7 @@ struct generalized_object<std::reference_wrapper<T>, void> {
     }
 
     template<flags QFlags = default_>
-    inline constexpr decltype(auto)
+    inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
         return cast<QFlags | volatile_>(ref_wrapped_object.get());
     }

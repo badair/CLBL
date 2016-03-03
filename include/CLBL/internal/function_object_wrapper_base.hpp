@@ -10,6 +10,8 @@ Distributed under the Boost Software License, Version 1.0.
 #ifndef CLBL_FUNCTION_OBJECT_WRAPPER_BASE_H
 #define CLBL_FUNCTION_OBJECT_WRAPPER_BASE_H
 
+#include <CLBL/possibly_ref_qualified_call_operator_type.hpp>
+
 namespace clbl { namespace internal {
 
 template<quali::flags QFlags, typename GeneralizedObject, typename Pmf = dummy>
@@ -94,26 +96,32 @@ struct function_object_wrapper_base
 
     using pmf_type = Pmf;
     using generalized_object = GeneralizedObject;
+    using general_type = typename GeneralizedObject::type;
     using base = pmf<Pmf>;
     using this_t = function_object_wrapper_base;
 
     static constexpr const quali::flags q_flags = 
-        quali::collapse_reference<
-            base::q_flags | pmf<decltype(&default_normal_callable<typename GeneralizedObject::type>::operator())>::q_flags,
-            QFlags
-        >::value;
+        quali::collapse_reference<base::q_flags, QFlags>::value;
 
-    using underlying_type = quali::qualified_type<typename GeneralizedObject::type, q_flags>;
+    using underlying_type = quali::qualified_type<general_type, q_flags>;
     static constexpr const bool is_ambiguous = false;
 
-    template<quali::flags Flags>
+    template<quali::flags Ignored, CLBL_REQUIRES_(has_normal_call_operator<general_type>::value)>
+    static inline constexpr decltype(auto)
+    pmf_cast(){
+        return &no_ref<underlying_type>::operator();
+    }
+
+    template<quali::flags Flags, CLBL_REQUIRES_(!has_normal_call_operator<general_type>::value)>
     static inline constexpr decltype(auto)
     pmf_cast(){
         return static_cast<
-            typename base::template add_qualifiers<
+            possibly_ref_qualified_call_operator_type<
+                base,
+                no_ref<underlying_type>,
                 quali::collapse_reference<this_t::q_flags, Flags>::value
             >
-        >(&underlying_type::operator());
+        >(&no_ref<underlying_type>::operator());
     }
 
     template<quali::flags Flags>
@@ -140,13 +148,13 @@ struct function_object_wrapper_base
         : data{ w.data } {}
 
     function_object_wrapper_base(const volatile function_object_wrapper_base& w)
-        : data{w.data}{}
+        : data{ w.data }{}
 
     function_object_wrapper_base(unqualified<invocation_data_type> const & d)
-        : data{d}{};
+        : data{ d }{};
 
     function_object_wrapper_base(unqualified<invocation_data_type> const volatile & d)
-        : data{d}{};
+        : data{ d }{};
 
     function_object_wrapper_base(unqualified<invocation_data_type>&& d)
         : data{static_cast<unqualified<invocation_data_type>&&>(d)}{};

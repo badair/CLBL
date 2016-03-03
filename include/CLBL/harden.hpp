@@ -46,7 +46,7 @@ struct harden_t {
         >;
 
         using C = no_ref<Callable>;
-        using underlying_type = typename C::underlying_type;
+        using underlying_type = no_ref<typename C::underlying_type>;
 
         using actual_return_type = 
         std::conditional_t<

@@ -208,6 +208,7 @@ namespace clbl { namespace internal {
         // at O(n) best case and O(n^2) worst case, but it will do for now...
         // TODO optimize this sort
         // TODO handle duplicate placeholders
+        // TODO this is not a real sort
         template<std::size_t Target, std::size_t OutputIndex, typename... Tail>
         struct ph_sort<Target, ph_route<OutputIndex, Target>, Tail...>{
             using type = typename prepend<

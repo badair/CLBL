@@ -16,14 +16,14 @@ namespace quali {
     struct force_ref{};
     
     //todo move
-    template<typename T, typename E = void>
+    template<typename T, typename G = typename detail::basic_generalized_object<T>::type>
     struct ref_of { 
 
-        static constexpr const quali::flags value = 
-            std::is_rvalue_reference<T>::value? quali::rvalue_reference_ 
-                : (std::is_lvalue_reference<T>::value ? quali::lvalue_reference_ 
-                    : (std::is_same<E, force_ref>::value? quali::lvalue_reference_
-                            : quali::default_));
+        static constexpr const flags value = 
+            std::is_rvalue_reference<G>::value? rvalue_reference_ 
+                : (std::is_lvalue_reference<G>::value ? lvalue_reference_ 
+                    : (std::is_same<G, force_ref>::value? lvalue_reference_
+                            : default_));
     };
 
 }

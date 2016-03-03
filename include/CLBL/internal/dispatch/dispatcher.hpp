@@ -107,8 +107,13 @@ struct dispatcher<function_object<Generalized>, ForwardingReference> {
 
     inline constexpr decltype(auto)
     operator()(ForwardingReference t) const {
-        return result<quali::cv_of<ForwardingReference>::value>
-            {static_cast<ForwardingReference>(t)};
+        return result<
+            quali::cv_of<std::remove_reference_t<ForwardingReference>>::value 
+            | (is_reference_wrapper<typename Generalized::original_type>::value?
+                    quali::default_ 
+                    : quali::ref_of<ForwardingReference>::value
+                )
+        >{static_cast<ForwardingReference>(t)};
     }
 };
 

@@ -40,7 +40,8 @@ public:
 
     //todo forwarding
     template<typename... Args>
-    decltype(auto) bind(Args... args) const {
+    decltype(auto)
+    bind(Args... args) const {
         using list_type = typename detail::wrapped_args_tuple<no_ref<Args>...>::type;
         return detail::binding_wrapper<callable_wrapper<Base>, list_type>{*this, list_type{args...}};
     }

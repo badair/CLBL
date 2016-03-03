@@ -61,11 +61,8 @@ CLBL_APPLY_PMF_QUAL(QUAL, __VA_ARGS__);                                         
                                                                                      \
 template<typename Return, typename T, typename... Args>                              \
 struct pmf<Return(T::*)(Args...) QUAL> {                                             \
-    static constexpr const auto cv_flags =                                           \
-        quali::cv_of<dummy QUAL>::value;                                             \
-                                                                                     \
-    static constexpr const auto ref_flags =                                          \
-        quali::ref_of<dummy QUAL>::value;                                            \
+    static constexpr const auto cv_flags = quali::cv_of<dummy QUAL>::value;          \
+    static constexpr const auto ref_flags = quali::ref_of<dummy QUAL>::value;        \
     static constexpr const auto q_flags = QUALI(FLAGS, __VA_ARGS__);                 \
     static constexpr const bool is_ref_qualified = !(ref_flags | quali::default_);   \
     static constexpr const bool is_valid = true;                                     \
@@ -82,6 +79,8 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     using forwarding_glue = Return(forward<Args>...);                                \
     using class_type = T;                                                            \
     using dispatch_type = pmf;                                                       \
+    using unqualified = pmf<Return(T::*)(Args...)>;                                  \
+                                                                                     \
     using invoke_type =                                                              \
         quali::qualified_type<T, quali::guarantee_reference<cv_flags>::value>;       \
                                                                                      \
@@ -91,9 +90,28 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
         invoke_type                                                                  \
     >;                                                                               \
                                                                                      \
-    template<quali::flags Applied>                                                   \
-    using add_qualifiers = typename CLBL_APPLY_PMF_QUALIFIERS_STRUCT<                \
-        Applied>::template type<q_flags, Return, T, Args...>;                        \
+    template<quali::flags Added>                                                     \
+    using add_qualifiers = pmf<                                                      \
+        typename CLBL_APPLY_PMF_QUALIFIERS_STRUCT<                                   \
+            Added                                                                    \
+        >::template type<cv_flags, Return, T, Args...>                               \
+    >;                                                                               \
+                                                                                     \
+    using remove_reference = pmf<                                                    \
+        typename unqualified::template add_qualifiers<cv_flags>                      \
+    >;                                                                               \
+                                                                                     \
+    using remove_const = pmf<                                                        \
+        typename unqualified::template add_qualifiers<                               \
+            ref_flags | quali::remove_const<cv_flags>::value                         \
+        >                                                                            \
+    >;                                                                               \
+                                                                                     \
+    using remove_volatile = pmf<                                                     \
+        typename unqualified::template add_qualifiers<                               \
+            ref_flags | quali::remove_volatile<cv_flags>::value                      \
+        >                                                                            \
+    >;                                                                               \
                                                                                      \
     template<typename Callable>                                                      \
     static auto unevaluated_invoke_with_args_declval(Callable&& c)                   \
@@ -182,8 +200,15 @@ struct pmf<std::integral_constant<T, Value> >
     using dispatch_type = pmf;
 };
 
-//todo: #undefs
+template<typename T>
+struct pmf < pmf<T> > : pmf<T> {};
 
 }
+
+#undef CLBL_APPLY_PMF_QUALIFIERS_STRUCT
+#undef CLBL_SPCLZ_APPLY_PMF_QUAL
+#undef CLBL_APPLY_PMF_QUAL
+#undef CLBL_SPECIALIZE_PMF_DETAIL
+#undef CLBL_SPECIALIZE_PMF
 
 #endif
