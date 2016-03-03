@@ -87,7 +87,7 @@ int main() {
         //testing object reference preservation
         {
             auto mutable_object = mutable_struct{ 0 };
-            auto f = fwrap(&mutable_object, &mutable_struct::increment);
+            auto f = fwrap(&mutable_struct::increment, &mutable_object);
 
             f();
             f();
@@ -97,7 +97,7 @@ int main() {
         }
         {
             auto mutable_object_ptr = std::make_shared<mutable_struct>(0);
-            auto f = fwrap(mutable_object_ptr, &mutable_struct::increment);
+            auto f = fwrap(&mutable_struct::increment, mutable_object_ptr);
 
             f();
             f();
@@ -125,9 +125,9 @@ int main() {
         static_assert(std::is_same<decltype(lambda_wrapper)::type, int(int&&)>::value, "");
 
         auto stdfunction_lambda_wrapper = convert_to<std::function>(lambda_wrapper);
-        static_assert(std::is_same<decltype(stdfunction_lambda_wrapper), 
-                                   std::function<int(forward<int&&>)> >::value, "");
-        
+        static_assert(std::is_same<decltype(stdfunction_lambda_wrapper),
+            std::function<int(forward<int&&>)> >::value, "");
+
         //these should cause compiler errors
         //int i = 0;
         //lambda_wrapper(i);
@@ -135,7 +135,7 @@ int main() {
 
         assert(lambda_wrapper(0) == 1);
         assert(stdfunction_lambda_wrapper(0) == 1);
-        
+
         int&& j = 0;
 
         assert([](int&& i) {return i + 1;}(static_cast<int&&>(j)) == 1);

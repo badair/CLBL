@@ -30,13 +30,5 @@ int main() {
         assert(i == 1);
     }
 
-    {
-        auto f = fwrap<void(int&)>(increment_T);
-
-        int i = 0;
-        f(i);
-        assert(i == 1);
-    }
-
     return 0;
 }

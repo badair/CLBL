@@ -99,8 +99,8 @@ echo . | %msbuild_cmd% CHECK.vcxproj %msbuild_environment%
 ::echo BUILD SCRIPT: doc/doc.vcxproj...
 ::echo . | %msbuild_cmd% doc\doc.vcxproj %msbuild_environment%
 
-echo BUILD SCRIPT: RUN_TESTS.vcxproj...
-echo . | %msbuild_cmd% RUN_TESTS.vcxproj %msbuild_environment%
+::echo BUILD SCRIPT: RUN_TESTS.vcxproj...
+::echo . | %msbuild_cmd% RUN_TESTS.vcxproj %msbuild_environment%
 
 :exit_script
 ::pause if this script was started by double clicked from Windows

@@ -9,9 +9,10 @@ Distributed under the Boost Software License, Version 1.0.
 #include <type_traits>
 #include <CLBL/clbl.hpp>
 
-using namespace clbl::qflags;
+using namespace quali;
+
 int main() {
-	using cv_int = clbl::qualified_type<int, const_ | volatile_>;
+	using cv_int = qualified_type<int, const_ | volatile_>;
 	static_assert(std::is_same<cv_int, const volatile int>::value, "");
 	return 0;
 }

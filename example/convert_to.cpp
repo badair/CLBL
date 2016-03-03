@@ -41,7 +41,7 @@ int foo::move_count = 0;
 int main() {
 
     auto my_foo = foo{ 0 };
-    auto f = fwrap(&my_foo, &foo::add);
+    auto f = fwrap(&foo::add, &my_foo);
     auto stdf = convert_to<std::function>(f);
 
     f(1);

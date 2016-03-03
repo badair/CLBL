@@ -27,7 +27,7 @@ namespace clbl {
         struct check {};
 
         template<typename U>
-        static std::int8_t test(check<typename std::remove_reference_t<U>::clbl_tag>*);
+        static std::int8_t test(check<typename std::remove_cv_t<std::remove_reference_t<U>>::clbl_tag>*);
 
         template<typename>
         static std::int16_t test(...);

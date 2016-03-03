@@ -47,7 +47,7 @@ int main() {
         {
             auto first_ptr = std::make_shared<scope_test>(ss);
             second_ptr = first_ptr;
-            auto f = fwrap(first_ptr, &scope_test::fwrap);
+            auto f = fwrap(&scope_test::fwrap, first_ptr);
             f(1);
         }
 

@@ -10,11 +10,11 @@
 # provides friendly hints to the user.
 
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "3.6.2")
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "3.7")
         message(WARNING "
     ### You appear to be using Clang ${CMAKE_CXX_COMPILER_VERSION}, which is known
     ### to be unable to compile CLBL. Consider switching to
-    ### Clang >= 3.6.2. If it is already installed on your
+    ### Clang >= 3.7. If it is already installed on your
     ### system, you can tell CMake about it with
     ###
     ###     cmake .. -DCMAKE_CXX_COMPILER=/path/to/clang
@@ -51,11 +51,11 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
         endif()
     endif()
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
-    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "6.1.0")
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "7")
         message(WARNING "
     ### You appear to be using Apple's Clang ${CMAKE_CXX_COMPILER_VERSION}, which is
-    ### shipped with Xcode < 6.3. You should consider using a 
-	### non-Apple Clang >= 3.6.2, which can be installed via 
+    ### shipped with Xcode < 7. You should consider using a 
+	### non-Apple Clang >= 3.7, which can be installed via 
 	### Homebrew with
     ###
     ###     brew install llvm --with-clang
@@ -66,15 +66,12 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
         ")
     endif()
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+    if (${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS "5.2.1")
     message(WARNING "
-    ### You appear to be using GCC ${CMAKE_CXX_COMPILER_VERSION}, which is known
-    ### to be unable to compile CLBL. Support for GCC is on
-    ### its way, but it's not there yet. Consider switching
-    ### to Clang >= 3.6.2. If Clang is already installed on
-    ### your system, you can tell CMake about it with
-    ###
-    ###     cmake .. -DCMAKE_CXX_COMPILER=/path/to/clang
+    ### You appear to be using GCC ${CMAKE_CXX_COMPILER_VERSION}, which may
+    ### not be able to compile CLBL. CLBL officially supports GCC versions >= 5.2.1.
     ")
+    endif()
 elseif (MSVC)
     message(WARNING "
     ### Native Visual Studio is not supported. Please install pre-built windows
