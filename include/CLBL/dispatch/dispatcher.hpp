@@ -16,7 +16,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/is_clbl.hpp>
 #include <quali/quali.hpp>
 #include <CLBL/is_reference_wrapper.hpp>
-#include <CLBL/internal/callable_wrapper.hpp>
+#include <CLBL/wrapper/callable_wrapper.hpp>
 
 namespace clbl { namespace internal {
 
