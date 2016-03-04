@@ -15,6 +15,7 @@ Distributed under the Boost Software License, Version 1.0.
 #include <functional>
 
 #include <CLBL/ph.hpp>
+#include <CLBL/internal/sort_tuple.hpp>
 
 //todo - split into multiple files
 
@@ -191,77 +192,113 @@ namespace clbl { namespace internal {
             using type = typename placeholder_routes_detail<Args...>::type;
         };
 
+        template<typename PhLeft, typename PhRight>
+        struct compare_placeholders {
+            static constexpr bool value = 
+                std::is_placeholder<PhLeft>::value < std::is_placeholder<PhRight>::value;
+        };
+
         template <typename...> struct placeholder_routes;
         template <> struct placeholder_routes<> { using type = std::tuple<>; };
-
-        template<std::size_t Target, typename...>
-        struct ph_sort;
-
-        //base case
-        template<std::size_t Target>
-        struct ph_sort<Target>{
-            using type = std::tuple<>;
-        };
-
-        // sorting the placeholders to get the argument index in the order of the
-        // original signature. This is a horribly slow recursive selection sort
-        // at O(n) best case and O(n^2) worst case, but it will do for now...
-        // TODO optimize this sort
-        // TODO handle duplicate placeholders
-        // TODO this is not a real sort
-        template<std::size_t Target, std::size_t OutputIndex, typename... Tail>
-        struct ph_sort<Target, ph_route<OutputIndex, Target>, Tail...>{
-            using type = typename prepend<
-                std::integral_constant<
-                    std::size_t,ph_route<
-                    OutputIndex, Target
-                >::output_index>,
-                typename ph_sort<Target + 1, Tail...>::type
-            >::type;
-        };
-
-        //pushing the head to the back because it isn't the argrument we are looking for
-        template<std::size_t Target, typename Head, typename... Tail>
-        struct ph_sort<Target, Head, Tail...>{
-            using type = typename ph_sort<Target, Tail..., Head>::type;
-        };
-
-        //entry point to ph_sort
-        template<std::size_t Target, typename... Args>
-        struct ph_sort<Target, std::tuple<Args...> >{
-            using type = typename ph_sort<Target, Args...>::type;
-        };
 
         template <typename... Args>
         struct placeholder_routes<clbl::internal::detail::args_tuple<Args...> >
         {
-            using type = typename ph_sort<
-                1,
-                typename placeholder_routes_detail<
-                    typename argument_routing<
-                        std::make_index_sequence<sizeof...(Args)>,
-                        std::tuple<Args...>
-                    >::type
+            using routed_placeholders = typename placeholder_routes_detail<
+                typename argument_routing<
+                    std::make_index_sequence<sizeof...(Args)>,
+                    std::tuple<Args...>
                 >::type
+            >::type;
+
+            using type = sort_tuple<routed_placeholders, compare_placeholders>;
+        };
+
+        template <typename, typename, typename>
+        struct arguments_needed_helper;
+
+        template <typename OriginalArgsTuple,  typename PhRoutesTuple, std::size_t... I>
+        struct arguments_needed_helper<PhRoutesTuple, OriginalArgsTuple, std::index_sequence<I...>> {
+            /*using type = std::tuple<
+                typename std::tuple_element<
+                    std::tuple_element<I, PhRoutesTuple>::type::output_index,
+                    OriginalArgsTuple
+                >::type...
+            >;*/
+
+            using type = std::tuple<
+                typename std::tuple_element<
+                    std::tuple_element<I, PhRoutesTuple>::type::output_index,
+                    OriginalArgsTuple
+                >::type...
+            >;
+        };
+
+        template<typename...>
+        struct remove_duplicate_placeholders {
+            using type = std::tuple<>;
+        };
+
+        template <typename... Args>
+        struct remove_duplicate_placeholders<std::tuple<Args...> > {
+            using type = typename remove_duplicate_placeholders<Args...>::type;
+        };
+
+        //if 1st and 2nd elements use the same placeholder index, remove the second element
+        template<typename PhRoute1, typename PhRoute2, typename... Tail>
+        struct remove_duplicate_placeholders<PhRoute1, PhRoute2, Tail...> {
+            using type = typename std::conditional<
+                PhRoute1::input_index == PhRoute2::input_index,
+                typename remove_duplicate_placeholders<PhRoute1, Tail...>::type,
+                typename prepend<PhRoute1, typename remove_duplicate_placeholders<PhRoute2, Tail...>::type>::type
             >::type;
         };
 
-        template<typename, typename> struct arguments_needed {
+        //base case
+        template<typename PhRoute1, typename PhRoute2>
+        struct remove_duplicate_placeholders<PhRoute1, PhRoute2> {
+            using type = typename std::conditional<
+                PhRoute1::input_index == PhRoute2::input_index,
+                std::tuple<PhRoute1>,
+                std::tuple<PhRoute1, PhRoute2>
+            >::type;
+        };
+
+        //base case
+        template<typename LastPhRoute>
+        struct remove_duplicate_placeholders<LastPhRoute> {
+            using type = std::tuple<LastPhRoute>;
+        };
+
+        template<typename PhRouteLeft, typename PhRouteRight>
+        struct compare_input_index {
+            static constexpr bool value = 
+                PhRouteLeft::input_index < PhRouteRight::input_index;
+        };
+
+        template<typename PhRouteLeft, typename PhRouteRight>
+        struct compare_output_index {
+            static constexpr bool value = 
+                PhRouteLeft::output_index < PhRouteRight::output_index;
+        };
+
+        template <typename PhRoutesTuple, typename OriginalArgsTuple>
+        struct arguments_needed {
+            using duplicates_removed = typename remove_duplicate_placeholders<PhRoutesTuple>::type;
+            using type = typename arguments_needed_helper<
+                sort_tuple<duplicates_removed, compare_input_index>,
+                OriginalArgsTuple,
+                std::make_index_sequence<std::tuple_size<duplicates_removed>::value>
+            >::type;
+        };
+
+        template <typename T>
+        struct arguments_needed<T, std::tuple<>> {
             using type = std::tuple<>;
         };
 
-        template < std::size_t... I, typename OriginalArgsTuple>
-        struct arguments_needed<std::tuple<std::integral_constant<std::size_t, I>...>, OriginalArgsTuple> {
-            using type = std::tuple<typename std::tuple_element<I, OriginalArgsTuple>::type...>;
-        };
-
-        template <std::size_t... I>
-        struct arguments_needed<std::tuple<std::integral_constant<std::size_t, I>...>, std::tuple<>> {
-            using type = std::tuple<>;
-        };
-
-        template < std::size_t... I>
-        struct arguments_needed<std::tuple<std::integral_constant<std::size_t, I>...>, clbl::ambiguous_args> {
+        template <typename T>
+        struct arguments_needed<T, clbl::ambiguous_args> {
             using type = ambiguous_args;
         };
 
@@ -316,7 +353,7 @@ namespace clbl { namespace internal {
 
             using arg_types = 
                 typename arguments_needed<
-                    typename placeholder_routes<ArgsTuple>::type,
+                    sort_tuple<typename placeholder_routes<ArgsTuple>::type, compare_input_index>,
                     typename Callable::arg_types
                 >::type;
 
