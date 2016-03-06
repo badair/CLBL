@@ -64,7 +64,7 @@ CLBL provides a comprehensive and uniform metaprogramming interface for every ca
 Specifically, CLBL provides (*read: plans to provide*) the following advantages over existing solutions:
 
 1. assisted overload resolution
-2. implicit `std::function` instantiation
+2. implicit `std::function` initialization
 3. cv-qualified `std::function` objects
 4.  perfect-forwarding `std::function` objects
 4. careful considerations for object lifetimes and ref-qualified overloads 
