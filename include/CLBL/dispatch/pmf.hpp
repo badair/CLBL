@@ -13,10 +13,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <CLBL/tags.hpp>
 #include <CLBL/forward.hpp>
-#include <quali/quali_macros.hpp>
 #include <CLBL/constraints.hpp>
 #include <CLBL/type_traits.hpp>
 #include <CLBL/has_normal_call_operator.hpp>
+
+#include <quali/quali_macros.hpp>
 
 #define CLBL_APPLY_PMF_QUALIFIERS_STRUCT CLBL_PP_CAT(apply_pmf_qualifiers_, __LINE__)
 
@@ -25,12 +26,12 @@ Distributed under the Boost Software License, Version 1.0.
 
 #define CLBL_SPCLZ_APPLY_PMF_QUAL(QUAL, ...)                                         \
 template<>                                                                           \
-struct CLBL_APPLY_PMF_QUALIFIERS_STRUCT <QUALI(FLAGS, __VA_ARGS__)> {                \
+struct CLBL_APPLY_PMF_QUALIFIERS_STRUCT <QUALI_FLAGS(__VA_ARGS__)> {                 \
     template<quali::flags Flags, typename Return, typename T, typename... Args>      \
     using type = typename std::conditional<                                          \
-        (Flags & QUALI(FLAGS, __VA_ARGS__)) == QUALI(FLAGS, __VA_ARGS__),            \
+        (Flags & QUALI_FLAGS(__VA_ARGS__)) == QUALI_FLAGS(__VA_ARGS__),              \
         Return(T::*)(Args...) QUAL,                                                  \
-        Return(T::*)(Args...) QUALI(TOKENS, __VA_ARGS__)                             \
+        Return(T::*)(Args...) QUALI_TOKENS(__VA_ARGS__)                              \
     >::type;                                                                         \
 }                                                                                    \
 /**/
@@ -61,9 +62,9 @@ CLBL_APPLY_PMF_QUAL(QUAL, __VA_ARGS__);                                         
                                                                                      \
 template<typename Return, typename T, typename... Args>                              \
 struct pmf<Return(T::*)(Args...) QUAL> {                                             \
-    static constexpr const auto cv_flags = quali::cv_of<dummy QUAL>::value;          \
-    static constexpr const auto ref_flags = quali::ref_of<dummy QUAL>::value;        \
-    static constexpr const auto q_flags = QUALI(FLAGS, __VA_ARGS__);                 \
+    static constexpr const quali::flags cv_flags = quali::cv_of<dummy QUAL>::value;  \
+    static constexpr const quali::flags ref_flags = quali::ref_of<dummy QUAL>::value;\
+    static constexpr const quali::flags q_flags = cv_flags | ref_flags;              \
     static constexpr const bool is_ref_qualified = !(ref_flags | quali::default_);   \
     static constexpr const bool is_valid = true;                                     \
     static constexpr const bool value = is_valid;                                    \
@@ -82,7 +83,7 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     using dispatch_type = pmf;                                                       \
                                                                                      \
     using invoke_type =                                                              \
-        quali::qualified_type<T, quali::guarantee_reference<cv_flags>::value>;       \
+        quali::qualify<T, quali::guarantee_reference<cv_flags>::value>;              \
                                                                                      \
     template<typename U>                                                             \
     using can_invoke_with = std::is_convertible<                                     \
@@ -174,7 +175,7 @@ struct pmf {
 };
 
 #define CLBL_SPECIALIZE_PMF(...) \
-    CLBL_SPECIALIZE_PMF_DETAIL(QUALI(TOKENS, __VA_ARGS__), __VA_ARGS__)
+    CLBL_SPECIALIZE_PMF_DETAIL(QUALI_TOKENS(__VA_ARGS__), __VA_ARGS__)
 
 CLBL_SPECIALIZE_PMF(QUALI_DEFAULT);
 CLBL_SPECIALIZE_PMF(&);
@@ -208,5 +209,7 @@ struct pmf < pmf<T> > : pmf<T> {
 #undef CLBL_APPLY_PMF_QUAL
 #undef CLBL_SPECIALIZE_PMF_DETAIL
 #undef CLBL_SPECIALIZE_PMF
+
+#include <quali/quali_macros_undef.hpp>
 
 #endif

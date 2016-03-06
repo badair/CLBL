@@ -43,7 +43,7 @@ struct ambiguous_function_object_wrapper_base {
     using add_qualifiers = 
     callable_wrapper<
         ambiguous_function_object_wrapper_base<
-            quali::collapse_reference<q_flags, Flags>::value,
+            quali::collapse<q_flags, Flags>::value,
             GeneralizedObject,
             Pmf
         >
@@ -54,10 +54,10 @@ struct ambiguous_function_object_wrapper_base {
     template<quali::flags Flags, typename... Args>
     using apply_signature = callable_wrapper<
         function_object_wrapper_base<
-            quali::collapse_reference<q_flags, Flags>::value,
+            quali::collapse<q_flags, Flags>::value,
             GeneralizedObject,
             typename pmf<
-                decltype(data.template get<quali::collapse_reference<q_flags, Flags>::value>()
+                decltype(data.template get<quali::collapse<q_flags, Flags>::value>()
                 (std::declval<Args>()...))
                 (no_ref<underlying_type>::*)(Args...)
             >::template add_qualifiers<Flags>
@@ -155,9 +155,9 @@ struct function_object_wrapper_base
     using this_t = function_object_wrapper_base;
 
     static constexpr const quali::flags q_flags = 
-        quali::collapse_reference<base::q_flags, QFlags>::value;
+        quali::collapse<base::q_flags, QFlags>::value;
 
-    using underlying_type = quali::qualified_type<general_type, q_flags>;
+    using underlying_type = quali::qualify<general_type, q_flags>;
     static constexpr const bool is_ambiguous = false;
 
     template<quali::flags Ignored, CLBL_REQUIRES_(has_normal_call_operator<general_type>::value)>
@@ -173,7 +173,7 @@ struct function_object_wrapper_base
             possibly_ref_qualified_call_operator_type<
                 base,
                 general_type,
-                quali::collapse_reference<this_t::q_flags, Flags>::value
+                quali::collapse<this_t::q_flags, Flags>::value
             >
         >(&no_ref<underlying_type>::operator());
     }
@@ -181,15 +181,15 @@ struct function_object_wrapper_base
 private:
 
     template<quali::flags Flags>
-    using harden_underlying = quali::qualified_type<
+    using harden_underlying = quali::qualify<
         general_type,
-        quali::collapse_reference<q_flags, Flags>::value
+        quali::collapse<q_flags, Flags>::value
     >;
 
     template<quali::flags Flags>
     using add_pmf_qualifiers = pmf<
         typename base::template add_qualifiers<
-            quali::collapse_reference<q_flags, Flags>::value
+            quali::collapse<q_flags, Flags>::value
         >
     >;
 
@@ -215,7 +215,7 @@ private:
 
     template<quali::flags Flags>
     using hardened_pmf = typename add_pmf_qualifiers<
-        quali::collapse_reference<q_flags, Flags>::value
+        quali::collapse<q_flags, Flags>::value
     >::template apply_return<result_of_call<Flags> >;
 
 public:
@@ -225,12 +225,12 @@ public:
         typename std::conditional<
             can_call_after_hardened<Flags>::value,
             function_object_wrapper_base<
-                quali::collapse_reference<q_flags, Flags>::value,
+                quali::collapse<q_flags, Flags>::value,
                 GeneralizedObject,
                 hardened_pmf<Flags>
             >,
             ambiguous_function_object_wrapper_base<
-                quali::collapse_reference<q_flags, Flags>::value,
+                quali::collapse<q_flags, Flags>::value,
                 GeneralizedObject
             >
         >::type
@@ -245,10 +245,10 @@ public:
     template<quali::flags Flags, typename... Args>
     using apply_signature = callable_wrapper<
         function_object_wrapper_base<
-            quali::collapse_reference<q_flags, Flags>::value,
+            quali::collapse<q_flags, Flags>::value,
             GeneralizedObject,
             typename pmf<
-                decltype(data.template get<quali::collapse_reference<q_flags, Flags>::value>()(
+                decltype(data.template get<quali::collapse<q_flags, Flags>::value>()(
                     std::declval<Args>()...)
                 )
                 (no_ref<underlying_type>::*)(Args...)

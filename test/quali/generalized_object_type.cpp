@@ -21,9 +21,9 @@ struct assert_same
 
 #define ASSERT_GET_TEMPLATE_RETURN(...) \
 static_assert(assert_same< \
-    decltype(std::declval<generalized_object<T>>().template get<QUALI(FLAGS, __VA_ARGS__)>()), \
-    decltype(std::declval<generalized_object<T*>>().template get<QUALI(FLAGS, __VA_ARGS__)>()), \
-    decltype(std::declval<generalized_object<std::reference_wrapper<T>>>().template get<QUALI(FLAGS, __VA_ARGS__)>()) \
+    decltype(std::declval<generalized_object<T>>().template get<QUALI_FLAGS(__VA_ARGS__)>()), \
+    decltype(std::declval<generalized_object<T*>>().template get<QUALI_FLAGS(__VA_ARGS__)>()), \
+    decltype(std::declval<generalized_object<std::reference_wrapper<T>>>().template get<QUALI_FLAGS(__VA_ARGS__)>()) \
 >{}, "") \
 /**/
 

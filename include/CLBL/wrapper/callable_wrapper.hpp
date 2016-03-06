@@ -160,7 +160,7 @@ public:
     static inline constexpr decltype(auto)
     move_wrapper(T&& t) {
         return static_cast<
-            quali::qualified_type<
+            quali::qualify<
                     no_ref<T>,
                     quali::rvalue_reference_ | quali::cv_of<T>::value
                 >

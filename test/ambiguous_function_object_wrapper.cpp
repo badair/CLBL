@@ -20,7 +20,6 @@ Distributed under the Boost Software License, Version 1.0.
 #endif //#ifndef CLBL_RUNTIME_ASSERT
 
 #ifndef CLBL_STATIC_ASSERT
-#undef NDEBUG
 #define CLBL_STATIC_ASSERT(...) static_assert(__VA_ARGS__, #__VA_ARGS__)
 #endif //#ifndef CLBL_STATIC_ASSERT
 
@@ -51,14 +50,14 @@ struct foo {
         ++move_count; f.was_moved = true;
     }
 
-    std::integral_constant<quali::flags, QUALI(FLAGS, &)> operator()() & { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, &&)> operator()() && { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, const, &)> operator()() const & { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, const, &&)> operator()() const && { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, volatile, &)> operator()() volatile & { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, volatile, &&)> operator()() volatile && { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, const, volatile, &)> operator()() const volatile & { return{}; }
-    std::integral_constant<quali::flags, QUALI(FLAGS, const, volatile, &&)> operator()() const volatile && { return{}; }
+    QUALI_INTC(&)                   operator()() &                  { return{}; }
+    QUALI_INTC(&&)                  operator()() &&                 { return{}; }
+    QUALI_INTC(const, &)            operator()() const &            { return{}; }
+    QUALI_INTC(const, &&)           operator()() const &&           { return{}; }
+    QUALI_INTC(volatile, &)         operator()() volatile &         { return{}; }
+    QUALI_INTC(volatile, &&)        operator()() volatile &&        { return{}; }
+    QUALI_INTC(const, volatile, &)  operator()() const volatile &   { return{}; }
+    QUALI_INTC(const, volatile, &&) operator()() const volatile &&  { return{}; }
 };
 
 int foo::copy_count = 0;
@@ -74,7 +73,7 @@ int main() {
     auto result = g();
 
     CLBL_STATIC_ASSERT(std::is_same<decltype(f()), decltype(g())>::value);
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, &));
+    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI_FLAGS(&));
     CLBL_RUNTIME_ASSERT(f.was_copied);
     CLBL_RUNTIME_ASSERT(!f.was_moved);
 }
@@ -88,7 +87,7 @@ int main() {
     auto result = g();
 
     CLBL_STATIC_ASSERT(std::is_same<decltype(f()), decltype(g())>::value);
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, &));
+    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI_FLAGS(&));
     CLBL_RUNTIME_ASSERT(!f.was_copied);
     CLBL_RUNTIME_ASSERT(!f.was_moved);
     CLBL_RUNTIME_ASSERT(foo::copy_count == 0);
@@ -104,7 +103,7 @@ int main() {
     auto result = g();
 
     CLBL_STATIC_ASSERT(std::is_same<decltype(f()), decltype(g())>::value);
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, &));
+    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI_FLAGS(&));
     CLBL_RUNTIME_ASSERT(!f.was_copied);
     CLBL_RUNTIME_ASSERT(!f.was_moved);
     CLBL_RUNTIME_ASSERT(foo::copy_count == 0);
@@ -119,7 +118,7 @@ int main() {
     auto g = clbl::fwrap(std::cref(f));
     auto result = g();
 
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, const, &));
+    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI_FLAGS(const, &));
     CLBL_RUNTIME_ASSERT(!f.was_copied);
     CLBL_RUNTIME_ASSERT(!f.was_moved);
     CLBL_RUNTIME_ASSERT(foo::copy_count == 0);
@@ -134,12 +133,12 @@ int main() {
     auto result = g();
 
     //lvalue-reference-qualified overload is called because we don't want to re-move. 
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, &));
+    CLBL_STATIC_ASSERT(decltype(result){} == QUALI_FLAGS(&));
 
 #ifndef CLBL_GCC_5_REF_OVERLOAD_WORKAROUND
     //You can move the callable if you want to call the rvalue-reference-qualified overload.
     auto move_result = static_cast<decltype(g)&&>(g)();
-    CLBL_STATIC_ASSERT(decltype(move_result)::value == QUALI(FLAGS, &&));
+    CLBL_STATIC_ASSERT(decltype(move_result){} == QUALI_FLAGS(&&));
 #endif
 
 }
@@ -156,12 +155,12 @@ int main() {
     auto result = g();
 
     //lvalue-reference-qualified overload is called because we don't want to re-move. 
-    CLBL_STATIC_ASSERT(decltype(result)::value == QUALI(FLAGS, &));
+    CLBL_STATIC_ASSERT(decltype(result){} == QUALI_FLAGS(&));
  
 #ifndef CLBL_GCC_5_REF_OVERLOAD_WORKAROUND
 
     auto move_result = std::move(g)();
-    CLBL_STATIC_ASSERT(decltype(move_result)::value == QUALI(FLAGS, &&));
+    CLBL_STATIC_ASSERT(decltype(move_result){} == QUALI_FLAGS(&&));
 
 #endif
 

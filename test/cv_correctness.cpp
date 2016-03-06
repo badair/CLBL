@@ -22,17 +22,10 @@ using namespace clbl;
 
 struct foo {
 
-    QUALI(CONSTANT, QUALI_DEFAULT)
-    operator()(int, char) { return{}; }
-
-    QUALI(CONSTANT, const)
-    operator()(int, char) const { return{}; }
-
-    QUALI(CONSTANT, volatile)
-    operator()(int, char) volatile { return{}; }
-
-    QUALI(CONSTANT, const, volatile)
-    operator()(int, char) const volatile { return{}; }
+    QUALI_INTC(QUALI_DEFAULT)   operator()(int, char)                   { return{}; }
+    QUALI_INTC(const)           operator()(int, char) const             { return{}; }
+    QUALI_INTC(volatile)        operator()(int, char) volatile          { return{}; }
+    QUALI_INTC(const, volatile) operator()(int, char) const volatile    { return{}; }
 
     foo() = default;
 
@@ -62,37 +55,37 @@ int main() {
     auto hv = harden<auto_(int, char) volatile>(v);
     auto hcv = harden<auto_(int, char) const volatile>(cv);
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
     auto stdv = convert_to<std::function>(hv);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 2
@@ -119,10 +112,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(nested_v);
     CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
 
     auto hnormal = harden<auto_(int, char)>(nested_normal);
     auto hc = harden<auto_(int, char) const>(nested_c);
@@ -134,10 +127,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(hv);
     CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
@@ -149,27 +142,27 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(stdv);
     CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 {
     auto overloaded_object = foo{};
@@ -199,10 +192,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(nested_v);
     CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
 
     auto hnormal = harden<auto_(int, char)>(nested_normal);
     auto hc = harden<auto_(int, char) const>(nested_c);
@@ -214,10 +207,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(hv);
     CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
@@ -229,27 +222,27 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(stdv);
     CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 3
@@ -273,30 +266,30 @@ int main() {
 
     CLBL_STATIC_ASSERT(std::is_same<
         decltype(stdn),
-        std::function<QUALI(CONSTANT, QUALI_DEFAULT)(forward<int>, forward<char>) >
+        std::function<QUALI_INTC(QUALI_DEFAULT)(forward<int>, forward<char>) >
     >::value);
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 4
@@ -316,11 +309,11 @@ int main() {
     auto stdc = convert_to<std::function>(hc);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 5
@@ -340,11 +333,11 @@ int main() {
     auto stdv = convert_to<std::function>(hv);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 6
@@ -362,37 +355,37 @@ int main() {
     auto hv = harden<auto_(int, char) volatile>(v);
     auto hcv = harden<auto_(int, char) const volatile>(cv);
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
     auto stdv = convert_to<std::function>(hv);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 7
@@ -419,10 +412,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(nested_v);
     CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
 
     auto hnormal = harden<auto_(int, char)>(nested_normal);
     auto hc = harden<auto_(int, char) const>(nested_c);
@@ -434,10 +427,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(hv);
     CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
@@ -449,27 +442,27 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(stdv);
     CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 {
     auto overloaded_object = foo{};
@@ -499,10 +492,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(nested_v);
     CLBL_PRINT_NAME_AND_TYPE(nested_cv);*/
 
-    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_normal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_c(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_v(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(nested_cv(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
 
     auto hnormal = harden<auto_(int, char)>(nested_normal);
     auto hc = harden<auto_(int, char) const>(nested_c);
@@ -514,10 +507,10 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(hv);
     CLBL_PRINT_NAME_AND_TYPE(hcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(hnormal(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(hc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(hv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(hcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto stdn = convert_to<std::function>(hnormal);
     auto stdc = convert_to<std::function>(hc);
@@ -529,27 +522,27 @@ int main() {
     CLBL_PRINT_NAME_AND_TYPE(stdv);
     CLBL_PRINT_NAME_AND_TYPE(stdcv);*/
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 8
@@ -573,30 +566,30 @@ int main() {
 
     CLBL_STATIC_ASSERT(std::is_same<
         decltype(stdn),
-        std::function<QUALI(CONSTANT, QUALI_DEFAULT)(forward<int>, forward<char>) >
+        std::function<QUALI_INTC(QUALI_DEFAULT)(forward<int>, forward<char>) >
     >::value);
 
-    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdn(1, 'c')){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI(FLAGS, QUALI_DEFAULT));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdn)){} == QUALI_FLAGS(QUALI_DEFAULT));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened = harden<auto_(int, char) const>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI(FLAGS, const));
+    CLBL_STATIC_ASSERT(decltype(rehardened(1, 'c')){} == QUALI_FLAGS(const));
 
     auto rehardened_again = harden<auto_(int, char) const volatile>(rehardened);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
     auto rehardened_v = harden<auto_(int, char) volatile>(hnormal);
-    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI(FLAGS, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_v(1, 'c')){} == QUALI_FLAGS(volatile));
 
     auto rehardened_again_v = harden<auto_(int, char) const volatile>(rehardened_v);
-    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(rehardened_again_v(1, 'c')){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 9
@@ -616,11 +609,11 @@ int main() {
     auto stdc = convert_to<std::function>(hc);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdc(1, 'c')){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI(FLAGS, const));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdc)){} == QUALI_FLAGS(const));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 #if CLBL_TEST_PART == 10
@@ -640,11 +633,11 @@ int main() {
     auto stdv = convert_to<std::function>(hv);
     auto stdcv = convert_to<std::function>(hcv);
 
-    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(stdv(1, 'c')){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(stdcv(1, 'c')){} == QUALI_FLAGS(const, volatile));
 
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI(FLAGS, volatile));
-    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI(FLAGS, const, volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdv)){} == QUALI_FLAGS(volatile));
+    CLBL_STATIC_ASSERT(decltype(call_std_func(stdcv)){} == QUALI_FLAGS(const, volatile));
 }
 #endif
 

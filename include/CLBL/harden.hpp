@@ -34,11 +34,11 @@ struct harden_t {
         
         using present = std::integral_constant<quali::flags,
             quali::cv_of<Callable>::value 
-            | quali::collapse_reference<quali::ref_of<Callable>::value, dummy_mf::ref_flags>::value
+            | quali::collapse<quali::ref_of<Callable>::value, dummy_mf::ref_flags>::value
         >;
 
         using resolved_flags = std::integral_constant<quali::flags,
-            quali::collapse_reference<
+            quali::collapse<
                 present::value | quali::remove_reference<requested>::value,
                 quali::remove_cv<requested>::value
             >::value

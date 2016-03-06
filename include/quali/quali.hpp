@@ -26,8 +26,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <quali/can_dereference.hpp>
 #include <quali/dereferenceable_object.hpp>
 #include <quali/qualified_type.hpp>
-#include <quali/cv_of.hpp>
-#include <quali/ref_of.hpp>
 #include <quali/cast.hpp>
 #include <quali/generalized_object.hpp>
 #include <quali/generalize.hpp>

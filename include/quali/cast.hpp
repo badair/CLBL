@@ -16,16 +16,16 @@ namespace quali {
     template<flags QFlags, typename Object>
     inline constexpr decltype(auto)
     cast(Object&& o) {
-        return static_cast<qualified_type<
+        return static_cast< quali::qualify<
             typename std::remove_reference<Object>::type,
-            guarantee_reference<QFlags>::value
+            quali::guarantee_reference<QFlags>::value
         >>(o);
     }
 
     template<typename Object>
-    inline constexpr qualified_type<
+    inline constexpr quali::qualify<
                 typename std::remove_reference<Object>::type,
-                cv_of<Object>::value | ref_of<Object, force_ref>::value
+                quali::cv_of<Object>::value | quali::ref_of<Object, quali::force_ref>::value
             >
     cast(Object&& o) {
         return static_cast<Object&&>(o);
