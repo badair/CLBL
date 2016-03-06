@@ -61,7 +61,11 @@ public:
     using base = pmf_wrapper_data<typename Dispatch::constructor_type>;
     using base::base;
     using underlying_type = typename Dispatch::invoke_type;
-    using arg_types = typename Dispatch::template prepend_args<std::tuple, underlying_type>;
+
+    using arg_types = typename Dispatch::template prepend_and_unpack_args_to_template<
+        std::tuple, underlying_type
+    >;
+
     using clbl_tag = pmf_tag;
     using forwarding_glue =
          typename Dispatch::template prepend_arg_to_forward_function<underlying_type>;
@@ -75,10 +79,24 @@ protected:
         return (quali::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }
+
+    template<typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const {
+        return (quali::generalize(static_cast<Obj&&>(o))
+            .*base::data)(static_cast<Args&&>(args)...);
+    }
     
     template<typename Obj, typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
+        return (quali::generalize(static_cast<Obj&&>(o))
+            .*base::data)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
         return (quali::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }

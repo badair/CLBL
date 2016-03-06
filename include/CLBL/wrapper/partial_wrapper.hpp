@@ -1,6 +1,5 @@
 /*!
 @file
-Defines `boost::hana::partial`.
 
 @copyright Louis Dionne 2013-2016
 @copyright Modified Work Barrett Adair 2016

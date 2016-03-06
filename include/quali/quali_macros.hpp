@@ -13,19 +13,19 @@ Distributed under the Boost Software License, Version 1.0.
 #include <quali/quali.hpp>
 
 #define QUALI_DEFAULT
-#define QUALI_BEGIN_TOKENS
-#define QUALI_END_TOKENS 
-#define QUALI_BEGIN_FLAGS (
-#define QUALI_END_FLAGS )
-#define QUALI_COMBINE_TOKENS
-#define QUALI_COMBINE_FLAGS |
 
 #define QUALI_PP_CAT_(X, Y) X ## Y
 #define QUALI_PP_CAT(X, Y)  QUALI_PP_CAT_(X, Y)
 #define QUALI_STRINGIFY(...) #__VA_ARGS__
 
+#define QUALI_BEGIN_TOKENS
+#define QUALI_COMBINE_TOKENS
+#define QUALI_END_TOKENS 
 #define QUALI_TOKENS(x) x
 
+#define QUALI_BEGIN_FLAGS (
+#define QUALI_COMBINE_FLAGS |
+#define QUALI_END_FLAGS )
 #define QUALI_FLAGS(x) \
     quali::pp_detail::map_to_flags_by_lexical_length< \
         std::extent< \
@@ -34,7 +34,12 @@ Distributed under the Boost Software License, Version 1.0.
         int \
     >::value
 
-#define QUALI_ELEMENT(type, e) QUALI_PP_CAT(QUALI_, type)(e)
+#define QUALI_BEGIN_CONSTANT std::integral_constant<quali::flags, (
+#define QUALI_COMBINE_CONSTANT |
+#define QUALI_END_CONSTANT )>
+#define QUALI_CONSTANT(x) QUALI_FLAGS(x)
+
+#define QUALI_ELEMENT(tag, e) QUALI_PP_CAT(QUALI_, tag)(e)
 
 /*
 taken from potatoswatter's answer on macro overloading at 
@@ -48,81 +53,84 @@ http://stackoverflow.com/questions/16683146/can-macros-be-overloaded-by-number-o
 
 
 
-#define QUALI_IMPL_1( type ) QUALI_PP_CAT(QUALI_, type)(QUALI_DEFAULT)
+#define QUALI_IMPL_1( tag ) QUALI_PP_CAT(QUALI_, tag)(QUALI_DEFAULT)
 
-#define QUALI_IMPL_2( type, arg0 ) QUALI_ELEMENT(type, arg0)
+#define QUALI_IMPL_2( tag, arg0 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_3( type, arg0, arg1 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_3( tag, arg0, arg1 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_4( type, arg0, arg1, arg2 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg2) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_4( tag, arg0, arg1, arg2 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg2) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_5( type, arg0, arg1, arg2, arg3 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg2) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg3) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_5( tag, arg0, arg1, arg2, arg3 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg2) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg3) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_6( type, arg0, arg1, arg2, arg3, arg4 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg2) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg3) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg4) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_6( tag, arg0, arg1, arg2, arg3, arg4 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg2) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg3) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg4) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_7( type, arg0, arg1, arg2, arg3, arg4, arg5 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg2) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg3) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg4) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg5) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_7( tag, arg0, arg1, arg2, arg3, arg4, arg5 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg2) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg3) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg4) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg5) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
-#define QUALI_IMPL_8( type, arg0, arg1, arg2, arg3, arg4, arg5, arg6 ) \
-QUALI_PP_CAT(QUALI_BEGIN_, type) \
-QUALI_ELEMENT(type, arg0) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg1) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg2) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg3) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg4) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg5) \
-QUALI_PP_CAT(QUALI_COMBINE_, type) \
-QUALI_ELEMENT(type, arg6) \
-QUALI_PP_CAT(QUALI_END_, type)
+#define QUALI_IMPL_8( tag, arg0, arg1, arg2, arg3, arg4, arg5, arg6 ) \
+QUALI_PP_CAT(QUALI_BEGIN_, tag) \
+QUALI_ELEMENT(tag, arg0) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg1) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg2) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg3) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg4) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg5) \
+QUALI_PP_CAT(QUALI_COMBINE_, tag) \
+QUALI_ELEMENT(tag, arg6) \
+QUALI_PP_CAT(QUALI_END_, tag)
 
 #define QUALI_DEBUG_(x, ...) \
     static_assert(false, "QUALI("#__VA_ARGS__") expands to '" QUALI_STRINGIFY(x) "'.")

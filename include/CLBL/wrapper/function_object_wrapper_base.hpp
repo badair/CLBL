@@ -11,8 +11,16 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_FUNCTION_OBJECT_WRAPPER_BASE_H
 
 #include <CLBL/possibly_ref_qualified_call_operator_type.hpp>
+#include <CLBL/can_call_with.hpp>
 
 namespace clbl { namespace internal {
+
+template<
+    quali::flags QFlags,
+    typename GeneralizedObject,
+    typename Pmf = call_operator<default_normal_callable<typename GeneralizedObject::type>>
+>
+struct function_object_wrapper_base;
 
 template<quali::flags QFlags, typename GeneralizedObject, typename Pmf = dummy>
 struct ambiguous_function_object_wrapper_base {
@@ -35,13 +43,26 @@ struct ambiguous_function_object_wrapper_base {
     using add_qualifiers = 
     callable_wrapper<
         ambiguous_function_object_wrapper_base<
-            quali::collapse_reference<QFlags, Flags>::value,
+            quali::collapse_reference<q_flags, Flags>::value,
             GeneralizedObject,
             Pmf
         >
     >;
 
     invocation_data_type data;
+
+    template<quali::flags Flags, typename... Args>
+    using apply_signature = callable_wrapper<
+        function_object_wrapper_base<
+            quali::collapse_reference<q_flags, Flags>::value,
+            GeneralizedObject,
+            typename pmf<
+                decltype(data.template get<quali::collapse_reference<q_flags, Flags>::value>()
+                (std::declval<Args>()...))
+                (no_ref<underlying_type>::*)(Args...)
+            >::template add_qualifiers<Flags>
+        >
+    >;
 
     ambiguous_function_object_wrapper_base() = default;
     ambiguous_function_object_wrapper_base(const ambiguous_function_object_wrapper_base& ) = default;
@@ -66,9 +87,23 @@ struct ambiguous_function_object_wrapper_base {
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) {
+        using flags_type = quali::force_rvalue_reference<q_flags>;
+        return data.template get<flags_type::value>()(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const {
         return data.template get<quali::const_ | q_flags>()(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const {
+        using flags_type = quali::force_rvalue_reference<quali::const_ | q_flags>;
+        return data.template get<flags_type::value>()(static_cast<Args&&>(args)...);
     }
 
     template<typename... Args>
@@ -78,9 +113,28 @@ struct ambiguous_function_object_wrapper_base {
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) volatile {
+        using flags_type = quali::force_rvalue_reference<quali::volatile_ | q_flags>;
+        return data.template get<flags_type::value>()(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const volatile {
         return data.template get<quali::const_ | quali::volatile_ | q_flags>()(
+            static_cast<Args&&>(args)...
+        );
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const volatile {
+        using flags_type = quali::force_rvalue_reference<
+            quali::const_ | quali::volatile_ | q_flags
+        >;
+
+        return data.template get<flags_type::value>()(
             static_cast<Args&&>(args)...
         );
     }
@@ -89,7 +143,7 @@ struct ambiguous_function_object_wrapper_base {
 template<
     quali::flags QFlags,
     typename GeneralizedObject,
-    typename Pmf = call_operator<default_normal_callable<typename GeneralizedObject::type>>
+    typename Pmf
 >
 struct function_object_wrapper_base 
     : public pmf<Pmf> {
@@ -118,20 +172,68 @@ struct function_object_wrapper_base
         return static_cast<
             possibly_ref_qualified_call_operator_type<
                 base,
-                no_ref<underlying_type>,
+                general_type,
                 quali::collapse_reference<this_t::q_flags, Flags>::value
             >
         >(&no_ref<underlying_type>::operator());
     }
 
+private:
+
     template<quali::flags Flags>
-    using add_qualifiers =
-        callable_wrapper<
-            function_object_wrapper_base<
-            quali::collapse_reference<QFlags, Flags>::value,
-            GeneralizedObject,
-            typename base::template add_qualifiers<quali::collapse_reference<QFlags, Flags>::value>
+    using harden_underlying = quali::qualified_type<
+        general_type,
+        quali::collapse_reference<q_flags, Flags>::value
+    >;
+
+    template<quali::flags Flags>
+    using add_pmf_qualifiers = pmf<
+        typename base::template add_qualifiers<
+            quali::collapse_reference<q_flags, Flags>::value
         >
+    >;
+
+    template<quali::flags Flags>
+    using can_call_after_hardened = typename base::template prepend_and_unpack_args_to_template<
+            can_call_with,
+            harden_underlying<Flags>
+    >;
+
+    struct dummy_function_object {
+        template<typename... Args>
+        typename base::return_type operator()(Args...);
+    };
+
+    template<quali::flags Flags>
+    using result_of_call = typename base::template result_of_invoke_with_args<
+        typename std::conditional<
+            can_call_after_hardened<Flags>::value,
+            harden_underlying<Flags>,
+            dummy_function_object
+        >::type
+    >;
+
+    template<quali::flags Flags>
+    using hardened_pmf = typename add_pmf_qualifiers<
+        quali::collapse_reference<q_flags, Flags>::value
+    >::template apply_return<result_of_call<Flags> >;
+
+public:
+
+    template<quali::flags Flags>
+    using add_qualifiers = callable_wrapper<
+        typename std::conditional<
+            can_call_after_hardened<Flags>::value,
+            function_object_wrapper_base<
+                quali::collapse_reference<q_flags, Flags>::value,
+                GeneralizedObject,
+                hardened_pmf<Flags>
+            >,
+            ambiguous_function_object_wrapper_base<
+                quali::collapse_reference<q_flags, Flags>::value,
+                GeneralizedObject
+            >
+        >::type
     >;
 
     using invocation_data_type = GeneralizedObject;
@@ -139,6 +241,20 @@ struct function_object_wrapper_base
     using clbl_tag = function_object_wrapper_tag;
 
     invocation_data_type data;
+
+    template<quali::flags Flags, typename... Args>
+    using apply_signature = callable_wrapper<
+        function_object_wrapper_base<
+            quali::collapse_reference<q_flags, Flags>::value,
+            GeneralizedObject,
+            typename pmf<
+                decltype(data.template get<quali::collapse_reference<q_flags, Flags>::value>()(
+                    std::declval<Args>()...)
+                )
+                (no_ref<underlying_type>::*)(Args...)
+            >::template add_qualifiers<Flags>
+        >
+    >;
 
     function_object_wrapper_base() = default;
     function_object_wrapper_base(const function_object_wrapper_base&) = default;
@@ -167,10 +283,28 @@ struct function_object_wrapper_base
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) {
+        using flags_type = quali::force_rvalue_reference<q_flags>;
+        return (data.template get<flags_type::value>()
+            .*pmf_cast<quali::rvalue_reference_>())(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const {
         return (data.template get<quali::const_ | q_flags>()
             .*pmf_cast<quali::const_>())(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const {
+        using flags_type = quali::force_rvalue_reference<
+            quali::const_ | q_flags
+        >;
+        return (data.template get<flags_type::value>()
+            .*pmf_cast<quali::const_ | quali::rvalue_reference_>())(static_cast<Args&&>(args)...);
     }
 
     template<typename... Args>
@@ -181,10 +315,30 @@ struct function_object_wrapper_base
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) volatile {
+        using flags_type = quali::force_rvalue_reference<
+            quali::volatile_ | q_flags
+        >;
+        return (data.template get<flags_type::value>()
+            .*pmf_cast<quali::volatile_ | quali::rvalue_reference_>())(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const volatile {
         return (data.template get<quali::const_ | quali::volatile_ | q_flags>()
             .*pmf_cast<quali::const_ | quali::volatile_>())(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const volatile {
+        using flags_type = quali::force_rvalue_reference<
+            quali::const_ | quali::volatile_ | q_flags
+        >;
+        return (data.template get<quali::const_ | quali::volatile_ | q_flags>()
+            .*pmf_cast<quali::const_ | quali::volatile_ | quali::rvalue_reference_>())(static_cast<Args&&>(args)...);
     }
 };
 

@@ -13,7 +13,9 @@ Distributed under the Boost Software License, Version 1.0.
 #include <tuple>
 #include <type_traits>
 
+//This is a slightly modified version of Boost.Hana's sort
 namespace clbl { namespace internal {
+    
 namespace detail {
 
     using index = std::size_t;

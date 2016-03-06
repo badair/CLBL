@@ -106,9 +106,27 @@ struct bound_pmf_wrapper_base
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) {
+        using flags_type = quali::force_rvalue_reference<q_flags>;
+        return (base::data.object.template get<flags_type::value>().*base::get_pmf())(
+            static_cast<Args&&>(args)...
+        );
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const {
         return (base::data.object.template get<quali::const_ | q_flags>().*base::get_pmf())(
+            static_cast<Args&&>(args)...
+        );
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const {
+        using flags_type = quali::force_rvalue_reference<quali::const_ | q_flags>;
+        return (base::data.object.template get<flags_type::value>().*base::get_pmf())(
             static_cast<Args&&>(args)...
         );
     }
@@ -122,11 +140,28 @@ struct bound_pmf_wrapper_base
     }
 
     template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    move_invoke(Args&&... args) volatile {
+        using flags_type = quali::force_rvalue_reference<quali::volatile_ | q_flags>;
+        return (base::data.object.template get<flags_type::value>().*base::get_pmf())(
+            static_cast<Args&&>(args)...
+        );
+    }
+
+    template<typename... Args>
     inline constexpr decltype(auto)
     invoke(Args&&... args) const volatile {
         return (base::data.object.template get<
                 quali::const_ | quali::volatile_ | q_flags
             >().*base::data.pmf)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const volatile {
+        using flags_type = quali::force_rvalue_reference<quali::const_ | quali::volatile_ | q_flags>;
+        return (base::data.object.template get<flags_type::value>()
+            .*base::data.pmf)(static_cast<Args&&>(args)...);
     }
 };
 

@@ -64,7 +64,19 @@ protected:
 
     template<typename... Args>
     inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const {
+        return base::data(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
     invoke(Args&&... args) const volatile {
+        return base::data(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    move_invoke(Args&&... args) const volatile {
         return base::data(static_cast<Args&&>(args)...);
     }
 };

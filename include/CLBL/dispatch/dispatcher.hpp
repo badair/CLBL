@@ -109,9 +109,9 @@ struct dispatcher<function_object<Generalized>, ForwardingReference> {
     operator()(ForwardingReference t) const {
         return result<
             quali::cv_of<std::remove_reference_t<ForwardingReference>>::value 
-            | (is_reference_wrapper<typename Generalized::original_type>::value?
-                    quali::default_ 
-                    : quali::ref_of<ForwardingReference>::value
+            | (is_reference_wrapper<typename Generalized::original_type>::value
+                || quali::ref_of<ForwardingReference>::value == quali::rvalue_reference_?
+                    quali::default_ : quali::lvalue_reference_
                 )
         >{static_cast<ForwardingReference>(t)};
     }

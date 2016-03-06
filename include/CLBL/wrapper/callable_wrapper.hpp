@@ -20,24 +20,70 @@ public:
 
     using Base::Base;
 
+#ifdef CLBL_GCC_5_REF_OVERLOAD_WORKAROUND
+
+    //https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60943
+    //GCC 5 can't resolve ref-qualified overloads with auto deduced return type,
+    //so we omit this functionality. TODO document this
+    
+    #define CLBL_LVALUE_QUALIFIER
+
+#else
+
+    #define CLBL_LVALUE_QUALIFIER &
+
     template<typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    operator()(Args&&... args) {
+    operator()(Args&&... args) && {
+        return Base::move_invoke(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    operator()(Args&&... args) const && {
+        return Base::move_invoke(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+        operator()(Args&&... args) volatile && {
+        return Base::move_invoke(static_cast<Args&&>(args)...);
+    }
+
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    operator()(Args&&... args) const volatile && {
+        return Base::move_invoke(static_cast<Args&&>(args)...);
+    }
+
+#endif
+
+    template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR decltype(auto)
+    operator()(Args&&... args) CLBL_LVALUE_QUALIFIER {
         return Base::invoke(static_cast<Args&&>(args)...);
     }
 
     template<typename... Args>
     inline constexpr decltype(auto)
-    operator()(Args&&... args) const {
+    operator()(Args&&... args) const CLBL_LVALUE_QUALIFIER {
         return Base::invoke(static_cast<Args&&>(args)...);
     }
 
     template<typename... Args>
     inline constexpr decltype(auto)
-    operator()(Args&&... args) const volatile {
+        operator()(Args&&... args) volatile CLBL_LVALUE_QUALIFIER {
         return Base::invoke(static_cast<Args&&>(args)...);
     }
 
+    template<typename... Args>
+    inline constexpr decltype(auto)
+    operator()(Args&&... args) const volatile CLBL_LVALUE_QUALIFIER {
+        return Base::invoke(static_cast<Args&&>(args)...);
+    }
+
+#undef CLBL_LVALUE_QUALIFIER
+    
     //todo forwarding
     template<typename... Args>
     decltype(auto)

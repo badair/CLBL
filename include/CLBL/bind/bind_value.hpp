@@ -25,9 +25,15 @@ public:
     bind_value(const typename std::decay<T>::type && t)
         : t_( t ) {}
 
+    CLBL_REQUIRES(!std::is_rvalue_reference<T>{})
     T & get() { return t_; }
 
+    CLBL_REQUIRES(!std::is_rvalue_reference<T>{})
     T const & get() const { return t_; }
+
+    //creating a new rvalue reference by invoking the copy ctor
+    /*CLBL_REQUIRES(std::is_rvalue_reference<T>{})
+    no_ref<T> get() const { return static_cast<no_ref<T> const &>(t_); }*/
 
 private:
 

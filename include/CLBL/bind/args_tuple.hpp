@@ -13,7 +13,7 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <CLBL/bind/bind_value.hpp>
 
-namespace clbl{ namespace internal { namespace detail {
+namespace clbl { namespace internal { namespace detail {
 
 struct empty {};
 

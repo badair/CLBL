@@ -13,15 +13,6 @@ Distributed under the Boost Software License, Version 1.0.
 
 #include <type_traits>
 
-/*
-CLBL_NO_CV represents an empty macro argument,
-which is really useful for spamming qualifier
-permutations with the preprocessor
-*/
-
-#define CLBL_NOTHING_ARGS(x)
-#define CLBL_NO_CV CLBL_NOTHING_ARGS(x)
-
 namespace clbl {
 
     /*
@@ -63,13 +54,6 @@ namespace clbl {
     struct function_wrapper_tag{};
     struct function_object_wrapper_tag {};
     struct bound_pmf_tag{};
-
-    //http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2013/n3652.html
-    #ifdef __cpp_constexpr
-    #define CLBL_CXX14_CONSTEXPR constexpr
-    #else
-    #define CLBL_CXX14_CONSTEXPR
-    #endif
 }
 
 #endif

@@ -74,12 +74,12 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     using type = Return(T::*)(Args...) QUAL;                                         \
     using constructor_type = type;                                                   \
     using decay_type = Return(T::*)(Args...);                                        \
+    using decay_pmf = pmf<decay_type>;                                               \
     using decay_to_function = Return(Args...);                                       \
     using abominable_type = Return(Args...) QUAL;                                    \
     using forwarding_glue = Return(forward<Args>...);                                \
     using class_type = T;                                                            \
     using dispatch_type = pmf;                                                       \
-    using unqualified = pmf<Return(T::*)(Args...)>;                                  \
                                                                                      \
     using invoke_type =                                                              \
         quali::qualified_type<T, quali::guarantee_reference<cv_flags>::value>;       \
@@ -91,31 +91,27 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     >;                                                                               \
                                                                                      \
     template<quali::flags Added>                                                     \
-    using add_qualifiers = pmf<                                                      \
+    using add_qualifiers =                                                           \
         typename CLBL_APPLY_PMF_QUALIFIERS_STRUCT<                                   \
             Added                                                                    \
-        >::template type<cv_flags, Return, T, Args...>                               \
-    >;                                                                               \
+        >::template type<cv_flags, Return, T, Args...>;                              \
                                                                                      \
-    using remove_reference = pmf<                                                    \
-        typename unqualified::template add_qualifiers<cv_flags>                      \
-    >;                                                                               \
+    template<quali::flags Flags>                                                     \
+    using add_decay_qualifiers = typename decay_pmf::template add_qualifiers<Flags>; \
                                                                                      \
-    using remove_const = pmf<                                                        \
-        typename unqualified::template add_qualifiers<                               \
-            ref_flags | quali::remove_const<cv_flags>::value                         \
-        >                                                                            \
-    >;                                                                               \
+    using remove_reference = pmf<add_decay_qualifiers<cv_flags>>;                    \
                                                                                      \
-    using remove_volatile = pmf<                                                     \
-        typename unqualified::template add_qualifiers<                               \
-            ref_flags | quali::remove_volatile<cv_flags>::value                      \
-        >                                                                            \
-    >;                                                                               \
+    using remove_const = pmf<add_decay_qualifiers<                                   \
+        ref_flags | quali::remove_const<cv_flags>::value                             \
+    >>;                                                                              \
+                                                                                     \
+    using remove_volatile = pmf<add_decay_qualifiers<                                \
+        ref_flags | quali::remove_volatile<cv_flags>::value                          \
+    >>;                                                                              \
                                                                                      \
     template<typename Callable>                                                      \
-    static auto unevaluated_invoke_with_args_declval(Callable&& c)                   \
-        -> decltype(std::declval<Callable>()(std::declval<Args>()...));              \
+    using result_of_invoke_with_args =                                               \
+        decltype(std::declval<Callable>()(std::declval<Args>()...));                 \
                                                                                      \
     template<typename U>                                                             \
     using apply_class = Return(U::*)(Args...) QUAL;                                  \
@@ -129,11 +125,11 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     template<template<class...> class U, template<class> class K>                    \
     using unpack_args_on = U<K<Args>...>;                                            \
                                                                                      \
-    template<template<class...> class U, typename PrependArg>                        \
-    using prepend_arg = U<PrependArg, Args...>;                                      \
-                                                                                     \
     template<template<class...> class U, typename... PrependArgs>                    \
-    using prepend_args = U<PrependArgs..., Args...>;                                 \
+    using prepend_and_unpack_args_to_template = U<PrependArgs..., Args...>;          \
+                                                                                     \
+    template<template<quali::flags, class...> class U, quali::flags Flags>           \
+    using prepend_flags_and_unpack_args_to_template = U<Flags, Args...>;             \
                                                                                      \
     template<typename... PrependArgs>                                                \
     using prepend_args_to_function = Return(PrependArgs..., Args...);                \
@@ -201,7 +197,9 @@ struct pmf<std::integral_constant<T, Value> >
 };
 
 template<typename T>
-struct pmf < pmf<T> > : pmf<T> {};
+struct pmf < pmf<T> > : pmf<T> {
+    static_assert(sizeof(T) < 0, "Don't nest the pmf template.");
+};
 
 }
 
