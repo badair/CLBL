@@ -125,8 +125,66 @@ int main() {
         QUALI_STATIC_ASSERT(F{} == add_rvalue_reference<F{}>{});
         QUALI_STATIC_ASSERT(F{} == add_lvalue_reference <F{}> {});
         QUALI_STATIC_ASSERT(const_ == remove_reference<F{}>{});
-        QUALI_STATIC_ASSERT(cv_of<T>{} == const_);
-        QUALI_STATIC_ASSERT(ref_of<T>{} == QUALI_FLAGS(&));
+        QUALI_STATIC_ASSERT(const_ == cv_of<T>{});
+        QUALI_STATIC_ASSERT(lref_ == ref_of<T>{});
+    } {
+        //volatile &
+        using T = volatile int &;
+        using F = QUALI_INTC(volatile, &);
+        QUALI_ASSERT_IS_SAME(T, qualify<int, F{}>);
+        QUALI_ASSERT_IS_SAME(T, int QUALI_TOKENS(volatile, &));
+        QUALI_STATIC_ASSERT(F{} == QUALI_FLAGS(volatile, &));
+        QUALI_STATIC_ASSERT(F{} == (volatile_ | lref_));
+        QUALI_STATIC_ASSERT(F{} == add_rvalue_reference<F{}>{});
+        QUALI_STATIC_ASSERT(F{} == add_lvalue_reference <F{}> {});
+        QUALI_STATIC_ASSERT(volatile_ == remove_reference<F{}>{});
+        QUALI_STATIC_ASSERT(volatile_ == cv_of<T>{});
+        QUALI_STATIC_ASSERT(lref_ == ref_of<T>{});
+    } {
+        //const &&
+        using T = const int &&;
+        using F = QUALI_INTC(const, &&);
+        QUALI_ASSERT_IS_SAME(T, qualify<int, F{}>);
+        QUALI_ASSERT_IS_SAME(T, int QUALI_TOKENS(const, &&));
+        QUALI_STATIC_ASSERT(F{} == QUALI_FLAGS(const, &&));
+        QUALI_STATIC_ASSERT(F{} == (const_ | rref_));
+        QUALI_STATIC_ASSERT(F{} == add_rvalue_reference<F{}>{});
+        QUALI_STATIC_ASSERT((const_ | lref_) == add_lvalue_reference<F{}> {});
+        QUALI_STATIC_ASSERT(const_ == remove_reference<F{}>{});
+        QUALI_STATIC_ASSERT(const_ | cv_of<T>{});
+        QUALI_STATIC_ASSERT(rref_ | ref_of<T>{});
+    } {
+        //volatile &&
+        using T = volatile int &&;
+        using F = QUALI_INTC(volatile, &&);
+        QUALI_ASSERT_IS_SAME(T, qualify<int, F{}>);
+        QUALI_ASSERT_IS_SAME(T, int QUALI_TOKENS(volatile, &&));
+        QUALI_STATIC_ASSERT(F{} == QUALI_FLAGS(volatile, &&));
+        QUALI_STATIC_ASSERT(F{} == (volatile_ | rref_));
+        QUALI_STATIC_ASSERT(F{} == add_rvalue_reference<F{}>{});
+        QUALI_STATIC_ASSERT((volatile_ | lref_) == add_lvalue_reference<F{}> {});
+        QUALI_STATIC_ASSERT(volatile_ == remove_reference<F{}>{});
+        QUALI_STATIC_ASSERT(volatile_ | cv_of<T>{});
+        QUALI_STATIC_ASSERT(rref_ | ref_of<T>{});
+    } {
+        //const volatile &&
+        using T = const volatile int &&;
+        using F = QUALI_INTC(const, volatile, &&);
+        QUALI_ASSERT_IS_SAME(T, qualify<int, F{}>);
+        QUALI_ASSERT_IS_SAME(T, int QUALI_TOKENS(const, volatile, &&));
+        QUALI_STATIC_ASSERT(F{} == QUALI_FLAGS(const, volatile, &&));
+        QUALI_STATIC_ASSERT(F{} == (const_ | volatile_ | rref_));
+        QUALI_STATIC_ASSERT(F{} == add_rvalue_reference<F{}>{});
+        QUALI_STATIC_ASSERT(F{} == add_const<F{}>{});
+        QUALI_STATIC_ASSERT(F{} == add_volatile<F{}>{});
+        QUALI_STATIC_ASSERT(F{} == add_cv<F{}>{});
+        QUALI_STATIC_ASSERT(QUALI_FLAGS(const, &&) == remove_volatile<F{}>{});
+        QUALI_STATIC_ASSERT(QUALI_FLAGS(volatile, &&) == remove_const<F{}>{});
+        QUALI_STATIC_ASSERT(QUALI_FLAGS(&&) == remove_cv<F{}>{});
+        QUALI_STATIC_ASSERT((const_ | volatile_ | lref_) == add_lvalue_reference <F{}> {});
+        QUALI_STATIC_ASSERT((const_ | volatile_) == remove_reference<F{}>{});
+        QUALI_STATIC_ASSERT((const_ | volatile_) == cv_of<T>{});
+        QUALI_STATIC_ASSERT(rref_ == ref_of<T>{});
     }
 
     return 0;
