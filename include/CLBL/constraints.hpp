@@ -59,13 +59,13 @@ using ConvertibleObject = Obj;
 
 template<
     typename T, 
-    CLBL_REQUIRES_(!quali::can_dereference<T>::value && !is_reference_wrapper<T>::value)
+    CLBL_REQUIRES_(!clbl::can_dereference<T>::value && !is_reference_wrapper<T>::value)
 >
 using ValueType = T;
 
 template<typename T>
 using DefaultDereferenceable = typename std::conditional<
-    quali::can_dereference<T>::value,
+    clbl::can_dereference<T>::value,
     T,
     dummy*
 >::type;
@@ -73,7 +73,7 @@ using DefaultDereferenceable = typename std::conditional<
 template<
     typename Ptr, 
     CLBL_REQUIRES_(
-        quali::can_dereference<Ptr>::value 
+        clbl::can_dereference<Ptr>::value 
         && std::is_class<no_ref<decltype(*std::declval<DefaultDereferenceable<Ptr>>())>>::value
     )
 >

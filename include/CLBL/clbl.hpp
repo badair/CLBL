@@ -26,6 +26,11 @@ Distributed under the Boost Software License, Version 1.0.
 #endif
 
 #include <CLBL/tags.hpp>
+#include <quali/quali.hpp>
+#include <CLBL/can_dereference.hpp>
+#include <CLBL/dereferenceable_object.hpp>
+#include <CLBL/generalized_object.hpp>
+#include <CLBL/generalize.hpp>
 #include <CLBL/args.hpp>
 #include <CLBL/return.hpp>
 #include <CLBL/emulates.hpp>

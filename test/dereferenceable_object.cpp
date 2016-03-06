@@ -7,19 +7,17 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#include <quali/quali_macros.hpp>
+#include <CLBL/clbl.hpp>
 #include <cassert>
 #include <string>
 #include <functional>
-
-using namespace quali;
 
 struct foo {};
 
 //GCC doesn't like this to be constexpr
 template<typename T>
 inline /*constexpr*/ std::true_type
-is_dereferenceable_object(dereferenceable_object<T&&>) { return{}; }
+is_dereferenceable_object(clbl::dereferenceable_object<T&&>) { return{}; }
 
 inline /*constexpr*/ std::false_type
 is_dereferenceable_object(...) { return{}; }
@@ -31,7 +29,7 @@ int main() {
     static_assert(decltype(is_dereferenceable_object(&f))::value, "");
     static_assert(!decltype(is_dereferenceable_object(f))::value, "");
     static_assert(!decltype(is_dereferenceable_object(""))::value, "");
-    static_assert(std::is_same<dereferenceable_object<foo*>, foo*>::value, "");
+    static_assert(std::is_same<clbl::dereferenceable_object<foo*>, foo*>::value, "");
 
     return 0;
 }

@@ -76,28 +76,28 @@ protected:
     template<typename Obj, typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const {
-        return (quali::generalize(static_cast<Obj&&>(o))
+        return (clbl::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }
 
     template<typename Obj, typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const {
-        return (quali::generalize(static_cast<Obj&&>(o))
+        return (clbl::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }
     
     template<typename Obj, typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
-        return (quali::generalize(static_cast<Obj&&>(o))
+        return (clbl::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }
 
     template<typename Obj, typename... Args>
     inline CLBL_CXX14_CONSTEXPR decltype(auto)
     move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
-        return (quali::generalize(static_cast<Obj&&>(o))
+        return (clbl::generalize(static_cast<Obj&&>(o))
             .*base::data)(static_cast<Args&&>(args)...);
     }
 };

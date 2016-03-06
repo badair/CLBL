@@ -17,6 +17,10 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.hpp>
 #include <CLBL/has_normal_call_operator.hpp>
 
+#ifdef QUALI_MACROS_HPP
+#define CLBL_LEAVE_QUALI_MACROS_DEFINED
+#endif
+
 #include <quali/quali_macros.hpp>
 
 #define CLBL_APPLY_PMF_QUALIFIERS_STRUCT CLBL_PP_CAT(apply_pmf_qualifiers_, __LINE__)
@@ -210,6 +214,8 @@ struct pmf < pmf<T> > : pmf<T> {
 #undef CLBL_SPECIALIZE_PMF_DETAIL
 #undef CLBL_SPECIALIZE_PMF
 
+#ifndef CLBL_LEAVE_QUALI_MACROS_DEFINED
 #include <quali/quali_macros_undef.hpp>
+#endif
 
 #endif

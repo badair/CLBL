@@ -1,6 +1,6 @@
 /*!
 @file
-Defines `quali::can_dereference`.
+Defines `clbl::can_dereference`.
 
 @copyright Barrett Adair 2015
 Distributed under the Boost Software License, Version 1.0.
@@ -8,13 +8,13 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#ifndef QUALI_CAN_DEREFERENCE_HPP
-#define QUALI_CAN_DEREFERENCE_HPP
+#ifndef CLBL_CAN_DEREFERENCE_HPP
+#define CLBL_CAN_DEREFERENCE_HPP
 
-namespace quali {
+namespace clbl {
 
     /*
-    quali::can_dereference is a type trait that we use to determine whether
+    clbl::can_dereference is a type trait that we use to determine whether
     a type is a pointer by checking whether we can dereference it.
     This allows us to treat smart pointers and raw pointers with the same code.
     */

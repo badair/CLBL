@@ -7,10 +7,11 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#ifndef QUALI_DEREFERENCEABLE_OBJECT_HPP
-#define QUALI_DEREFERENCEABLE_OBJECT_HPP
+#ifndef CLBL_DEREFERENCEABLE_OBJECT_HPP
+#define CLBL_DEREFERENCEABLE_OBJECT_HPP
 
-namespace quali {
+namespace clbl {
+    
     template<typename T>
     using default_dereferenceable = typename std::conditional<
         can_dereference<T>::value,

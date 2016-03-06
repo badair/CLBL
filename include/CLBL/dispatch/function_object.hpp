@@ -40,13 +40,13 @@ struct function_object
 };
 
 template<typename T, typename U>
-struct function_object <quali::generalized_object<T U::*, void> > {
+struct function_object <clbl::generalized_object<T U::*, void> > {
     static constexpr const bool is_valid = false;
     static constexpr const bool value = is_valid;
 };
 
 template<typename T, T Value>
-struct function_object<quali::generalized_object<std::integral_constant<T, Value>, void>> {
+struct function_object<clbl::generalized_object<std::integral_constant<T, Value>, void>> {
     static constexpr const bool is_valid = false;
     static constexpr const bool value = is_valid;
 };

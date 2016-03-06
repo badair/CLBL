@@ -7,10 +7,10 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#ifndef QUALI_GENERALIZE_HPP
-#define QUALI_GENERALIZE_HPP
+#ifndef CLBL_GENERALIZE_HPP
+#define CLBL_GENERALIZE_HPP
 
-namespace quali {
+namespace clbl {
 
 namespace detail {
 

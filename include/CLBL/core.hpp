@@ -2,7 +2,6 @@
 #ifndef CLBL_CORE_H
 #define CLBL_CORE_H
 
-#include <quali/quali.hpp>
 #include <CLBL/tags.hpp>
 #include <CLBL/forward.hpp>
 #include <CLBL/type_traits.hpp>

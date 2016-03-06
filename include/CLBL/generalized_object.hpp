@@ -7,10 +7,10 @@ Distributed under the Boost Software License, Version 1.0.
 
 */
 
-#ifndef QUALI_OBJECT_WRAPPER_HPP
-#define QUALI_OBJECT_WRAPPER_HPP
+#ifndef CLBL_OBJECT_WRAPPER_HPP
+#define CLBL_OBJECT_WRAPPER_HPP
 
-namespace quali {
+namespace clbl {
 
 template<typename T, typename = void>
 struct generalized_object {
@@ -20,7 +20,7 @@ struct generalized_object {
     using original_type = T;
 
     static constexpr const quali::flags q_flags =
-        quali::cv_of<type>::value | ref_of<type>::value;
+        quali::cv_of<type>::value | quali::ref_of<type>::value;
 
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
@@ -65,28 +65,28 @@ struct generalized_object {
     generalized_object(generalized_object<U, void>&& t)
         : object{static_cast<generalized_object<U, void>&&>(t).object}{}
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() {
-        return cast<QFlags>(object);
+        return quali::cast<QFlags>(object);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const {
-        return cast<QFlags | const_>(object);
+        return quali::cast<QFlags | quali::const_>(object);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
-        return cast<QFlags | volatile_>(object);
+        return quali::cast<QFlags | quali::volatile_>(object);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const volatile {
-        return cast<QFlags | const_ | volatile_>(object);
+        return quali::cast<QFlags | quali::const_ | quali::volatile_>(object);
     }
 };
 
@@ -97,7 +97,7 @@ struct generalized_object<dereferenceable_object<T>, void> {
     using type = typename std::remove_reference<decltype(*object_ptr)>::type;
     using original_type = T;
     static constexpr const quali::flags q_flags =
-        quali::cv_of<type>::value | ref_of<decltype(*object_ptr)>::value;
+        quali::cv_of<type>::value | quali::ref_of<decltype(*object_ptr)>::value;
 
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
@@ -145,28 +145,28 @@ struct generalized_object<dereferenceable_object<T>, void> {
     generalized_object(generalized_object<U, void>&& t)
         : object_ptr{static_cast<generalized_object<U, void>&&>(t).object_ptr}{}
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() {
-        return cast<QFlags>(*object_ptr);
+        return quali::cast<QFlags>(*object_ptr);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const {
-        return cast<QFlags | const_>(*object_ptr);
+        return quali::cast<QFlags | quali::const_>(*object_ptr);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
-        return cast<QFlags | volatile_>(*object_ptr);
+        return quali::cast<QFlags | quali::volatile_>(*object_ptr);
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const volatile {
-        return cast<QFlags | const_ | volatile_>(*object_ptr);
+        return quali::cast<QFlags | quali::const_ | quali::volatile_>(*object_ptr);
     }
 };
 
@@ -178,7 +178,7 @@ struct generalized_object<std::reference_wrapper<T>, void> {
     using original_type = std::reference_wrapper<T>;
 
     static constexpr const quali::flags q_flags =
-        quali::cv_of<type>::value | ref_of<type>::value;
+        quali::cv_of<type>::value | quali::ref_of<type>::value;
 
     generalized_object(generalized_object const &) = default;
     generalized_object(generalized_object&&) = default;
@@ -206,28 +206,28 @@ struct generalized_object<std::reference_wrapper<T>, void> {
         generalized_object(generalized_object<U, void>&& t)
         : ref_wrapped_object{ static_cast<generalized_object<U, void>&&>(t).ref_wrapped_object } {}
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() {
-        return cast<QFlags>(ref_wrapped_object.get());
+        return quali::cast<QFlags>(ref_wrapped_object.get());
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const {
-        return cast<QFlags | const_>(ref_wrapped_object.get());
+        return quali::cast<QFlags | quali::const_>(ref_wrapped_object.get());
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline QUALI_CXX14_CONSTEXPR decltype(auto)
     get() volatile {
-        return cast<QFlags | volatile_>(ref_wrapped_object.get());
+        return quali::cast<QFlags | quali::volatile_>(ref_wrapped_object.get());
     }
 
-    template<flags QFlags = default_>
+    template<quali::flags QFlags = quali::default_>
     inline constexpr decltype(auto)
     get() const volatile {
-        return cast<QFlags | const_ | volatile_>(ref_wrapped_object.get());
+        return quali::cast<QFlags | quali::const_ | quali::volatile_>(ref_wrapped_object.get());
     }
 };
 
