@@ -36,13 +36,7 @@ Distributed under the Boost Software License, Version 1.0.
 #define QUALI_BEGIN_FLAGS (
 #define QUALI_DELIMITER_FLAGS |
 #define QUALI_END_FLAGS )
-#define QUALI_EXPAND_FLAGS(x) \
-    quali::pp_detail::lexical_flag_map< \
-        std::extent< \
-            typename std::remove_reference<decltype(QUALI_STRINGIFY(x))>::type \
-        >::value, \
-        int \
-    >::value
+#define QUALI_EXPAND_FLAGS(x) quali::pp_detail::lexical_flag_map<int x>::value
 /**/
 
 /*********** QUALI_INTC expansion **************/
@@ -50,13 +44,7 @@ Distributed under the Boost Software License, Version 1.0.
 #define QUALI_BEGIN_INTC std::integral_constant<quali::flags, (
 #define QUALI_DELIMITER_INTC |
 #define QUALI_END_INTC )>
-#define QUALI_EXPAND_INTC(x) \
-    quali::pp_detail::lexical_flag_map< \
-        std::extent< \
-            typename std::remove_reference<decltype(QUALI_STRINGIFY(x))>::type \
-        >::value, \
-        int \
-    >::value
+#define QUALI_EXPAND_INTC(x) quali::pp_detail::lexical_intc_map<int x>::value
 
 /*********** boilerplate for macro overloads **************/
 

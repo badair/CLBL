@@ -13,19 +13,37 @@ Distributed under the Boost Software License, Version 1.0.
 namespace quali {
 
     namespace pp_detail {
-        template<std::size_t N, typename T = int>
+
+        template<typename T>
         struct lexical_flag_map {
             static_assert(sizeof(T) < 0,
-                "Invalid argument passed to QUALI macro. "\
-                "Valid arguments: 'const', 'volatile', '&', '&&' ");
+                "Invalid argument passed to QUALI_FLAGS macro. use one or more of "\
+                "the following, separated by commas: const, volatile, &, && ");
+
+            static constexpr quali::flags value = default_; 
         };
 
-        //mapping flags by length of string - a most convenient hack
-        template<> struct lexical_flag_map<1, int> { static constexpr auto value = default_; };
-        template<> struct lexical_flag_map<2, int> { static constexpr auto value = lref_;    };
-        template<> struct lexical_flag_map<3, int> { static constexpr auto value = rref_;    };
-        template<> struct lexical_flag_map<6, int> { static constexpr auto value = const_;   };
-        template<> struct lexical_flag_map<9, int> { static constexpr auto value = volatile_;};
+        template<> struct lexical_flag_map<int> { static constexpr quali::flags value = default_; };
+        template<> struct lexical_flag_map<int &> { static constexpr quali::flags value = lref_; };
+        template<> struct lexical_flag_map<int &&> { static constexpr quali::flags value = rref_; };
+        template<> struct lexical_flag_map<int const> { static constexpr quali::flags value = const_; };
+        template<> struct lexical_flag_map<int volatile> { static constexpr quali::flags value = volatile_; };
+
+        //lexical_intc_map is logically identical to lexical_flag_map. Only the error message differs.
+        template<typename T>
+        struct lexical_intc_map {
+            static_assert(sizeof(T) < 0,
+                "Invalid argument passed to QUALI_INTC macro. use one or more of "\
+                "the following, separated by commas: const, volatile, &, && ");
+
+            static constexpr quali::flags value = default_;
+        };
+
+        template<> struct lexical_intc_map<int> { static constexpr quali::flags value = default_; };
+        template<> struct lexical_intc_map<int &> { static constexpr quali::flags value = lref_; };
+        template<> struct lexical_intc_map<int &&> { static constexpr quali::flags value = rref_; };
+        template<> struct lexical_intc_map<int const> { static constexpr quali::flags value = const_; };
+        template<> struct lexical_intc_map<int volatile> { static constexpr quali::flags value = volatile_; };
     }
 }
 
