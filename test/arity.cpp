@@ -16,7 +16,7 @@ Distributed under the Boost Software License, Version 1.0.
 struct A {};
 
 struct B {
-    void operator()(A s) {}
+    void operator()(A) {}
 };
 
 struct C {
