@@ -93,7 +93,6 @@ CLBL provides an identical interface for all callable types. Onces a callable ty
 CLBL is not yet ready for primetime - some features are not fully implemented and/or tested; meanwhile, documentation is virtually nonexistent -- but we're getting there. For now, this readme is solely intended to guage interest and solicit feedback, rather than to encourage an audit of the code (it's not nearly ready for that!).
 
 You might be thinking, "why on Earth do we need another lambda library?" If so, I'd like to emphasize the fact that CLBL is, first and foremost, a metaprogramming toolkit. The callable wrapper aspect was simply a natural extension of this approach. I believe the convenience of packaging the type information inside of wrappers makes them highly attractive to C++ library writers.
->>>>>>> 8f45662c352bb5c685651b9c0eee787ad200afd0
 
 ## License
 Please see [LICENSE.md](LICENSE.md).
