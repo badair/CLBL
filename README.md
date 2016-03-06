@@ -72,9 +72,9 @@ Specifically, CLBL provides (*read: plans to provide*) the following advantages 
 6. detection of minimum and maximum arity to account for default parameters and overloads
 7. detection of C-style varargs
 8. optional disabling of argument slicing
-9. Testing callability with arbitrary argument types (i.e. You give us the arguments, we handle the SFINAE return `bool`)
+9. Testing callability with arbitrary argument types (i.e. You give us the arguments, we handle the SFINAE and return `bool`)
 10. argument types packaged into `std::tuple`
-11. `bind`-like semantics with `std::placeholders` - CLBL retains the bind signature, which ultimately enables invisible, seamless conversion from `bind` expressions to `std::function` objects
+11. `bind`-like semantics with `std::placeholders` - when performed on an unambiguous callable type, CLBL *retains the bind signature*, which ultimately enables invisible, seamless conversion from `bind` expressions to `std::function` objects
 12. Currently supporting for Clang 3.7 and later, GCC 5.2.1 and later
 13. A full range of PMF type manipulations - add/remove qualifiers, swap classes, build casts programmatically
 12. `std::invoke`-inspired wrapper semantics - a single function name is used to create CLBL wrappers (without type erasure), accepting the following as input:
