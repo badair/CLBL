@@ -6,6 +6,8 @@
 #include <CLBL/forward.hpp>
 #include <CLBL/type_traits.hpp>
 #include <CLBL/constraints.hpp>
+#include <CLBL/can_call_with.hpp>
+#include <CLBL/arity.hpp>
 #include <CLBL/dispatch/pmf.hpp>
 #include <CLBL/dispatch/function_ptr.hpp>
 #include <CLBL/dispatch/function_reference.hpp>
@@ -17,6 +19,7 @@
 #include <CLBL/wrapper/function_wrapper_base.hpp>
 #include <CLBL/wrapper/pmf_wrapper_base.hpp>
 #include <CLBL/wrapper/bound_pmf_wrapper_base.hpp>
+
 #include <CLBL/wrapper/function_object_wrapper_base.hpp>
 #include <CLBL/dispatch/dispatcher.hpp>
 

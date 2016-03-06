@@ -13,7 +13,7 @@ Distributed under the Boost Software License, Version 1.0.
 namespace clbl {
 
 namespace function_object_detail {
-    struct empty_base{};
+    struct empty_base {};
 }
 
 template<typename GeneralizedObject>

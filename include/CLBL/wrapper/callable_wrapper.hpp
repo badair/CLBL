@@ -20,6 +20,8 @@ public:
 
     using Base::Base;
 
+    using arity = clbl::arity<callable_wrapper>;
+
 #ifdef CLBL_GCC_5_REF_OVERLOAD_WORKAROUND
 
     //https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60943

@@ -14,18 +14,33 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-    template<typename Callable, typename... Args>
-    struct can_call_with
-    {
-        template<typename U>
-        static std::int8_t test(decltype(std::declval<U>()(std::declval<Args>()...))*);
+template<typename U, typename... Args>
+struct can_call_with {
 
-        template<typename>
-        static std::int16_t test(...);
+    template<typename T>
+    static std::int8_t test(typename std::remove_reference<decltype(std::declval<T>()(std::declval<Args>()...))>::type*);
 
-        static constexpr const bool value =
-            sizeof(test<Callable>(nullptr)) == sizeof(std::int8_t);
-    };
+    template<typename T>
+    static std::int16_t test(...);
+
+    static constexpr bool value = //true;
+        sizeof(decltype(can_call_with::test<U>(nullptr))) == sizeof(std::int8_t) ? (sizeof...(Args)) : 0;
+
+    static constexpr int arg_count = sizeof...(Args);
+};
+
+template<typename U>
+struct can_call_with<U, void> {
+
+    template<typename T>
+    static std::int8_t test(typename std::remove_reference<decltype(std::declval<T>()())>::type*);
+
+    template<typename T>
+    static std::int16_t test(...);
+
+    static constexpr bool value = sizeof(can_call_with::test<U>(nullptr)) == sizeof(std::int8_t);
+    static constexpr int arg_count = 0;
+};
 
 }
 
