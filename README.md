@@ -6,7 +6,7 @@
 
 <!--</a> <a target="_blank" href="http://melpon.org/wandbox/permlink/TlioDiz6yYNxZFnv">![Try it online][badge.wandbox]</a>-->
 
-Note: I will be renaming this project in the near future. Additionally, the current interface is rough around the edges and not fully adorned.
+Note: I will be renaming this project and its components in the near future. Additionally, the current interface is rough around the edges and not fully adorned.
 
 
 
