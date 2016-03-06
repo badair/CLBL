@@ -69,13 +69,21 @@ clbl_append_flag(CLBL_HAS_WWRITE_STRINGS             -Wwrite-strings)
 # Behavior when the package is found or not is customized at the
 # point where the package is required.
 ##############################################################################
-#find_package(Boost)
+
+find_package(Boost 1.59)
+if (Boost_FOUND)
+    include_directories(${Boost_INCLUDE_DIRS})
+else()
+    message(WARNING
+        "The Boost library headers were not found; targets depending "
+        "on Boost won't be available.")
+endif()
+
 find_package(Doxygen)
 #find_package(Meta)
-#find_package(MPL11)
 find_package(PythonInterp 2.7)
 find_package(Lcov)
-#find_package(Ruby 2.1)
+find_package(Ruby 2.1)
 
 if (CLBL_ENABLE_MEMCHECK)
     find_package(Valgrind REQUIRED)
@@ -160,10 +168,9 @@ endif()
 ##############################################################################
 # Setup subdirectories
 ##############################################################################
-#add_subdirectory(benchmark)
+add_subdirectory(benchmark)
 add_subdirectory(doc)
 add_subdirectory(example)
-#add_subdirectory(experimental)
 add_subdirectory(test)
 
 

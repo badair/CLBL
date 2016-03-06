@@ -46,7 +46,7 @@ int main() {
 
         CLBL_STATIC_ASSERT(
             std::is_same<dispatch_type,
-            clbl::function_object<quali::generalized_object<decltype(x)>>>::value
+            clbl::function_object<clbl::generalized_object<decltype(x)>>>::value
         );
     }
     {
@@ -55,7 +55,7 @@ int main() {
 
         CLBL_STATIC_ASSERT(
             std::is_same<dispatch_type,
-            clbl::function_object<quali::generalized_object<decltype(std::ref(x))>>>::value
+            clbl::function_object<clbl::generalized_object<decltype(std::ref(x))>>>::value
             );
     }
     {

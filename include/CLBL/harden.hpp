@@ -28,18 +28,17 @@ struct harden_t {
     using is_auto = std::is_same<typename dummy_mf::return_type, auto_>;
     static constexpr const auto requested = dummy_mf::q_flags;
 
-    //callable_wrapper<function_object_wrapper_base<cv_of<T>::value, Generalized>>
-    //callable_wrapper<ambiguous_function_object_wrapper_base<cv_of<T>::value, Generalized>>
     template<typename Callable>
-    inline constexpr auto
+    inline constexpr decltype(auto)
     operator()(Callable&& c) const {
         
-        using  present = std::integral_constant<quali::flags,
-            quali::cv_of<Callable>::value | (quali::ref_of<Callable>::value & dummy_mf::ref_flags)
+        using present = std::integral_constant<quali::flags,
+            quali::cv_of<Callable>::value 
+            | quali::collapse<quali::ref_of<Callable>::value, dummy_mf::ref_flags>::value
         >;
 
         using resolved_flags = std::integral_constant<quali::flags,
-            quali::collapse_reference<
+            quali::collapse<
                 present::value | quali::remove_reference<requested>::value,
                 quali::remove_cv<requested>::value
             >::value
@@ -47,13 +46,11 @@ struct harden_t {
 
         using C = no_ref<Callable>;
         using underlying_type = no_ref<typename C::underlying_type>;
+        using hardened_callable = typename C::template add_qualifiers<resolved_flags::value>;
 
-        using actual_return_type = 
-        std::conditional_t<
-            is_auto::value,
-            decltype(dummy_mf::unevaluated_invoke_with_args_declval(
-                quali::cast<resolved_flags::value>(static_cast<Callable&&>(c))
-            )),
+        using actual_return_type = std::conditional_t<
+            is_auto{},
+            typename dummy_mf::template result_of_invoke_with_args<hardened_callable>,
             typename dummy_mf::return_type
         >;
 
@@ -66,32 +63,12 @@ struct harden_t {
         using generalized_type = typename C::generalized_object;
         using data_type = typename generalized_type::original_type;
 
-        return internal::callable_wrapper<
-            internal::function_object_wrapper_base<
-                requested | present::value,
-                quali::qualified_type<
-                    quali::generalized_object<
-                        quali::qualified_type<data_type, requested | present::value>
-                    >,
-                    requested | present::value
-                >,
-                requested_pmf_type
-            >
-        >::transform(static_cast<Callable&&>(c));
+        using result_type = typename dummy_mf::template prepend_flags_and_unpack_args_to_template<
+             hardened_callable::template apply_signature,
+             resolved_flags::value
+         >;
 
-        /*
-        return internal::callable_wrapper<
-            internal::function_object_wrapper_base<
-                requested | present::value,
-                qualified_type<
-                    quali::generalized_object<
-                        qualified_type<data_type, requested | present::value>,
-                    >,
-                    requested | present::value
-                >,
-                requested_pmf_type
-            >
-        >{c.data};*/
+        return result_type{static_cast<Callable&&>(c).data};
     }
 };
 

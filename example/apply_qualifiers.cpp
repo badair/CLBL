@@ -12,7 +12,7 @@ Distributed under the Boost Software License, Version 1.0.
 using namespace quali;
 
 int main() {
-	using cv_int = qualified_type<int, const_ | volatile_>;
+	using cv_int = qualify<int, const_ | volatile_>;
 	static_assert(std::is_same<cv_int, const volatile int>::value, "");
 	return 0;
 }
