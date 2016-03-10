@@ -56,28 +56,60 @@ public:
 
 protected:
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    invoke(Args&&... args) const {
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    invoke(Args&&... args) const ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
         return base::data(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    move_invoke(Args&&... args) const {
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    invoke_c(Args&&... args) const ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
         return base::data(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    invoke(Args&&... args) const volatile {
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    invoke_v(Args&&... args) const volatile ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
         return base::data(static_cast<Args&&>(args)...);
     }
 
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    invoke_cv(Args&&... args) const volatile ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
+        return   base::data(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    move_invoke(Args&&... args) const ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
+        return   base::data(static_cast<Args&&>(args)...);
+    }
+
     template<typename... Args>
-    inline constexpr decltype(auto)
-    move_invoke(Args&&... args) const volatile {
+    inline constexpr auto
+    move_invoke_c(Args&&... args) const ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
+        return   base::data(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    move_invoke_v(Args&&... args) const volatile ->
+        decltype(base::data(static_cast<Args&&>(args)...)) {
         return base::data(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename... Args>
+    inline constexpr auto
+    move_invoke_cv(Args&&... args) const volatile -> 
+        decltype(base::data(static_cast<Args&&>(args)...)) {
+        return   base::data(static_cast<Args&&>(args)...);
     }
 };
 

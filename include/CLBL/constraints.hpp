@@ -84,7 +84,9 @@ template<
     typename T,
     CLBL_REQUIRES_(
         std::is_convertible<T, Target>::value
+        || std::is_convertible<typename std::remove_reference<T>::type, typename std::remove_reference<Target>::type>::value
         || std::is_convertible<decltype(*std::declval<DefaultDereferenceable<T>>()), Target>::value
+
     )
 >
 using GenerallyConvertibleObject = T;

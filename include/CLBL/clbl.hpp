@@ -25,6 +25,15 @@ Distributed under the Boost Software License, Version 1.0.
 #define CLBL_CXX14_CONSTEXPR
 #endif
 
+#define CLBL_FORCE_SFINAE(type_alias, type_actual) \
+    bool force_sfinae = true, typename type_alias = typename std::enable_if<force_sfinae, type_actual>::type
+
+#ifdef QUALI_MACROS_HPP
+#define CLBL_LEAVE_QUALI_MACROS_DEFINED
+#endif
+
+#include <quali/quali_macros.hpp>
+
 #include <CLBL/tags.hpp>
 #include <quali/quali.hpp>
 #include <CLBL/can_dereference.hpp>
@@ -40,4 +49,8 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/harden.hpp>
 #include <CLBL/forward.hpp>
 
+#ifndef CLBL_LEAVE_QUALI_MACROS_DEFINED
+#include <quali/quali_macros_undef.hpp>
+#endif
+    
 #endif

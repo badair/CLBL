@@ -33,14 +33,14 @@ struct harden_t {
     operator()(Callable&& c) const {
         
         using present = std::integral_constant<quali::flags,
-            quali::cv_of<Callable>::value 
-            | quali::collapse<quali::ref_of<Callable>::value, dummy_mf::ref_flags>::value
+            quali::cv_of<no_ref<Callable>>{} 
+            | quali::ref_of<Callable>{}
         >;
 
         using resolved_flags = std::integral_constant<quali::flags,
             quali::collapse<
-                present::value | quali::remove_reference<requested>::value,
-                quali::remove_cv<requested>::value
+                quali::remove_cv<requested>::value,
+                present::value | quali::remove_reference<requested>::value
             >::value
         >;
 
@@ -57,13 +57,11 @@ struct harden_t {
         using actual_dummy_mf = pmf<typename dummy_mf::template
                 apply_return<actual_return_type> >;
 
-        using requested_pmf_type = typename actual_dummy_mf::template
-                apply_class<underlying_type>;
+        using requested_pmf_type = pmf<typename actual_dummy_mf::template
+                apply_class<underlying_type>
+        >;
 
-        using generalized_type = typename C::generalized_object;
-        using data_type = typename generalized_type::original_type;
-
-        using result_type = typename dummy_mf::template prepend_flags_and_unpack_args_to_template<
+        using result_type = typename requested_pmf_type::template prepend_flags_and_unpack_args_to_template<
              hardened_callable::template apply_signature,
              resolved_flags::value
          >;

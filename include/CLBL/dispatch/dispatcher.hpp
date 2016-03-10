@@ -86,7 +86,7 @@ struct dispatcher<pmf<U>, ForwardingReference> {
     operator()(pmf_type p, GenerallyConvertibleObject<class_type, Obj&&> o) const {
 
         return callable_wrapper<
-            bound_pmf_wrapper_base<clbl::generalized_object<no_ref<Obj>>, dispatch_info>
+            bound_pmf_wrapper_base<clbl::generalized_object<Obj&&>, dispatch_info>
         >{{{static_cast<Obj&&>(o)}, p}};
     }
 };

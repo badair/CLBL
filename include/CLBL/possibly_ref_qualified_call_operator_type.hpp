@@ -34,6 +34,9 @@ namespace clbl {
             template<typename U>
             static std::int8_t test(decltype(static_cast<normal_pmf_cast>(&U::operator())));
 
+            template<typename U>
+            static std::int8_t test(...);
+
             static constexpr const bool is_ref_qualified =
                 sizeof(decltype(possibly_ref_qualified_call_operator::test<unqualified<T>>(nullptr))) 
                     == sizeof(std::int16_t);

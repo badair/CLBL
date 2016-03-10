@@ -108,7 +108,7 @@ int main() {
     }
     {
         auto lambda_wrapper = fwrap([](int& i) {++i;});
-        static_assert(std::is_same<decltype(lambda_wrapper)::type, void(int&)>::value, "");
+        static_assert(std::is_same<decltype(lambda_wrapper)::function_type, void(int&)>::value, "");
         int i = 0;
         lambda_wrapper(i);
         assert(i == 1);
@@ -122,7 +122,7 @@ int main() {
     }
     {
         auto lambda_wrapper = fwrap([](int&& i) {return i + 1;});
-        static_assert(std::is_same<decltype(lambda_wrapper)::type, int(int&&)>::value, "");
+        static_assert(std::is_same<decltype(lambda_wrapper)::function_type, int(int&&)>::value, "");
 
         auto stdfunction_lambda_wrapper = convert_to<std::function>(lambda_wrapper);
         static_assert(std::is_same<decltype(stdfunction_lambda_wrapper),

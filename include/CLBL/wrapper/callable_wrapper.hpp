@@ -34,58 +34,73 @@ public:
 
     #define CLBL_LVALUE_QUALIFIER &
 
-    template<typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    operator()(Args&&... args) && {
-        return Base::move_invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(&&)), typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    operator()(Args&&... args) &&
+        -> decltype(this ->template move_invoke<Flags>(static_cast<Args&&>(args)...)){
+        return Base::template move_invoke<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    operator()(Args&&... args) const && {
-        return Base::move_invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(const, &&)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) const &&
+        -> decltype(this->template move_invoke_c<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template move_invoke_c<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-        operator()(Args&&... args) volatile && {
-        return Base::move_invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(volatile, &&)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) volatile &&
+        -> decltype(this->template move_invoke_v<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template move_invoke_v<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    operator()(Args&&... args) const volatile && {
-        return Base::move_invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(const, volatile, &&)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) const volatile &&
+        -> decltype(this->template move_invoke_cv<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template move_invoke_cv<Flags>(static_cast<Args&&>(args)...);
     }
 
 #endif
 
-    template<typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    operator()(Args&&... args) CLBL_LVALUE_QUALIFIER {
-        return Base::invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(QUALI_DEFAULT)), typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    operator()(Args&&... args) CLBL_LVALUE_QUALIFIER
+        -> decltype(this->template invoke<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template invoke<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    operator()(Args&&... args) const CLBL_LVALUE_QUALIFIER {
-        return Base::invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(const)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) const CLBL_LVALUE_QUALIFIER 
+        -> decltype(this->template invoke_c<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template invoke_c<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-        operator()(Args&&... args) volatile CLBL_LVALUE_QUALIFIER {
-        return Base::invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(volatile)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) volatile CLBL_LVALUE_QUALIFIER
+        -> decltype(this->template invoke_v<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template invoke_v<Flags>(static_cast<Args&&>(args)...);
     }
 
-    template<typename... Args>
-    inline constexpr decltype(auto)
-    operator()(Args&&... args) const volatile CLBL_LVALUE_QUALIFIER {
-        return Base::invoke(static_cast<Args&&>(args)...);
+    template<CLBL_FORCE_SFINAE(Flags, QUALI_INTC(const, volatile)), typename... Args>
+    inline constexpr auto
+    operator()(Args&&... args) const volatile CLBL_LVALUE_QUALIFIER
+        -> decltype(this->template invoke_cv<Flags>(static_cast<Args&&>(args)...)) {
+        return Base::template invoke_cv<Flags>(static_cast<Args&&>(args)...);
     }
 
 #undef CLBL_LVALUE_QUALIFIER
     
+    template<typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    can_call(Args&&...) //CLBL_LVALUE_QUALIFIER
+        -> can_call_with<decltype(*this), Args&&...> {
+        return {};
+    }
+
     //todo forwarding
     template<typename... Args>
     decltype(auto)

@@ -69,36 +69,64 @@ public:
     using clbl_tag = pmf_tag;
     using forwarding_glue =
          typename Dispatch::template prepend_arg_to_forward_function<underlying_type>;
-    using type = typename Dispatch::template prepend_arg_to_function<underlying_type>;
+    using function_type = typename Dispatch::template prepend_arg_to_function<underlying_type>;
 
 protected:
 
-    template<typename Obj, typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const {
-        return (clbl::generalize(static_cast<Obj&&>(o))
-            .*base::data)(static_cast<Args&&>(args)...);
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const ->
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
     }
 
-    template<typename Obj, typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const {
-        return (clbl::generalize(static_cast<Obj&&>(o))
-            .*base::data)(static_cast<Args&&>(args)...);
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    invoke_c(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const ->
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    invoke_v(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile -> 
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)){
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    invoke_cv(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile -> 
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)){
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const -> 
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
     }
     
-    template<typename Obj, typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
-        return (clbl::generalize(static_cast<Obj&&>(o))
-            .*base::data)(static_cast<Args&&>(args)...);
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    move_invoke_c(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const -> 
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
     }
 
-    template<typename Obj, typename... Args>
-    inline CLBL_CXX14_CONSTEXPR decltype(auto)
-    move_invoke(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile {
-        return (clbl::generalize(static_cast<Obj&&>(o))
-            .*base::data)(static_cast<Args&&>(args)...);
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    move_invoke_v(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile ->
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
+    }
+
+    template<typename IgnoredFlags, typename Obj, typename... Args>
+    inline CLBL_CXX14_CONSTEXPR auto
+    move_invoke_cv(GenerallyConvertibleObject<underlying_type, Obj&&> o, Args&&... args) const volatile ->
+        decltype((clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...)) {
+        return   (clbl::generalize(static_cast<Obj&&>(o)).*base::data)(static_cast<Args&&>(args)...);
     }
 };
 

@@ -14,33 +14,48 @@ Distributed under the Boost Software License, Version 1.0.
 
 namespace clbl {
 
-template<typename U, typename... Args>
-struct can_call_with {
+namespace detail {
+    template<typename U, typename... Args>
+    struct can_call_with_t {
 
-    template<typename T>
-    static std::int8_t test(typename std::remove_reference<decltype(std::declval<T>()(std::declval<Args>()...))>::type*);
+        struct substitution_failed{};
 
-    template<typename T>
-    static std::int16_t test(...);
+        template<typename T>
+        static decltype(std::declval<T>()(std::declval<Args>()...)) test(std::nullptr_t);
 
-    static constexpr bool value = //true;
-        sizeof(decltype(can_call_with::test<U>(nullptr))) == sizeof(std::int8_t) ? (sizeof...(Args)) : 0;
+        template<typename T>
+        static substitution_failed test(...);
 
-    static constexpr int arg_count = sizeof...(Args);
-};
+        static constexpr bool value = !std::is_same<
+            substitution_failed,
+            decltype(can_call_with_t::test<U>(nullptr))
+        >{};
 
-template<typename U>
-struct can_call_with<U, void> {
+        static constexpr int arg_count = sizeof...(Args);
+    };
 
-    template<typename T>
-    static std::int8_t test(typename std::remove_reference<decltype(std::declval<T>()())>::type*);
+    template<typename U>
+    struct can_call_with_t<U, void> {
 
-    template<typename T>
-    static std::int16_t test(...);
+        template<typename T>
+        static decltype(std::declval<T&&>()()) test(std::nullptr_t);
 
-    static constexpr bool value = sizeof(can_call_with::test<U>(nullptr)) == sizeof(std::int8_t);
-    static constexpr int arg_count = 0;
-};
+        struct substitution_failed {};
+
+        template<typename T>
+        static substitution_failed test(...);
+
+        static constexpr bool value = !std::is_same<
+            substitution_failed,
+            decltype(can_call_with_t::test<U>(nullptr))
+        >{};
+
+        static constexpr int arg_count = 0;
+    };
+}
+
+template<typename T, typename... Args>
+using can_call_with = std::integral_constant<bool, detail::can_call_with_t<T, Args...>::value>;
 
 }
 

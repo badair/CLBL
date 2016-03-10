@@ -22,11 +22,11 @@ namespace clbl {
     template<
         typename FunctionType,
         typename Callable, 
-    	CLBL_REQUIRES_(is_clbl<no_ref<Callable> >::value)
+    	CLBL_REQUIRES_(is_clbl<no_ref<Callable>>::value)
     >
     static inline constexpr auto
     emulates(Callable&&) {
-        return std::is_same<typename no_ref<Callable>::type, FunctionType>::value;
+        return std::is_same<typename no_ref<Callable>::function_type, FunctionType>::value;
     }
 
     template<

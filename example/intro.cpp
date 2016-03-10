@@ -106,14 +106,14 @@ int main() {
     So far, we haven't seen anything you can't do with a good old-fashioned lambda. This is
     where things start getting interesting (I hope).
 
-    Every CLBL callable type (i.e. every type that clbl::fwrap can return) defines a "type"
+    Every CLBL callable type (i.e. every type that clbl::fwrap can return) defines a "function_type"
     alias, that tells you the emulated function type of the callable object. Since foo's
     operator() is overloaded, there is no emulated function type - the wrapper just forwards
     whatever it gets and lets the compiler handle overload resolution. We can check for this
     programmatically:
     */
 
-    static_assert(std::is_same<decltype(callable)::type, clbl::ambiguous_type>::value, "");
+    static_assert(std::is_same<decltype(callable)::function_type, clbl::ambiguous_type>::value, "");
 
     //the same idea, in fewer keystrokes:
     static_assert(decltype(callable)::is_ambiguous, "");

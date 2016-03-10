@@ -17,12 +17,6 @@ Distributed under the Boost Software License, Version 1.0.
 #include <CLBL/type_traits.hpp>
 #include <CLBL/has_normal_call_operator.hpp>
 
-#ifdef QUALI_MACROS_HPP
-#define CLBL_LEAVE_QUALI_MACROS_DEFINED
-#endif
-
-#include <quali/quali_macros.hpp>
-
 #define CLBL_APPLY_PMF_QUALIFIERS_STRUCT CLBL_PP_CAT(apply_pmf_qualifiers_, __LINE__)
 
 //todo - get rid of unused template aliases in clbl::pmf - most of it isn't used, 
@@ -80,7 +74,7 @@ struct pmf<Return(T::*)(Args...) QUAL> {                                        
     using constructor_type = type;                                                   \
     using decay_type = Return(T::*)(Args...);                                        \
     using decay_pmf = pmf<decay_type>;                                               \
-    using decay_to_function = Return(Args...);                                       \
+    using function_type = Return(Args...);                                           \
     using abominable_type = Return(Args...) QUAL;                                    \
     using forwarding_glue = Return(forward<Args>...);                                \
     using class_type = T;                                                            \
@@ -213,9 +207,5 @@ struct pmf < pmf<T> > : pmf<T> {
 #undef CLBL_APPLY_PMF_QUAL
 #undef CLBL_SPECIALIZE_PMF_DETAIL
 #undef CLBL_SPECIALIZE_PMF
-
-#ifndef CLBL_LEAVE_QUALI_MACROS_DEFINED
-#include <quali/quali_macros_undef.hpp>
-#endif
 
 #endif

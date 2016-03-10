@@ -45,8 +45,8 @@ namespace arity_detail {
     struct max_args_t<U, std::index_sequence<0>> {
         static constexpr bool value = true;
         static constexpr int arg_count =
-            can_call_with<U, any_arg<1>>::value ? 1 : (
-                can_call_with<U, void>::value ? 0 : -1
+            detail::can_call_with_t<U, any_arg<1>>::value ? 1 : (
+                detail::can_call_with_t<U, void>::value ? 0 : -1
             );
     };
 
@@ -54,7 +54,7 @@ namespace arity_detail {
     struct max_args_t<U, std::index_sequence<I...>> {
 
         using result_type = disjunction<
-            can_call_with<U, any_arg<I>...>,
+            detail::can_call_with_t<U, any_arg<I>...>,
             max_args_t<U, std::make_index_sequence<sizeof...(I)-1> >
         >;
 
@@ -83,7 +83,7 @@ namespace arity_detail {
         >;
 
         using result_type = disjunction<
-            can_call_with<U, any_arg<I>...>,
+            detail::can_call_with_t<U, any_arg<I>...>,
             min_args_t<U, Max, next>
         >;
 
@@ -95,7 +95,7 @@ namespace arity_detail {
     struct min_args_t<U, Max, void> {
 
         using result_type = disjunction<
-            can_call_with<U, void>,
+            detail::can_call_with_t<U, void>,
             min_args_t<U, Max, std::make_index_sequence<1>>
         >;
 

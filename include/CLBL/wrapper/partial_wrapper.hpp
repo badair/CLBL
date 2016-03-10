@@ -73,7 +73,7 @@ struct partial_wrapper<std::index_sequence<n...>, Base, X...>
         arg_types
     >::type;
 
-    using type = typename unpack_as_function<
+    using function_type = typename unpack_as_function<
         typename Base::return_type,
         arg_types
     >::type;

@@ -19,9 +19,9 @@ template<typename T>
 using dispatch = disjunction<
     function_reference<T>,
     function_ptr<no_ref<T>>,
-    function_object<clbl::generalized_object<no_ref<T>>>,
+    function_object<clbl::generalized_object<T>>,
     pmf<no_ref<T>>,
-    wrapper_object<clbl::generalized_object<no_ref<T>>>
+    wrapper_object<clbl::generalized_object<T>>
 >;
 
 template<typename T>

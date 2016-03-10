@@ -14,9 +14,12 @@ Distributed under the Boost Software License, Version 1.0.
 namespace quali {
 
     template<flags QFlags, typename Object>
-    inline constexpr decltype(auto)
+    inline constexpr quali::qualify<
+        typename std::remove_reference<Object>::type,
+        quali::guarantee_reference<QFlags>::value
+    >
     cast(Object&& o) {
-        return static_cast< quali::qualify<
+        return static_cast<quali::qualify<
             typename std::remove_reference<Object>::type,
             quali::guarantee_reference<QFlags>::value
         >>(o);
