@@ -288,6 +288,7 @@ struct function_object_wrapper_base
     using underlying_type = quali::qualify<general_type, q_flags>;
     static constexpr const bool is_ambiguous = false;
 
+    /*
     template<quali::flags Ignored, bool force_sfinae = true, typename T = typename std::enable_if<
         force_sfinae && has_normal_call_operator<general_type>::value, no_ref<underlying_type>
     >::type>
@@ -309,7 +310,7 @@ struct function_object_wrapper_base
                 quali::collapse<this_t::q_flags, Flags>::value
             >
         >(&no_ref<underlying_type>::operator());
-    }
+    }*/
 
 private:
 
@@ -411,56 +412,56 @@ public:
      inline CLBL_CXX14_CONSTEXPR auto
     invoke(Args&&... args) ->
         decltype(data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<q_flags>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline CLBL_CXX14_CONSTEXPR auto
     move_invoke(Args&&... args) ->
         decltype(data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<quali::force_rvalue_reference<Flags{} | q_flags>::value>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline constexpr auto
     invoke_c(Args&&... args) const -> 
         decltype(data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<Flags{} | q_flags>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline constexpr auto
     move_invoke_c(Args&&... args) const -> 
         decltype(data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<quali::force_rvalue_reference<Flags{} | q_flags>::value>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline CLBL_CXX14_CONSTEXPR auto
     invoke_v(Args&&... args) volatile ->
         decltype(data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<Flags{} | q_flags>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return  data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline CLBL_CXX14_CONSTEXPR auto
     move_invoke_v(Args&&... args) volatile -> 
         decltype(data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<quali::force_rvalue_reference<Flags{} | q_flags>::value>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return  data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline constexpr auto
     invoke_cv(Args&&... args) const volatile -> 
         decltype(data.template get<q_flags | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return  (data.template get<Flags{} | q_flags>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return  data.template get<Flags{} | q_flags>()(static_cast<Args&&>(args)...);
     }
 
     template<typename Flags, typename... Args>
     inline constexpr auto
     move_invoke_cv(Args&&... args) const volatile ->
         decltype(data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...)) {
-        return   (data.template get<quali::force_rvalue_reference<Flags{} | q_flags>::value>().*pmf_cast<Flags{}>())(static_cast<Args&&>(args)...);
+        return data.template get<quali::remove_reference<q_flags>{} | Flags{}>()(static_cast<Args&&>(args)...);
     }
 
 
