@@ -6,4 +6,4 @@
 
 <!--</a> <a target="_blank" href="http://melpon.org/wandbox/permlink/TlioDiz6yYNxZFnv">![Try it online][badge.wandbox]</a>-->
 
-Under construction
+This project has been distilled into a much more sensible project called [CallableTraits](https://github.com/badair/callable_traits), and is kept here for historical purposes.
